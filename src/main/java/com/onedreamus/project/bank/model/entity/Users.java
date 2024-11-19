@@ -5,14 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Getter
@@ -20,7 +18,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class Users extends BaseEntity{
 
     //TODO: ERD 설계 및 필드 값 수정 필요
 
@@ -33,13 +31,12 @@ public class User {
     private String password;
     private String role;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    public void encodePassword(BCryptPasswordEncoder passwordEncoder){
+        this.password = passwordEncoder.encode(this.password);
+    }
 
-    public static User from(JoinDto dto) {
-        return User.builder()
+    public static Users from(JoinDto dto) {
+        return Users.builder()
             .name(dto.getName())
             .email(dto.getEmail())
             .password(dto.getPassword())

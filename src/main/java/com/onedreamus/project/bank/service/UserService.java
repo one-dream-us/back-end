@@ -2,11 +2,13 @@ package com.onedreamus.project.bank.service;
 
 import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.JoinDto;
-import com.onedreamus.project.bank.model.entity.User;
+import com.onedreamus.project.bank.model.dto.LoginDto;
+import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,15 +17,24 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * 회원가입
+     */
     public void join(JoinDto joinDto) {
-        if (userRepository.existsByEmail(joinDto.getEmail())) {
+
+        // 이메일 중복 확인
+        boolean isEmailRegistered = userRepository.existsByEmail(joinDto.getEmail());
+        if (isEmailRegistered) {
             throw new UserException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        User newUser = User.from(joinDto);
-
-        userRepository.save(newUser);
+        // 새로운 유저 생성
+        Users newUsers = Users.from(joinDto);
+        newUsers.encodePassword(bCryptPasswordEncoder);
+        userRepository.save(newUsers);
     }
+
 
 }
