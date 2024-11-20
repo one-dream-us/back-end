@@ -6,6 +6,10 @@ import com.onedreamus.project.global.exception.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * filter 계층에서는 @RestControllerAdvice 어노테이션이 적용되지 않음
+ * 별도의 filter 게층에 대한 exception 처리 로직
+ */
 public class FilterException {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

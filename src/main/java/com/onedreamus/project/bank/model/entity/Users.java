@@ -40,7 +40,7 @@ public class Users extends BaseEntity{
             .name(dto.getName())
             .email(dto.getEmail())
             .password(dto.getPassword())
-            .role("USER")
+            .role("ROLE_USER")
             .build();
     }
 }

@@ -36,7 +36,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER = new AntPathRequestMatcher(
         DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD);
 
-    private final Long JWT_EXPIRE_TIME = 60 * 60 * 10L;
+    private final Long JWT_EXPIRE_TIME = 6000 * 10 * 1000000L;
 
     private final ObjectMapper objectMapper;
     private final JWTUtil jwtUtil;
@@ -67,8 +67,8 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         String email = loginDto.getEmail();
         String password = loginDto.getPassword();
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-            email, password);
+        UsernamePasswordAuthenticationToken authenticationToken =
+            new UsernamePasswordAuthenticationToken(email, password);
 
         return authenticationManager.authenticate(authenticationToken);
     }
@@ -78,11 +78,8 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
      * - JWT 발급
      */
     @Override
-    protected void successfulAuthentication(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain chain,
-        Authentication authResult) {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        FilterChain chain, Authentication authResult) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
 

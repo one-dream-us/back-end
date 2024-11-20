@@ -1,6 +1,7 @@
 package com.onedreamus.project.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,18 +25,18 @@ public class SecurityConfig {
     private final AuthenticationConfiguration configuration;
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+        throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
 
         http
             .csrf(AbstractHttpConfigurer::disable) // csrf disable
@@ -44,13 +45,17 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/user/join", "/user/test").permitAll()
+                .requestMatchers("/login", "/user/join").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/user/test").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가
         http
-                .addFilterAt(new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)), UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt( // LoginFilter 등록
+                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
+                UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http

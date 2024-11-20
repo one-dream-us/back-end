@@ -17,3 +17,7 @@ spring:
 
   jwt:
     secret-key: UOOvqsvHKLKOy2vYkDjuJVfLqpwcJm1ds34DOiSI5nE=
+
+#logging:
+#  level:
+#   root: TRACE
