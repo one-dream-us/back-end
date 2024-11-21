@@ -1,6 +1,8 @@
 package com.onedreamus.project.global.config.jwt;
 
+import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
+import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.exception.FilterException;
@@ -28,9 +30,8 @@ public class JWTFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
 
         String authorization = request.getHeader("Authorization");
-        log.info("<<< JWTFilter >>>");
         // Header에 토큰이 없는 경우
-        if (authorization == null || !authorization.startsWith("Bearer")){
+        if (authorization == null || !authorization.startsWith("Bearer")) {
             log.info("token null");
             filterChain.doFilter(request, response);
             FilterException.throwException(response, ErrorCode.TOKEN_NULL);
@@ -50,16 +51,32 @@ public class JWTFilter extends OncePerRequestFilter {
         String name = jwtUtil.getUsername(token);
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
+        boolean isSocialLogin = jwtUtil.isSocialLogin(token);
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
-            .name(name)
-            .password("temppassword")
-            .email(email)
-            .role(role)
-            .build());
+        Authentication authentication = null;
+        if (isSocialLogin) {
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
-            null, customUserDetails.getAuthorities());
+            CustomOAuth2User customOAuth2User =
+                new CustomOAuth2User(UserDto.builder()
+                    .name(name)
+                    .role(role)
+                    .email(email)
+                    .build());
+
+            authentication =
+                new UsernamePasswordAuthenticationToken(
+                    customOAuth2User, null, customOAuth2User.getAuthorities());
+        } else {
+            CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
+                .name(name)
+                .password("temppassword")
+                .email(email)
+                .role(role)
+                .build());
+
+            authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
+                null, customUserDetails.getAuthorities());
+        }
 
         // 임시 session 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);

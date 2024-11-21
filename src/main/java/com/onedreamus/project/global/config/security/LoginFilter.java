@@ -92,7 +92,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, email, role, JWT_EXPIRE_TIME);
+        String token = jwtUtil.createJwt(username, email, role, JWT_EXPIRE_TIME, false);
         response.addHeader("Authorization", "Bearer " + token);
 
         log.info("Login Success - username: {} / email: {}", username, email);

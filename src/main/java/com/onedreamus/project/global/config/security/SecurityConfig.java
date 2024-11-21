@@ -1,8 +1,10 @@
 package com.onedreamus.project.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onedreamus.project.bank.service.CustomOAuth2UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
+import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,6 +32,8 @@ public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
     private final AuthenticationConfiguration configuration;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -45,13 +50,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // cors 설정
-        //TODO: 추후 cors 허가 url 수정 필요 - 현재는 임시
         http
             .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
                 @Override
                 public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
+                    //TODO: 추후 cors 허가 url 수정 필요 - 현재는 임시
                     corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
                     corsConfiguration.setAllowedMethods(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
@@ -68,6 +73,14 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable) // csrf disable
             .formLogin(AbstractHttpConfigurer::disable) // form 로그인 disable
             .httpBasic(AbstractHttpConfigurer::disable); // http basic 인증 방식 disable
+
+        // oauth2
+        http
+            .oauth2Login((oauth2) -> oauth2
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                    .userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler) // login 성공 시
+            );
 
         http
             .authorizeHttpRequests((auth) -> auth
