@@ -9,9 +9,12 @@ import com.onedreamus.project.global.exception.FilterException;
 import com.onedreamus.project.global.exception.LoginException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,14 +30,35 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
-        // Header에 토큰이 없는 경우
-        if (authorization == null || !authorization.startsWith("Bearer")) {
-            log.info("token null");
+        // 기존 Header에서 Authorization 가져오는 방법 주석 처리 (Header -> Cookie로 변경)
+//        String authorization = request.getHeader("Authorization");
+//        // Header에 토큰이 없는 경우
+//        if (authorization == null || !authorization.startsWith("Bearer")) {
+//            log.info("token null");
+//            filterChain.doFilter(request, response);
+//            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
+//            return;
+//        }
+
+
+        String path = request.getServletPath();
+        log.info("path -> {}", path);
+
+        String authorization = null;
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            log.info("Cookie name : {}", cookie.getName());
+            if (cookie.getName().equals("Authorization")) {
+
+                authorization = cookie.getValue();
+            }
+        }
+
+        if (authorization == null) {
+            logger.info("token null");
             filterChain.doFilter(request, response);
-            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
             return;
         }
 
@@ -57,25 +81,25 @@ public class JWTFilter extends OncePerRequestFilter {
         if (isSocialLogin) {
 
             CustomOAuth2User customOAuth2User =
-                new CustomOAuth2User(UserDto.builder()
-                    .name(name)
-                    .role(role)
-                    .email(email)
-                    .build());
+                    new CustomOAuth2User(UserDto.builder()
+                            .name(name)
+                            .role(role)
+                            .email(email)
+                            .build());
 
             authentication =
-                new UsernamePasswordAuthenticationToken(
-                    customOAuth2User, null, customOAuth2User.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(
+                            customOAuth2User, null, customOAuth2User.getAuthorities());
         } else {
             CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
-                .name(name)
-                .password("temppassword")
-                .email(email)
-                .role(role)
-                .build());
+                    .name(name)
+                    .password("temppassword")
+                    .email(email)
+                    .role(role)
+                    .build());
 
             authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
-                null, customUserDetails.getAuthorities());
+                    null, customUserDetails.getAuthorities());
         }
 
         // 임시 session 저장
@@ -83,5 +107,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
         log.info("token filter success, name: {}, email: {}, role: {}", name, email, role);
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        log.info("path: {} -> JWTFilter 제외", path);
+        return path.startsWith("/oauth2");
     }
 }

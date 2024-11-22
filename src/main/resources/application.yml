@@ -20,7 +20,7 @@ spring:
       client:
         provider:
           kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            authorization-uri: https://kauth.kakao.com/oauth/authorize # 인가 코드 받기 URL
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
@@ -29,7 +29,7 @@ spring:
             client-id: 6f5f09f8738f0778bb10a78e88cdd392
             client-server: # seucurity id
             client-authentication-method: client_secret_post
-            redirect-uri: http://localhost:8080/login/oauth/code/kakao
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-name: kakao
             scope:

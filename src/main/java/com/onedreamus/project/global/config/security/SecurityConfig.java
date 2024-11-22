@@ -6,14 +6,12 @@ import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -84,17 +82,17 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/user/join").permitAll()
+                .requestMatchers("/login", "/user/join", "/oauth2/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/user/test").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가
         http
-            .addFilterAt( // LoginFilter 등록
-                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
-                UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class); // JWTFilter 등록
+//            .addFilterAt( // LoginFilter 등록
+//                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
+//                UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http
