@@ -1,5 +1,6 @@
 package com.onedreamus.project.bank.model.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,5 +18,7 @@ public class UserDto {
     private String nickname;
     private String email;
     private String role;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

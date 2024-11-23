@@ -2,6 +2,7 @@ package com.onedreamus.project.bank.controller;
 
 import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.LoginDto;
+import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/test")
-    public ResponseEntity<String> test(){
-        return ResponseEntity.ok("Test Success!!");
+    public ResponseEntity<UserDto> test(){
+        UserDto userDto = userService.test();
+        return ResponseEntity.ok(userDto);
     }
 
     @PostMapping("/join")
