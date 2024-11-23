@@ -13,6 +13,7 @@ import java.util.Date;
 public class JWTUtil {
 
     private SecretKey secretKey;
+    private final Long JWT_EXPIRE_TIME = 6000 * 10 * 10000000L; // 10시간
 
     public JWTUtil(@Value("${spring.jwt.secret-key}") String secret) {
 
@@ -53,11 +54,10 @@ public class JWTUtil {
     public Boolean isSocialLogin(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
             .parseSignedClaims(token).getPayload()
-            .getExpiration().before(new Date());
+            .get("isSocialLogin", Boolean.class);
     }
 
-    public String createJwt(String username, String email, String role, Long expiredMs,
-        boolean isSocialLogin) {
+    public String createJwt(String username, String email, String role, boolean isSocialLogin) {
 
         return Jwts.builder()
             .claim("username", username)
@@ -65,7 +65,7 @@ public class JWTUtil {
             .claim("role", role)
             .claim("isSocialLogin", isSocialLogin)
             .issuedAt(new Date(System.currentTimeMillis()))
-            .expiration(new Date(System.currentTimeMillis() + expiredMs))
+            .expiration(new Date(System.currentTimeMillis() + JWT_EXPIRE_TIME))
             .signWith(secretKey)
             .compact();
     }

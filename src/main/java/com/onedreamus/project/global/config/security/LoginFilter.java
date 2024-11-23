@@ -36,8 +36,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER = new AntPathRequestMatcher(
         DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD);
 
-    private final Long JWT_EXPIRE_TIME = 6000 * 10 * 1000000L;
-
     private final ObjectMapper objectMapper;
     private final JWTUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
@@ -92,7 +90,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, email, role, JWT_EXPIRE_TIME, false);
+        String token = jwtUtil.createJwt(username, email, role, false);
         response.addHeader("Authorization", "Bearer " + token);
 
         log.info("Login Success - username: {} / email: {}", username, email);
