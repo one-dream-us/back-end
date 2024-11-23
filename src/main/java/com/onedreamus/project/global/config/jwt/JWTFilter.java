@@ -32,22 +32,12 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // 기존 Header에서 Authorization 가져오는 방법 주석 처리 (Header -> Cookie로 변경)
-//        String authorization = request.getHeader("Authorization");
-//        // Header에 토큰이 없는 경우
-//        if (authorization == null || !authorization.startsWith("Bearer")) {
-//            log.info("token null");
-//            filterChain.doFilter(request, response);
-//            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
-//            return;
-//        }
-
-
         String path = request.getServletPath();
         log.info("path -> {}", path);
 
         String authorization = null;
         Cookie[] cookies = request.getCookies();
+        log.info("cookie size : {}", cookies.length);
         for (Cookie cookie : cookies) {
             log.info("Cookie name : {}", cookie.getName());
             if (cookie.getName().equals("Authorization")) {
@@ -62,7 +52,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authorization.split(" ")[1];
+        String token = authorization;
 
         // 토큰 만료 기간 확인
         if (jwtUtil.isExpired(token)) {
@@ -76,6 +66,8 @@ public class JWTFilter extends OncePerRequestFilter {
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
         boolean isSocialLogin = jwtUtil.isSocialLogin(token);
+
+        log.info("Is social login ? >> {}", isSocialLogin);
 
         Authentication authentication = null;
         if (isSocialLogin) {

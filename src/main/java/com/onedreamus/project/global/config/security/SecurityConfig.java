@@ -1,12 +1,10 @@
 package com.onedreamus.project.global.config.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onedreamus.project.bank.service.CustomOAuth2UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -54,14 +53,15 @@ public class SecurityConfig {
                 public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
-                    //TODO: 추후 cors 허가 url 수정 필요 - 현재는 임시
+                    //TODO: 도메인 확정되면 cors 허가 url 수정 필요
                     corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
                     corsConfiguration.setAllowedMethods(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
-                    corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+                    corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setMaxAge(360L);
 
-                    corsConfiguration.setExposedHeaders(Collections.singletonList("Authorization"));
+//                    corsConfiguration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+//                    corsConfiguration.setExposedHeaders(Collections.singletonList("Authorization"));
 
                     return corsConfiguration;
                 }
@@ -92,7 +92,7 @@ public class SecurityConfig {
 //            .addFilterAt( // LoginFilter 등록
 //                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
 //                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
+            .addFilterBefore(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http
