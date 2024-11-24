@@ -18,7 +18,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -28,7 +27,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
-    private final AuthenticationConfiguration configuration;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
 
@@ -60,9 +58,6 @@ public class SecurityConfig {
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setMaxAge(360L);
 
-//                    corsConfiguration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-//                    corsConfiguration.setExposedHeaders(Collections.singletonList("Authorization"));
-
                     return corsConfiguration;
                 }
             }));
@@ -82,7 +77,7 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/user/join", "/oauth2/**").permitAll()
+                .requestMatchers("/login/**", "/user/join", "/oauth2/**", "/user/logout").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/user/test").hasAnyRole("USER")
                 .anyRequest().authenticated());

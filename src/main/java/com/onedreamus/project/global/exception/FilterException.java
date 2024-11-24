@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onedreamus.project.global.exception.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * filter 계층에서는 @RestControllerAdvice 어노테이션이 적용되지 않음
@@ -25,6 +26,10 @@ public class FilterException {
             .errorMessage(errorCode.getMessage())
             .build());
 
-        response.getWriter().write(json);
+        PrintWriter writer = response.getWriter();
+        writer.write(json);
+        writer.flush();
+        writer.close();
+
     }
 }

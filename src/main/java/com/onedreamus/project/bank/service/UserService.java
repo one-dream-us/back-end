@@ -8,8 +8,11 @@ import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -55,6 +58,16 @@ public class UserService {
         Users newUsers = Users.from(joinDto);
         newUsers.encodePassword(bCryptPasswordEncoder);
         userRepository.save(newUsers);
+    }
+
+    /**
+     * 로그아웃
+     */
+    public void logout(HttpServletResponse response) {
+        Cookie deleteCookie = new Cookie("Authorization", "");
+        deleteCookie.setPath("/");
+        deleteCookie.setMaxAge(0);
+        response.addCookie(deleteCookie);
     }
 
 

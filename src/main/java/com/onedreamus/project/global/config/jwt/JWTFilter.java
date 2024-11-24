@@ -4,6 +4,7 @@ import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.global.exception.CustomException;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.exception.FilterException;
 import com.onedreamus.project.global.exception.LoginException;
@@ -30,25 +31,22 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
-        String path = request.getServletPath();
-        log.info("path -> {}", path);
+        FilterChain filterChain) throws ServletException, IOException {
 
         String authorization = null;
         Cookie[] cookies = request.getCookies();
-        log.info("cookie size : {}", cookies.length);
+        Cookie authorizationCookie = null;
         for (Cookie cookie : cookies) {
             log.info("Cookie name : {}", cookie.getName());
             if (cookie.getName().equals("Authorization")) {
-
+                authorizationCookie = cookie;
                 authorization = cookie.getValue();
             }
         }
 
         if (authorization == null) {
             logger.info("token null");
-            filterChain.doFilter(request, response);
+            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
             return;
         }
 
@@ -57,7 +55,13 @@ public class JWTFilter extends OncePerRequestFilter {
         // 토큰 만료 기간 확인
         if (jwtUtil.isExpired(token)) {
             log.info("token expired");
-            filterChain.doFilter(request, response);
+
+            // cookie 삭제
+            authorizationCookie.setValue("");
+            authorizationCookie.setPath("/");
+            authorizationCookie.setMaxAge(0);
+            response.addCookie(authorizationCookie);
+
             FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
             return;
         }
@@ -67,44 +71,48 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(token);
         boolean isSocialLogin = jwtUtil.isSocialLogin(token);
 
-        log.info("Is social login ? >> {}", isSocialLogin);
-
         Authentication authentication = null;
         if (isSocialLogin) {
 
             CustomOAuth2User customOAuth2User =
-                    new CustomOAuth2User(UserDto.builder()
-                            .name(name)
-                            .role(role)
-                            .email(email)
-                            .build());
-
-            authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            customOAuth2User, null, customOAuth2User.getAuthorities());
-        } else {
-            CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
+                new CustomOAuth2User(UserDto.builder()
                     .name(name)
-                    .password("temppassword")
-                    .email(email)
                     .role(role)
+                    .email(email)
                     .build());
 
+            authentication =
+                new UsernamePasswordAuthenticationToken(
+                    customOAuth2User, null, customOAuth2User.getAuthorities());
+        } else {
+            CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
+                .name(name)
+                .password("temppassword")
+                .email(email)
+                .role(role)
+                .build());
+
             authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
-                    null, customUserDetails.getAuthorities());
+                null, customUserDetails.getAuthorities());
         }
 
         // 임시 session 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        log.info("token filter success, name: {}, email: {}, role: {}", name, email, role);
         filterChain.doFilter(request, response);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        log.info("path: {} -> JWTFilter 제외", path);
-        return path.startsWith("/oauth2");
+        if (path.equals("/user/logout")) {
+            return true;
+        } else if (path.startsWith("/login")) {
+            return true;
+        } else if (path.startsWith("/oauth2")) {
+            return true;
+        }
+
+        return false;
     }
 }

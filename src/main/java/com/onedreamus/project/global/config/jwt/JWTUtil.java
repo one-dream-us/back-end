@@ -1,6 +1,9 @@
 package com.onedreamus.project.global.config.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,11 +12,13 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JWTUtil {
 
     private SecretKey secretKey;
-    private final Long JWT_EXPIRE_TIME = 6000 * 10 * 10000000L; // 10시간
+
+    private final Long JWT_EXPIRE_TIME = 60 * 60 * 1000L; // 1시간
 
     public JWTUtil(@Value("${spring.jwt.secret-key}") String secret) {
 
@@ -45,16 +50,24 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
-
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload()
-            .getExpiration().before(new Date());
+        try{
+            Claims claims = getPayload(token);
+            return false;
+        }catch (ExpiredJwtException e){
+            log.info("JWT 만료!!");
+            return true;
+        }
     }
 
     public Boolean isSocialLogin(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
             .parseSignedClaims(token).getPayload()
             .get("isSocialLogin", Boolean.class);
+    }
+
+    private Claims getPayload(String token){
+        return Jwts.parser().verifyWith(secretKey).build()
+            .parseSignedClaims(token).getPayload();
     }
 
     public String createJwt(String username, String email, String role, boolean isSocialLogin) {
