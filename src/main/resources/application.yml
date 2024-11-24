@@ -3,9 +3,10 @@ spring:
     name: project
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/one_dream_us
-    username: postgres
-    password: 1234
+    url: ${db_url}
+    username: ${db_username}
+    password: ${db_password}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
