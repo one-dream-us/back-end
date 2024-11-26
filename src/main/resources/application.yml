@@ -21,7 +21,7 @@ spring:
       client:
         provider:
           kakao:
-₩            authorization-uri: ${KAKAO_AUTHORIZATION_URI} # 인가 코드 받기 URL
+            authorization-uri: ${KAKAO_AUTHORIZATION_URI} # 인가 코드 받기 URL
             token-uri: ${KAKAO_TOKEN_URI} # 토큰 받기 URL
             user-info-uri: ${KAKAO_USER_INFO_URI} # 유저 정보 받기 URL
             user-name-attribute: id
