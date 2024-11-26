@@ -32,15 +32,7 @@ public class UserService {
         String email = customOAuth2User.getEmail();
         Users user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
-        return UserDto.builder()
-            .email(user.getEmail())
-            .name(user.getName())
-            .role(user.getRole())
-            .createdAt(user.getCreatedAt())
-            .updatedAt(user.getUpdatedAt())
-            .nickname(user.getNickname() != null ? user.getNickname() : null)
-            .build();
-
+        return UserDto.from(user);
     }
 
     /**

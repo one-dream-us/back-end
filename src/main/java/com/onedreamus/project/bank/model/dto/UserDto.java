@@ -1,5 +1,6 @@
 package com.onedreamus.project.bank.model.dto;
 
+import com.onedreamus.project.bank.model.entity.Users;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,19 @@ public class UserDto {
     private String nickname;
     private String email;
     private String role;
+    private String provider;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public static UserDto from(Users user){
+        return UserDto.builder()
+            .name(user.getName())
+            .nickname(user.getNickname())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .provider(user.getProvider())
+            .createdAt(user.getCreatedAt())
+            .updatedAt(user.getUpdatedAt())
+            .build();
+    }
 }
