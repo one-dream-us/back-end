@@ -31,6 +31,7 @@ public class Users extends BaseEntity{
     private String email;
     private String password;
     private String role;
+    private String provider;
 
     public void encodePassword(BCryptPasswordEncoder passwordEncoder){
         this.password = passwordEncoder.encode(this.password);

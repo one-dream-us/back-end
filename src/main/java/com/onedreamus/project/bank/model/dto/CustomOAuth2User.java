@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @RequiredArgsConstructor
 public class CustomOAuth2User implements OAuth2User {
 
-    private final UserDto userDTo;
+    private final UserDto userDto;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -27,7 +27,7 @@ public class CustomOAuth2User implements OAuth2User {
             @Override
             public String getAuthority() {
 
-                return userDTo.getRole();
+                return userDto.getRole();
             }
         });
 
@@ -36,10 +36,14 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return userDTo.getName();
+        return userDto.getName();
+    }
+
+    public String getProvider(){
+        return userDto.getProvider();
     }
 
     public String getEmail(){
-        return userDTo.getEmail();
+        return userDto.getEmail();
     }
 }

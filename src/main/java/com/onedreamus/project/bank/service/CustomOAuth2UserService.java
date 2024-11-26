@@ -42,40 +42,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Optional<Users> userOptional = userRepository.findByEmail(oAuth2Response.getEmail());
 
-        if (userOptional.isEmpty()) {
+
+        UserDto userDto;
+        if (userOptional.isEmpty()) { // 새로운 유저인 경우
             Users newUser = Users.builder()
                 .name(oAuth2Response.getName())
                 .email(oAuth2Response.getEmail())
+                .provider(oAuth2Response.getProvider())
+                .nickname(nickname)
                 .role("ROLE_USER")
                 .build();
 
             userRepository.save(newUser);
 
-            UserDto userDto = UserDto.builder()
-                .name(newUser.getName())
-                .email(oAuth2Response.getEmail())
-                .role("ROLE_USER")
-                .nickname(nickname)
-                .build();
-
-            return new CustomOAuth2User(userDto);
-        } else {
+            userDto = UserDto.from(newUser);
+        } else { // 기존 유저인 경우
             Users existUser = userOptional.get();
             existUser.setEmail(oAuth2Response.getEmail());
             existUser.setName(oAuth2Response.getName());
 
             userRepository.save(existUser);
 
-            UserDto userDto = UserDto.builder()
-                .email(existUser.getEmail())
-                .name(existUser.getName())
-                .role(existUser.getRole())
-                .nickname(existUser.getNickname())
-                .build();
-
-            return new CustomOAuth2User(userDto);
+            userDto = UserDto.from(existUser);
         }
 
-
+        return new CustomOAuth2User(userDto);
     }
 }
