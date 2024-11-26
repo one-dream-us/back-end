@@ -52,7 +52,7 @@ public class SecurityConfig {
 
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     //TODO: 도메인 확정되면 cors 허가 url 수정 필요
-                    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+                    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://thisismoney.site"));
                     corsConfiguration.setAllowedMethods(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.setAllowedHeaders(List.of("*"));
