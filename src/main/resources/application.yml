@@ -21,17 +21,17 @@ spring:
       client:
         provider:
           kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize # 인가 코드 받기 URL
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
+₩            authorization-uri: ${KAKAO_AUTHORIZATION_URI} # 인가 코드 받기 URL
+            token-uri: ${KAKAO_TOKEN_URI} # 토큰 받기 URL
+            user-info-uri: ${KAKAO_USER_INFO_URI} # 유저 정보 받기 URL
             user-name-attribute: id
         registration:
           kakao:
-            client-id: 6f5f09f8738f0778bb10a78e88cdd392
+            client-id: ${KAKAO_CLIENT_ID}
             client-server: # seucurity id
-            client-authentication-method: client_secret_post
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            authorization-grant-type: authorization_code
+            client-authentication-method: ${KAKAO_CLIENT_AUTHENTICATION_METHOD}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: ${KAKAO_AUTHORIZATION_GRANT_TYPE}
             client-name: kakao
             scope:
               - profile_nickname
@@ -39,4 +39,4 @@ spring:
               - account_email
 
   jwt:
-    secret-key: UOOvqsvHKLKOy2vYkDjuJVfLqpwcJm1ds34DOiSI5nE=
+    secret-key: ${JWT_SECRET_KEY}
