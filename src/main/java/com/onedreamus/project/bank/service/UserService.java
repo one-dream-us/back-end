@@ -10,6 +10,7 @@ import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -62,4 +63,7 @@ public class UserService {
     }
 
 
+    public Optional<Users> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

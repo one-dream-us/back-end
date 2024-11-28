@@ -1,6 +1,7 @@
 package com.onedreamus.project.bank.model.entity;
 
 import com.onedreamus.project.bank.model.dto.JoinDto;
+import com.onedreamus.project.bank.model.dto.UserDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,4 +41,5 @@ public class Users extends BaseEntity{
             .role("ROLE_USER")
             .build();
     }
+
 }
