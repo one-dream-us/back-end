@@ -6,6 +6,7 @@ services:
     container_name: thisismoney-app
     expose:
       - "8080"
+    restart: unless-stopped
     env_file: .env
     networks:
       - app-network
@@ -24,6 +25,16 @@ services:
       - ./certbot/www:/var/www/certbot
     depends_on:
       - thisismoney-app
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     networks:
       - app-network
 
