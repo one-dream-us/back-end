@@ -27,7 +27,4 @@ public class Term {
     private String value;
     private String explanation;
 
-    @JoinColumn
-    @OneToOne(fetch = FetchType.LAZY)
-    private Content content;
 }

@@ -87,7 +87,6 @@ public class JWTFilter extends OncePerRequestFilter {
         } else {
             CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
                 .name(name)
-                .password("temppassword")
                 .email(email)
                 .role(role)
                 .build());

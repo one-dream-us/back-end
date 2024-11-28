@@ -31,11 +31,11 @@ public class TermScrap extends BaseEntity{
     private Integer id;
 
     @JoinColumn
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Users user;
 
     @JoinColumn
-    @OneToOne(fetch = FetchType.LAZY )
+    @ManyToOne(fetch = FetchType.LAZY )
     private Term terms;
 
 }

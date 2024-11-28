@@ -260,4 +260,6 @@ gradle-app.setting
 # 환경변수
 .env
 
+application-dev.yml
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,gradle,intellij+all,java,visualstudiocode

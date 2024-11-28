@@ -48,7 +48,6 @@ public class UserService {
 
         // 새로운 유저 생성
         Users newUsers = Users.from(joinDto);
-        newUsers.encodePassword(bCryptPasswordEncoder);
         userRepository.save(newUsers);
     }
 

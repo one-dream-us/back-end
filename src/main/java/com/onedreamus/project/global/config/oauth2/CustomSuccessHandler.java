@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -37,19 +39,21 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtil.createJwt(username, email, role, true);
 
-        response.addCookie(createCookie(token));
+        response.addHeader(HttpHeaders.SET_COOKIE, createCookie(token));
         response.sendRedirect("http://localhost:3000/");
     }
 
-    private Cookie createCookie(String value) {
+    private String createCookie(String value) {
 
-        Cookie cookie = new Cookie("Authorization", value);
-        cookie.setMaxAge(60*60*60);
-        //cookie.setSecure(true); // -> https 설정
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
+        ResponseCookie cookie = ResponseCookie.from("Authorization", value)
+                .maxAge(60 * 60 * 60)
+                .secure(true)
+                .path("/")
+                .httpOnly(true)
+                .sameSite("None")
+                .build();
 
-        return cookie;
+        return cookie.toString();
     }
 
 }
