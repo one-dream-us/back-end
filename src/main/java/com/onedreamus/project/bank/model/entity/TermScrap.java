@@ -35,7 +35,13 @@ public class TermScrap extends BaseEntity{
     private Users user;
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY )
-    private Term terms;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Term term;
 
+    public static TermScrap make(Users user, Term term) {
+        return TermScrap.builder()
+            .user(user)
+            .term(term)
+            .build();
+    }
 }

@@ -78,7 +78,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/login/**", "/user/join", "/oauth2/**", "/user/logout").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/user/test", "/scrap/**").hasAnyRole("USER")
+                .requestMatchers("/user/test", "/scrap/**", "/scarp/**").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가

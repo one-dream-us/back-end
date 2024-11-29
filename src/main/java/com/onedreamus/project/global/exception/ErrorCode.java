@@ -22,7 +22,14 @@ public enum ErrorCode {
     NEED_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요한 요청 입니다. 로그인 해주세요."),
 
     // Content
-    CONTENT_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 컨텐츠 입니다.");
+    CONTENT_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 컨텐츠 입니다."),
+
+    // Term
+    TERM_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
+
+    // Scarp
+    SCRAP_NO_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
+    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

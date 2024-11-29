@@ -63,10 +63,8 @@ out/
 .idea/**/gradle.xml
 .idea/**/libraries
 build
-.gradle
 /out
 .DS_Store
-.idea
 
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
@@ -88,10 +86,8 @@ cmake-build-*/
 .idea/**/mongoSettings.xml
 
 # File-based project format
-*.iws
 
 # IntelliJ
-out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -154,7 +150,6 @@ replay_pid*
 
 ### macOS ###
 # General
-.DS_Store
 .AppleDouble
 .LSOverride
 
@@ -231,7 +226,6 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle
 **/build/
 !src/**/build/
 
@@ -261,5 +255,7 @@ gradle-app.setting
 .env
 
 application-dev.yml
+
+Todo.md
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,gradle,intellij+all,java,visualstudiocode

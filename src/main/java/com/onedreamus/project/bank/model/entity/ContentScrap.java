@@ -35,7 +35,7 @@ public class ContentScrap extends BaseEntity{
     private Users user;
 
     @JoinColumn
-    @ManyToOne (fetch = FetchType.LAZY)
+    @ManyToOne (fetch = FetchType.EAGER)
     private Content content;
 
 }

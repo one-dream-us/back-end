@@ -8,6 +8,7 @@ import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.util.SecurityUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -62,6 +63,12 @@ public class UserService {
         response.addCookie(deleteCookie);
     }
 
+    public Users getUser() {
+        String email = SecurityUtils.getEmail();
+        return getUserByEmail(email)
+            .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
+
+    }
 
     public Optional<Users> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
