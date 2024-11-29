@@ -122,6 +122,8 @@ public class JWTFilter extends OncePerRequestFilter {
             return true;
         } else if (path.startsWith("/oauth2")) {
             return true;
+        } else if (path.startsWith("/swagger-ui") || path.startsWith("/api-docs")) {
+            return true;
         }
 
         return false;

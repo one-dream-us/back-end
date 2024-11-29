@@ -4,6 +4,8 @@ import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.LoginDto;
 import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "User Controller", description = "유저 관련 API")
 public class UserController {
 
     private final UserService userService;
@@ -24,6 +27,9 @@ public class UserController {
      *토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
      */
     @GetMapping("/test")
+    @Operation(
+        summary = "유저 데이터 조회 테스",
+        description = "토큰으로 유저데이터를 잘 조회하는지 테스트하기 위한 API")
     public ResponseEntity<UserDto> test(){
         UserDto userDto = userService.test();
         return ResponseEntity.ok(userDto);
