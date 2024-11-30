@@ -124,6 +124,8 @@ public class JWTFilter extends OncePerRequestFilter {
             return true;
         } else if (path.startsWith("/swagger-ui") || path.startsWith("/api-docs")) {
             return true;
+        }else if (path.startsWith("/user/social/join") || path.startsWith("/user/social/unlink")){
+            return true;
         }
 
         return false;

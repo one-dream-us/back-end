@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final KakaoOAuth2Service kakaoOAuth2Service;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserDto test(){
@@ -63,6 +64,28 @@ public class UserService {
         response.addCookie(deleteCookie);
     }
 
+    /**
+     * 회원 탈퇴
+     */
+    public void withdraw() {
+        Users user = getUser();
+        Long socialId = user.getSocialId();
+
+        // 소셜서비스와 연결 해제
+        boolean isUnlinked = kakaoOAuth2Service.unlinkKakaoAccount(socialId);
+        if (!isUnlinked){
+            throw new UserException(ErrorCode.UNLINK_FAIL);
+        }
+
+        // DB 삭제 -> soft delete
+        user.setDeleted(true);
+        userRepository.save(user);
+    }
+
+
+    /**
+     * Users 획득
+     */
     public Users getUser() {
         String email = SecurityUtils.getEmail();
         return getUserByEmail(email)
@@ -70,7 +93,12 @@ public class UserService {
 
     }
 
+    /**
+     * email로 Optional<Users> 획득
+     */
     public Optional<Users> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+
 }

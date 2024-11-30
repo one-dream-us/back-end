@@ -31,6 +31,7 @@ public class Users extends BaseEntity{
     private String email;
     private String role;
     private String provider;
+    private Long socialId;
     private boolean deleted;
 
 

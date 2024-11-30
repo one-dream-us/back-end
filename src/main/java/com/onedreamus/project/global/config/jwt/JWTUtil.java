@@ -19,6 +19,7 @@ public class JWTUtil {
     private SecretKey secretKey;
 
     private final Long JWT_EXPIRE_TIME = 60 * 60 * 1000L; // 1시간
+    private final Long TEMP_JWT_EXPIRE_TIME = 3 * 60 * 1000L; // 3분
 
     public JWTUtil(@Value("${spring.jwt.secret-key}") String secret) {
 
@@ -50,10 +51,10 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
-        try{
+        try {
             Claims claims = getPayload(token);
             return false;
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             log.info("JWT 만료!!");
             return true;
         }
@@ -65,9 +66,13 @@ public class JWTUtil {
             .get("isSocialLogin", Boolean.class);
     }
 
-    private Claims getPayload(String token){
+    private Claims getPayload(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
             .parseSignedClaims(token).getPayload();
+    }
+
+    public Long getSocialId(String token){
+        return getPayload(token).get("socialId", Long.class);
     }
 
     public String createJwt(String username, String email, String role, boolean isSocialLogin) {
@@ -82,4 +87,21 @@ public class JWTUtil {
             .signWith(secretKey)
             .compact();
     }
+
+    /**
+     * MVP 이후 회원가입/로그인 프로세스 변경 시 적용
+     */
+//
+//    public String createTempJwt(String username, String email, String role, Long socialId) {
+//
+//        return Jwts.builder()
+//            .claim("username", username)
+//            .claim("email", email)
+//            .claim("role", role)
+//            .claim("socialId", socialId)
+//            .issuedAt(new Date(System.currentTimeMillis()))
+//            .expiration(new Date(System.currentTimeMillis() + TEMP_JWT_EXPIRE_TIME))
+//            .signWith(secretKey)
+//            .compact();
+//    }
 }
