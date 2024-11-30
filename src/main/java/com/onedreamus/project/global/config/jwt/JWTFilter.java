@@ -37,7 +37,6 @@ public class JWTFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         Cookie authorizationCookie = null;
         for (Cookie cookie : cookies) {
-            log.info("Cookie name : {}", cookie.getName());
             if (cookie.getName().equals("Authorization")) {
                 authorizationCookie = cookie;
                 authorization = cookie.getValue();
@@ -45,7 +44,12 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         if (authorization == null) {
-            logger.info("token null");
+            log.info("Token null");
+            if (isScarpRequest(request.getServletPath())) {
+                FilterException.throwException(response, ErrorCode.NEED_LOGIN);
+                return;
+            }
+
             FilterException.throwException(response, ErrorCode.TOKEN_NULL);
             return;
         }
@@ -87,7 +91,6 @@ public class JWTFilter extends OncePerRequestFilter {
         } else {
             CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
                 .name(name)
-                .password("temppassword")
                 .email(email)
                 .role(role)
                 .build());
@@ -102,6 +105,14 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private boolean isScarpRequest(String path){
+        if (path.contains("/scrap")){
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
@@ -110,6 +121,10 @@ public class JWTFilter extends OncePerRequestFilter {
         } else if (path.startsWith("/login")) {
             return true;
         } else if (path.startsWith("/oauth2")) {
+            return true;
+        } else if (path.startsWith("/swagger-ui") || path.startsWith("/api-docs")) {
+            return true;
+        }else if (path.startsWith("/user/social/join") || path.startsWith("/user/social/unlink")){
             return true;
         }
 

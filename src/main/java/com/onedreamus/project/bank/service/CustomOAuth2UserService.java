@@ -4,9 +4,11 @@ import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
 import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.KakaoResponse;
 import com.onedreamus.project.bank.model.dto.OAuth2Response;
+import com.onedreamus.project.bank.model.dto.UserCheckDto;
 import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.global.config.oauth2.UserChecker;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+//    private final UserChecker userChecker;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -42,29 +45,59 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Optional<Users> userOptional = userRepository.findByEmail(oAuth2Response.getEmail());
 
-
         UserDto userDto;
+        Users user;
         if (userOptional.isEmpty()) { // 새로운 유저인 경우
-            Users newUser = Users.builder()
+            user = Users.builder()
                 .name(oAuth2Response.getName())
                 .email(oAuth2Response.getEmail())
                 .provider(oAuth2Response.getProvider())
                 .nickname(nickname)
                 .role("ROLE_USER")
+                .socialId(oAuth2Response.getSocialId())
                 .build();
+            userRepository.save(user);
+            /**
+             * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
+             * - 새로운 유저의 경우 현제 클래스에서 DB 저장 X
+             */
+//            UserCheckDto userCheckDto = UserCheckDto.builder()
+//                .isUser(false)
+//                .email(newUser.getEmail())
+//                .name(newUser.getName())
+//                .role(newUser.getRole())
+//                .socialId(oAuth2Response.getSocialId())
+//                .build();
+//            userChecker.addEmail(newUser.getEmail(), userCheckDto);
 
-            userRepository.save(newUser);
+        } else if (userOptional.get().isDeleted()) { // soft delete된 유저의 재가입인 경우
 
-            userDto = UserDto.from(newUser);
+            user = userOptional.get();
+            user.setDeleted(false);
+            user.setName(oAuth2Response.getName());
+            user.setNickname(nickname);
+            user.setSocialId(oAuth2Response.getSocialId());
+            user.setProvider(oAuth2Response.getProvider());
+            userRepository.save(user);
         } else { // 기존 유저인 경우
-            Users existUser = userOptional.get();
-            existUser.setEmail(oAuth2Response.getEmail());
-            existUser.setName(oAuth2Response.getName());
+            user = userOptional.get();
+            user.setName(oAuth2Response.getName());
 
-            userRepository.save(existUser);
-
-            userDto = UserDto.from(existUser);
+            userRepository.save(user);
+            /**
+             * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
+             */
+//            UserCheckDto userCheckDto = UserCheckDto.builder()
+//                .isUser(true)
+//                .email(existUser.getEmail())
+//                .name(existUser.getName())
+//                .role(existUser.getRole())
+//                .socialId(oAuth2Response.getSocialId())
+//                .build();
+//            userChecker.addEmail(existUser.getEmail(), userCheckDto);
         }
+
+        userDto = UserDto.from(user);
 
         return new CustomOAuth2User(userDto);
     }

@@ -51,9 +51,8 @@ public class SecurityConfig {
                 public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
-                    //TODO: 도메인 확정되면 cors 허가 url 수정 필요
                     corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://thisismoney.site"));
-                    corsConfiguration.setAllowedMethods(List.of("*"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT"));
                     corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setMaxAge(360L);
@@ -77,9 +76,12 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login/**", "/user/join", "/oauth2/**", "/user/logout").permitAll()
+                .requestMatchers(
+                    "/login/**", "/user/join", "/oauth2/**", "/user/logout", "/swagger-ui.html",
+                    "/api-docs/**", "/swagger-ui/**", "/user/test/**"
+                ).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/user/test").hasAnyRole("USER")
+                .requestMatchers("/user/test", "/scrap/**", "/user/withdraw").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가

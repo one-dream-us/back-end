@@ -1,5 +1,6 @@
 package com.onedreamus.project.bank.model.dto;
 
+import com.onedreamus.project.bank.model.entity.Users;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,5 +46,10 @@ public class CustomOAuth2User implements OAuth2User {
 
     public String getEmail(){
         return userDto.getEmail();
+    }
+
+    public Users getUser(){
+        return Users.builder()
+            .build();
     }
 }
