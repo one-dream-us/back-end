@@ -39,7 +39,7 @@ public class UserController {
      */
     @GetMapping("/test")
     @Operation(
-        summary = "유저 데이터 조회 테스",
+        summary = "유저 데이터 조회 테스트",
         description = "토큰으로 유저데이터를 잘 조회하는지 테스트하기 위한 API")
     public ResponseEntity<UserDto> test(){
         UserDto userDto = userService.test();
@@ -61,6 +61,7 @@ public class UserController {
     /**
      * 로그아웃
      */
+    @Operation(summary = "로그아웃", description = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response){
         userService.logout(response);
