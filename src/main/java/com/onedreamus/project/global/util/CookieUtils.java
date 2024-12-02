@@ -1,5 +1,6 @@
 package com.onedreamus.project.global.util;
 
+import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseCookie;
 
 public class CookieUtils {
@@ -15,5 +16,13 @@ public class CookieUtils {
             .build();
 
         return cookie.toString();
+    }
+
+    public static Cookie createDeleteCookie(){
+        Cookie deleteCookie = new Cookie("Authorization", "");
+        deleteCookie.setPath("/");
+        deleteCookie.setMaxAge(0);
+
+        return deleteCookie;
     }
 }

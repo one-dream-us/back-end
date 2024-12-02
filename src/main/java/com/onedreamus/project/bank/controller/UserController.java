@@ -73,8 +73,8 @@ public class UserController {
      */
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 - soft delete + 소셜 서비스 연결 해제")
     @DeleteMapping("/withdraw")
-    public ResponseEntity<String> withdrawMembership(){
-        userService.withdraw();
+    public ResponseEntity<String> withdrawMembership(HttpServletResponse response){
+        userService.withdraw(response);
         return ResponseEntity.ok("회원 탈퇴 성공");
     }
 

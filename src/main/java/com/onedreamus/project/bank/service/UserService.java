@@ -8,6 +8,7 @@ import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.util.CookieUtils;
 import com.onedreamus.project.global.util.SecurityUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -72,7 +73,7 @@ public class UserService {
      * 회원 탈퇴
      */
     @Transactional
-    public void withdraw() {
+    public void withdraw(HttpServletResponse response) {
         Users user = getUser();
         Long socialId = user.getSocialId();
 
@@ -85,6 +86,9 @@ public class UserService {
         // DB 삭제 -> soft delete
         user.setDeleted(true);
         userRepository.save(user);
+
+        // 기존 쿠키 삭제
+        response.addCookie(CookieUtils.createDeleteCookie());
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }
 
