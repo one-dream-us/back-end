@@ -52,7 +52,7 @@ public class SecurityConfig {
 
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://thisismoney.site"));
-                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "FETCH", "OPTIONS"));
                     corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setMaxAge(360L);
@@ -78,7 +78,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers(
                     "/login/**", "/user/join", "/oauth2/**", "/user/logout", "/swagger-ui.html",
-                    "/api-docs/**", "/swagger-ui/**", "/user/test/**"
+                    "/v3/api-docs/**", "/swagger-ui/**", "/user/test/**"
                 ).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/user/test", "/scrap/**", "/user/withdraw").hasAnyRole("USER")

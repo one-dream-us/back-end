@@ -122,11 +122,13 @@ public class JWTFilter extends OncePerRequestFilter {
             return true;
         } else if (path.startsWith("/oauth2")) {
             return true;
-        } else if (path.startsWith("/swagger-ui") || path.startsWith("/api-docs")) {
+        } else if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             return true;
         }else if (path.startsWith("/user/social/join") || path.startsWith("/user/social/unlink")){
             return true;
         }
+
+        log.info("path : {}",path);
 
         return false;
     }
