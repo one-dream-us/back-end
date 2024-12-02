@@ -53,7 +53,6 @@ public class KakaoOAuth2Service {
             );
 
             long userKakaoId = response.getBody().getId();
-            log.info("user kakao ID : {}",userKakaoId);
             return userKakaoId == kakaoId;
         } catch (Exception e) {
             throw new UserException(ErrorCode.UNLINK_FAIL);
