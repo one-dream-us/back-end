@@ -37,12 +37,12 @@ public class UserController {
     /**
      *토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
      */
-    @GetMapping("/test")
+    @GetMapping("/info")
     @Operation(
-        summary = "유저 데이터 조회 테스트",
-        description = "토큰으로 유저데이터를 잘 조회하는지 테스트하기 위한 API")
-    public ResponseEntity<UserDto> test(){
-        UserDto userDto = userService.test();
+        summary = "유저 데이터 조회",
+        description = "유저데이터 조회 API")
+    public ResponseEntity<UserDto> getUserInfo(){
+        UserDto userDto = userService.getUserInfo();
         return ResponseEntity.ok(userDto);
     }
 
@@ -73,8 +73,8 @@ public class UserController {
      */
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 - soft delete + 소셜 서비스 연결 해제")
     @DeleteMapping("/withdraw")
-    public ResponseEntity<String> withdrawMembership(){
-        userService.withdraw();
+    public ResponseEntity<String> withdrawMembership(HttpServletResponse response){
+        userService.withdraw(response);
         return ResponseEntity.ok("회원 탈퇴 성공");
     }
 

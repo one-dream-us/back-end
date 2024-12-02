@@ -77,11 +77,11 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers(
-                    "/login/**", "/user/join", "/oauth2/**", "/user/logout", "/swagger-ui.html",
+                    "/login/**", "/user/join", "/oauth2/**", "/swagger-ui.html",
                     "/v3/api-docs/**", "/swagger-ui/**", "/user/test/**"
                 ).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/user/test", "/scrap/**", "/user/withdraw").hasAnyRole("USER")
+                .requestMatchers("/user/info", "/scrap/**", "/user/withdraw", "/user/logout").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가
