@@ -7,8 +7,21 @@ VALUES ('올해만 544% 상승한 지구상에서 가장 뜨거운 주식.',
         'https://img.youtube.com/vi/HO7AsTjY7Bs/mqdefault.jpg',
         NOW());
 
+INSERT INTO content (title,
+                     content_url,
+                     thumbnail_url,
+                     created_at)
+VALUES ('테슬라 SOXL 애플 이번주 기대가 되는 이유!',
+        'https://www.youtube.com/watch?v=Ds63BSxmGF8',
+        'https://img.youtube.com/vi/Ds63BSxmGF8/mqdefault.jpg',
+        NOW());
+
+
 INSERT INTO script_full (content_id)
-VALUES (LASTVAL());
+VALUES (1);
+
+INSERT INTO script_full (content_id)
+VALUES (3);
 
 INSERT INTO script_paragraph (timestamp, script_full_id, paragraph_text)
 VALUES ('00:00:00', 1,
@@ -25,13 +38,23 @@ VALUES ('00:00:42', 1,
 INSERT INTO script_paragraph (timestamp, script_full_id, paragraph_text)
 VALUES ('00:01:07', 1,
         '그리고 MSTX 사실상 같은 거예요. 그래서 하루에 마이크로스트레티지 움직임에 두 배씩 움직이는 그런 <mark>ETF</mark>입니다. 그러니까 사실은 1위, 4위, 5위가 전부 마이크로스트레티지라는거예요. 아 이거 뭐 이렇게 뜨거운 주식인데 안 할 수가 있나. 물론 제가 이제 예전에도 많이 다루긴 했었지만.');
+----
+INSERT INTO script_paragraph (timestamp, script_full_id, paragraph_text)
+VALUES ('00:00:00', 2,
+        '네 안녕하세요 2024년 12월 2일 월요일 킴스 미국 주식 시작하겠습니다.');
 
-INSERT INTO tag (value)
+    INSERT
+INTO tag (value)
 VALUES ('주식');
 
 INSERT INTO content_tag (content_id, tag_id)
-VALUES (1,1);
+VALUES (1, 1);
+
+INSERT INTO content_tag (content_id, tag_id)
+VALUES (2, 2);
 
 INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (1, NOW(), 1);
 
+INSERT INTO content_view (content_id, viewed_at, view_count)
+VALUES (2, NOW(), 1);
