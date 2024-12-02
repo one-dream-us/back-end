@@ -11,6 +11,8 @@ import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.SecurityUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +32,10 @@ public class UserService {
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserDto test(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        String email = customOAuth2User.getEmail();
-        Users user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
+    public UserDto getUserInfo(){
+        Users user = getUser();
+
+        log.info("[회원 정보 조회] 이메일 : {}", user.getEmail());
         return UserDto.from(user);
     }
 
@@ -58,15 +59,19 @@ public class UserService {
      * 로그아웃
      */
     public void logout(HttpServletResponse response) {
+        String email = SecurityUtils.getEmail();
         Cookie deleteCookie = new Cookie("Authorization", "");
         deleteCookie.setPath("/");
         deleteCookie.setMaxAge(0);
         response.addCookie(deleteCookie);
+
+        log.info("[회원 로그아웃] 이메일 : {}", email);
     }
 
     /**
      * 회원 탈퇴
      */
+    @Transactional
     public void withdraw() {
         Users user = getUser();
         Long socialId = user.getSocialId();
@@ -80,6 +85,7 @@ public class UserService {
         // DB 삭제 -> soft delete
         user.setDeleted(true);
         userRepository.save(user);
+        log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }
 
 
