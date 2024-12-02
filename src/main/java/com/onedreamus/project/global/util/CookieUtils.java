@@ -18,11 +18,15 @@ public class CookieUtils {
         return cookie.toString();
     }
 
-    public static Cookie createDeleteCookie(){
-        Cookie deleteCookie = new Cookie("Authorization", "");
-        deleteCookie.setPath("/");
-        deleteCookie.setMaxAge(0);
+    public static String createDeleteCookie(){
+        ResponseCookie cookie = ResponseCookie.from("Authorization", "")
+                .maxAge(0)
+                .secure(true)
+                .path("/")
+                .httpOnly(true)
+                .sameSite("None")
+                .build();
 
-        return deleteCookie;
+        return cookie.toString();
     }
 }

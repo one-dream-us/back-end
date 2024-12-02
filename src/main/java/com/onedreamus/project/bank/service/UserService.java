@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,7 +89,7 @@ public class UserService {
         userRepository.save(user);
 
         // 기존 쿠키 삭제
-        response.addCookie(CookieUtils.createDeleteCookie());
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie());
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }
 
