@@ -3,6 +3,7 @@ package com.onedreamus.project.bank.service;
 import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.model.dto.ContentListDto;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
+import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
@@ -31,10 +32,17 @@ public class ContentService {
         return contentRepository.findById(contentId);
     }
 
-    public ContentListDto getContentList(PageRequest pageRequest) {
-        Page<Content> contentPage = contentRepository.findAll(pageRequest);
+    public CursorResult<ContentListResponse> getContentList(Long cursor, int size) {
+        PageRequest pageRequest = PageRequest.of(0, size + 1);
+        List<Content> contents = contentRepository.findByIdLessThanOrderByIdDesc(
+            cursor, pageRequest);
 
-        List<ContentListResponse> contents = contentPage.getContent().stream()
+        boolean hasNext = contents.size() > size;
+        if (hasNext) {
+            contents.remove(contents.size() - 1);
+        }
+
+        List<ContentListResponse> responses = contents.stream()
             .map(content -> {
                 List<String> tags = contentTagRepository.findByContentOrderBySequence(content)
                     .stream()
@@ -55,11 +63,13 @@ public class ContentService {
             })
             .collect(Collectors.toList());
 
-        return ContentListDto.builder()
-            .contents(contents)
-            .totalElements(contentPage.getTotalElements())
-            .totalPages(contentPage.getTotalPages())
-            .hasNext(contentPage.hasNext())
+        Long nextCursor = hasNext && !responses.isEmpty() ?
+            responses.get(responses.size() - 1).getId() : null;
+
+        return CursorResult.<ContentListResponse>builder()
+            .contents(responses)
+            .hasNext(hasNext)
+            .nextCursor(nextCursor)
             .build();
     }
 }

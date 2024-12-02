@@ -1,6 +1,8 @@
 package com.onedreamus.project.bank.controller;
 
 import com.onedreamus.project.bank.model.dto.ContentListDto;
+import com.onedreamus.project.bank.model.dto.ContentListResponse;
+import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,13 +25,10 @@ public class ContentContoller {
 
 	@GetMapping
 	@Operation(summary = "콘텐츠 리스트 조회", description = "콘텐츠 리스트를 조회합니다.")
-	public ResponseEntity<ContentListDto> getContentList(
-		@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<CursorResult<ContentListResponse>> getContentList(
+		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "10") int size) {
-
-		PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-		return ResponseEntity.ok(contentService.getContentList(pageRequest));
-
+		return ResponseEntity.ok(contentService.getContentList(cursor, size));
 	}
 
 }
