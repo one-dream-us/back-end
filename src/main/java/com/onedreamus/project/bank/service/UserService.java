@@ -62,10 +62,9 @@ public class UserService {
      */
     public void logout(HttpServletResponse response) {
         String email = SecurityUtils.getEmail();
-        Cookie deleteCookie = new Cookie("Authorization", "");
-        deleteCookie.setPath("/");
-        deleteCookie.setMaxAge(0);
-        response.addCookie(deleteCookie);
+
+        // 기존 쿠키 삭제
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie());
 
         log.info("[회원 로그아웃] 이메일 : {}", email);
     }
