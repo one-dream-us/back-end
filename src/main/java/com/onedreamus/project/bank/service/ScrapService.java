@@ -15,8 +15,11 @@ import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.TermScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.SecurityUtils;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,21 +38,18 @@ public class ScrapService {
     public void scrapContent(Integer contentId) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
-            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 컨텐츠가 있는 경우
         Users user = userService.getUser();
 
         // 기존에 스크랩한 항목인지 점검
         Optional<ContentScrap> contentScrapOptional =
-            contentScrapRepository.findByUserAndContent(user, content);
+                contentScrapRepository.findByUserAndContent(user, content);
+
         // 이전에 스크랩한적 없는 경우
         if (contentScrapOptional.isEmpty()) {
-            ContentScrap newContentScrap = ContentScrap.builder()
-                .user(user)
-                .content(content)
-                .build();
-
+            ContentScrap newContentScrap = ContentScrap.from(user, content);
             contentScrapRepository.save(newContentScrap);
         } else {
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
@@ -63,8 +63,8 @@ public class ScrapService {
         Users user = userService.getUser();
 
         return contentScrapRepository.findAllByUser(user).stream()
-            .map(ContentScrapDto::from)
-            .toList();
+                .map(ContentScrapDto::from)
+                .toList();
     }
 
     /**
@@ -86,7 +86,7 @@ public class ScrapService {
     public void scrapTerm(Integer termId) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
         Term term = termService.getTermById(termId)
-            .orElseThrow(() -> new TermException(ErrorCode.TERM_NOT_EXIST));
+                .orElseThrow(() -> new TermException(ErrorCode.TERM_NOT_EXIST));
         // 스크랩하려는 유저 데이터 획득
         Users user = userService.getUser();
 
@@ -95,7 +95,7 @@ public class ScrapService {
         if (termScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
             TermScrap newTermScrap = TermScrap.make(user, term);
             termScrapRepository.save(newTermScrap);
-        }else { // 이미 스크랩된 경우
+        } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
         }
     }
@@ -108,8 +108,8 @@ public class ScrapService {
         Users user = userService.getUser();
 
         return termScrapRepository.findAllByUser(user).stream()
-            .map(TermScrapDto::from)
-            .toList();
+                .map(TermScrapDto::from)
+                .toList();
     }
 
     /**

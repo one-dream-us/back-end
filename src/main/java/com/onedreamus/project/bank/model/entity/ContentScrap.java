@@ -10,6 +10,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +26,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ContentScrap extends BaseEntity{
+public class ContentScrap{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,5 +39,15 @@ public class ContentScrap extends BaseEntity{
     @JoinColumn
     @ManyToOne (fetch = FetchType.EAGER)
     private Content content;
+
+    private LocalDateTime createdAt;
+
+    public static ContentScrap from(Users user, Content content) {
+        return ContentScrap.builder()
+                .user(user)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
 }
