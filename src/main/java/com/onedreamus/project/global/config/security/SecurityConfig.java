@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -81,7 +82,7 @@ public class SecurityConfig {
                     "/v3/api-docs/**", "/swagger-ui/**", "/user/test/**"
                 ).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/user/info", "/scrap/**", "/user/withdraw", "/user/logout").hasAnyRole("USER")
+                .requestMatchers( "/user/info", "/scrap/**", "/user/withdraw", "/user/logout").hasAnyRole("USER")
                 .anyRequest().authenticated());
 
         // 필터 추가
@@ -89,7 +90,7 @@ public class SecurityConfig {
 //            .addFilterAt( // LoginFilter 등록
 //                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
 //                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class); // JWTFilter 등록
+            .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http

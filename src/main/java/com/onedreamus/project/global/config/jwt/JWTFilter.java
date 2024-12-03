@@ -117,20 +117,4 @@ public class JWTFilter extends OncePerRequestFilter {
 
         return false;
     }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        if (path.startsWith("/login")) {
-            return true;
-        } else if (path.startsWith("/oauth2")) {
-            return true;
-        } else if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
-            return true;
-        }else if (path.startsWith("/user/social/join") || path.startsWith("/user/social/unlink")) {
-            return true;
-        }
-
-        return false;
-    }
 }
