@@ -9,18 +9,19 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@Table(name = "content_tag")
 public class ContentTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "tag_id")
     private Tag tag;
 
-    @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
     private Content content;
 
     private Integer sequence;
