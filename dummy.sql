@@ -64,3 +64,9 @@ VALUES (1, NOW(), 1);
 
 INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (2, NOW(), 1);
+
+INSERT INTO content_view (content_id, view_date, view_count)
+VALUES (4, NOW(), 1)
+ON CONFLICT (content_id)
+    DO UPDATE SET view_count = content_view.view_count + 10,
+                  view_date  = NOW();
