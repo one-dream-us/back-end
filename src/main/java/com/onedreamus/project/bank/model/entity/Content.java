@@ -33,5 +33,7 @@ public class Content {
     private String thumbnailUrl;
     @Column(name="created_at")
     private LocalDateTime createdAt;
+    @Column(name="author")
+    private String author;
 
 }

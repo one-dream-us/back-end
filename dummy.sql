@@ -43,21 +43,20 @@ INSERT INTO script_paragraph (timestamp, script_full_id, paragraph_text)
 VALUES ('00:00:00', 2,
         '네 안녕하세요 2024년 12월 2일 월요일 킴스 미국 주식 시작하겠습니다.');
 
-INSERT
-INTO tag (value)
+INSERT INTO script_summary (summary_text, content_id)
+VALUES ('우주에선 안 뜨겁다!', 3);
+
+INSERT INTO tag (value)
 VALUES ('주식');
 
 INSERT INTO tag (value)
-VALUES ('해외');
+VALUES ('다좋은데유튜버발음좀');
 
 INSERT INTO content_tag (content_id, tag_id)
 VALUES (1, 1);
 
 INSERT INTO content_tag (content_id, tag_id)
-VALUES (2, 2);
-
-INSERT INTO content_tag (content_id, tag_id)
-VALUES (2, 3);
+VALUES (2, 1);
 
 INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (1, NOW(), 1);
@@ -66,7 +65,7 @@ INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (2, NOW(), 1);
 
 INSERT INTO content_view (content_id, view_date, view_count)
-VALUES (4, NOW(), 1)
+VALUES (1, NOW(), 1)
 ON CONFLICT (content_id)
     DO UPDATE SET view_count = content_view.view_count + 10,
                   view_date  = NOW();
