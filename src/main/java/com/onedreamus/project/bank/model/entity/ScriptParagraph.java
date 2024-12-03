@@ -15,13 +15,16 @@ public class ScriptParagraph {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
+    @Column(name = "timestamp")
     private LocalTime timestamp;
 
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "paragraph_text")
+    private String paragraphText;
+
+    @JoinColumn(name = "script_full_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private ScriptFull scriptFull;
 
-    private String paragraphText;
 }

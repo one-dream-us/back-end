@@ -33,4 +33,6 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
 	default List<Content> findTop5ByOrderByViewCountDesc() {
 		return findTop5ByOrderByViewCountDesc(PageRequest.of(0, 5));
 	}
+
+	Optional<Content> findById(Long id);
 }

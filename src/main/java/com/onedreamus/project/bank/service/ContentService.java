@@ -1,14 +1,17 @@
 package com.onedreamus.project.bank.service;
 
 import com.onedreamus.project.bank.exception.ContentException;
+import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
+import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
 import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
+import com.onedreamus.project.bank.repository.ScriptParagraphRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +30,7 @@ public class ContentService {
     private final ContentTagRepository contentTagRepository;
     private final ContentViewRepository contentViewRepository;
     private final ScriptSummaryRepository scriptSummaryRepository;
+    private final ScriptParagraphRepository scriptParagraphRepository;
 
     public Optional<Content> getContentById(Integer contentId){
         return contentRepository.findById(contentId);
@@ -94,6 +98,45 @@ public class ContentService {
             .viewCount(viewCount != null ? viewCount : 0)
             .tags(tags)
             .summaryText(summaryText)
+            .build();
+    }
+
+    public ContentDetailResponse getContentDetail(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+
+        List<String> tags = contentTagRepository.findByContentOrderBySequence(content)
+            .stream()
+            .map(contentTag -> contentTag.getTag().getValue())
+            .collect(Collectors.toList());
+
+        Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+
+        String summaryText = scriptSummaryRepository
+            .findByContentId(content.getId())
+            .map(ScriptSummary::getSummaryText)
+            .orElse(null);
+
+        List<ScriptParagraphDto> scriptParagraphs = scriptParagraphRepository
+            .findByContentIdOrderByTimestamp(content.getId())
+            .stream()
+            .map(sp -> ScriptParagraphDto.builder()
+                .timestamp(sp.getTimestamp())
+                .paragraphText(sp.getParagraphText())
+                .build())
+            .collect(Collectors.toList());
+
+        return ContentDetailResponse.builder()
+            .id(content.getId())
+            .title(content.getTitle())
+            .contentUrl(content.getContentUrl())
+            .thumbnailUrl(content.getThumbnailUrl())
+            .createdAt(content.getCreatedAt())
+            .viewCount(viewCount != null ? viewCount : 0)
+            .tags(tags)
+            .summaryText(summaryText)
+            .author(content.getAuthor())
+            .scriptParagraphs(scriptParagraphs)
             .build();
     }
 }

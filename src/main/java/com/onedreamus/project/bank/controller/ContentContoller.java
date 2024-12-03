@@ -1,5 +1,6 @@
 package com.onedreamus.project.bank.controller;
 
+import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.service.ContentService;
@@ -11,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +48,14 @@ public class ContentContoller {
 	@Operation(summary = "인기 콘텐츠 조회", description = "조회수가 많은 콘텐츠 5개를 조회합니다.")
 	public ResponseEntity<List<ContentListResponse>> getPopularContents() {
 		return ResponseEntity.ok(contentService.getPopularContents());
+	}
+
+	@GetMapping("/{contentId}")
+	@Operation(summary = "콘텐츠 상세 조회", description = "콘텐츠의 상세 정보를 조회합니다.")
+	public ResponseEntity<ContentDetailResponse> getContentDetail(
+		@Parameter(description = "콘텐츠 ID", example = "1")
+		@PathVariable Long contentId) {
+		return ResponseEntity.ok(contentService.getContentDetail(contentId));
 	}
 
 }

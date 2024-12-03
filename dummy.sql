@@ -69,3 +69,7 @@ VALUES (1, NOW(), 1)
 ON CONFLICT (content_id)
     DO UPDATE SET view_count = content_view.view_count + 10,
                   view_date  = NOW();
+
+UPDATE content
+SET author = '내일은 투자왕 - 김단테'
+WHERE id = 1;
