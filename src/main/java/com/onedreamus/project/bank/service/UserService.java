@@ -12,6 +12,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class UserService {
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SecurityUtils securityUtils;
+    private final CookieUtils cookieUtils;
 
     public UserInfoDto getUserInfo(){
         Users user = getUser();
@@ -63,8 +66,10 @@ public class UserService {
         String email = securityUtils.getEmail();
 
         // 기존 쿠키 삭제
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
+        List<String> allTokenType = Arrays.stream(TokenType.values())
+                .map(TokenType::getName)
+                .toList();
+        cookieUtils.deleteAllCookie(response, allTokenType);
 
         log.info("[회원 로그아웃] 이메일 : {}", email);
     }
@@ -89,13 +94,10 @@ public class UserService {
         userRepository.save(user);
 
         // 기존 쿠키 삭제
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
+        List<String> allTokenType = TokenType.getAllTokenName();
+        cookieUtils.deleteAllCookie(response, allTokenType);
 
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
-
-
-
     }
 
 

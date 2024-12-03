@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final CookieUtils cookieUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -97,8 +99,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 // 만료된 경우 -> 재로그인 필요
                 log.info("[Refresh token is expired] 이메일: {}", email);
 
-                response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
-                response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
+                List<String> allTokenType = TokenType.getAllTokenName();
+                cookieUtils.deleteAllCookie(response, allTokenType);
 
                 FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
                 return;
@@ -112,7 +114,7 @@ public class JWTFilter extends OncePerRequestFilter {
                             jwtUtil.getRole(refreshToken),
                             jwtUtil.isSocialLogin(refreshToken),
                             TokenType.ACCESS_TOKEN);
-            String cookie = CookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
+            String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
             response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         }
 

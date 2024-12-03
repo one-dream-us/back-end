@@ -6,6 +6,7 @@ import com.onedreamus.project.bank.service.UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
+import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final UserRepository userRepository;
+    private final CookieUtils cookieUtils;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -93,7 +95,7 @@ public class SecurityConfig {
 //            .addFilterAt( // LoginFilter 등록
 //                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
 //                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
+            .addFilterBefore(new JWTFilter(jwtUtil, userRepository, cookieUtils), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http

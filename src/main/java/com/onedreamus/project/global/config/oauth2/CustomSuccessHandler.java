@@ -32,6 +32,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JWTUtil jwtUtil;
     private final UserChecker userChecker;
     private final UserRepository userRepository;
+    private final CookieUtils cookieUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -69,11 +70,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.create(TokenType.ACCESS_TOKEN.getName(), accessToken));
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.create(TokenType.REFRESH_TOKEN.getName(), refreshToken));
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), accessToken));
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.REFRESH_TOKEN.getName(), refreshToken));
 
         String requestDomain = request.getHeader("Referer");
-        response.sendRedirect(requestDomain);
+
+        //TODO: 프론트 배포 서버와 연결 시 수정 필요!!
+        response.sendRedirect("http://localhost:3000");
     }
 
 }
