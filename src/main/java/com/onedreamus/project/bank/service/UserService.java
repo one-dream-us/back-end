@@ -4,6 +4,7 @@ import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.CookieUtils;
 import com.onedreamus.project.global.util.SecurityUtils;
@@ -30,6 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final SecurityUtils securityUtils;
 
     public UserInfoDto getUserInfo(){
         Users user = getUser();
@@ -58,10 +60,11 @@ public class UserService {
      * 로그아웃
      */
     public void logout(HttpServletResponse response) {
-        String email = SecurityUtils.getEmail();
+        String email = securityUtils.getEmail();
 
         // 기존 쿠키 삭제
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie());
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
 
         log.info("[회원 로그아웃] 이메일 : {}", email);
     }
@@ -82,11 +85,17 @@ public class UserService {
 
         // DB 삭제 -> soft delete
         user.setDeleted(true);
+        user.setRefreshToken(null);
         userRepository.save(user);
 
         // 기존 쿠키 삭제
-        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie());
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
+        response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
+
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
+
+
+
     }
 
 
@@ -94,9 +103,9 @@ public class UserService {
      * Users 획득
      */
     public Users getUser() {
-        String email = SecurityUtils.getEmail();
-        return getUserByEmail(email)
-            .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
+        String email = securityUtils.getEmail();
+       return getUserByEmail(email)
+               .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
 
     }
 

@@ -18,6 +18,7 @@ public enum ErrorCode {
     LOGIN_FAIL(HttpStatus.BAD_REQUEST, "로그인에 실패하였습니다."),
     TOKEN_NULL(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다. 로그인 해주세요."),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료 되었습니다. 다시 로그인 해주세요."),
+    REFRESH_TOKEN_DIFFERENT(HttpStatus.BAD_REQUEST, "Refresh-Token이 옳바르지 않습니다."),
 
 
     // Scrap
@@ -31,7 +32,7 @@ public enum ErrorCode {
 
     // Scarp
     SCRAP_NO_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
-    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다."),;
+    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

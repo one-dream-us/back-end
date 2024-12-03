@@ -1,6 +1,8 @@
 package com.onedreamus.project.global.config.security;
 
+import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.bank.service.CustomOAuth2UserService;
+import com.onedreamus.project.bank.service.UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
@@ -30,6 +32,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -90,7 +93,7 @@ public class SecurityConfig {
 //            .addFilterAt( // LoginFilter 등록
 //                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
 //                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
+            .addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http

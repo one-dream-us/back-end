@@ -4,10 +4,13 @@ import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.bank.service.UserService;
 import com.onedreamus.project.global.exception.CustomException;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.exception.FilterException;
 import com.onedreamus.project.global.exception.LoginException;
+import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -15,9 +18,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,28 +34,35 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        String authorization = null;
+        String accessToken = null;
+        String refreshToken = null;
+        Cookie accessTokenCookie = null;
+        Cookie refreshTokenCookie = null;
         Cookie[] cookies = request.getCookies();
-        Cookie authorizationCookie = null;
 
-        if (cookies.length == 0){
+        if (cookies == null) {
             FilterException.throwException(response, ErrorCode.TOKEN_NULL);
+            return;
         }
 
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("Authorization")) {
-                authorizationCookie = cookie;
-                authorization = cookie.getValue();
+            if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
+                accessTokenCookie = cookie;
+                accessToken = cookie.getValue();
+            } else if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
+                refreshTokenCookie = cookie;
+                refreshToken = cookie.getValue();
             }
         }
 
-        if (authorization == null) {
-            log.info("[path: {}] Token null", request.getServletPath());
+        if (accessToken == null) {
+            log.info("[path: {}] access-token null", request.getServletPath());
             if (isScarpRequest(request.getServletPath())) {
                 FilterException.throwException(response, ErrorCode.NEED_LOGIN);
                 return;
@@ -59,62 +72,64 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authorization;
+        boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
 
-        // 토큰 만료 기간 확인
-        if (jwtUtil.isExpired(token)) {
-            log.info("token expired");
-
-            // cookie 삭제
-            authorizationCookie.setValue("");
-            authorizationCookie.setPath("/");
-            authorizationCookie.setMaxAge(0);
-            response.addCookie(authorizationCookie);
-
-            FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
+        String email = jwtUtil.getEmail(accessToken);
+        Optional<Users> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            FilterException.throwException(response, ErrorCode.NO_USER);
             return;
         }
 
-        String name = jwtUtil.getUsername(token);
-        String email = jwtUtil.getEmail(token);
-        String role = jwtUtil.getRole(token);
-        boolean isSocialLogin = jwtUtil.isSocialLogin(token);
+        // 1. access-token 확인
+        if (isAccessTokenExpired) { // access-token이 만료된 경우
 
-        Authentication authentication = null;
-        if (isSocialLogin) {
+            // 2. refresh-token 확인
+            Users user = optionalUser.get();
+            // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
+            if (!user.getRefreshToken().equals(refreshToken)) {
+                FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
+                return;
+            }
 
-            CustomOAuth2User customOAuth2User =
-                new CustomOAuth2User(UserDto.builder()
-                    .name(name)
-                    .role(role)
-                    .email(email)
-                    .build());
+            // refresh-token 만료 기간 검사
+            if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
+                // 만료된 경우 -> 재로그인 필요
+                log.info("[Refresh token is expired] 이메일: {}", email);
 
-            authentication =
-                new UsernamePasswordAuthenticationToken(
-                    customOAuth2User, null, customOAuth2User.getAuthorities());
-        } else {
-            CustomUserDetails customUserDetails = new CustomUserDetails(Users.builder()
-                .name(name)
-                .email(email)
-                .role(role)
-                .build());
+                response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.ACCESS_TOKEN.getName()));
+                response.addHeader(HttpHeaders.SET_COOKIE, CookieUtils.createDeleteCookie(TokenType.REFRESH_TOKEN.getName()));
 
-            authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
-                null, customUserDetails.getAuthorities());
+                FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
+                return;
+            }
+
+            // 만료 X -> access-token 재발급
+            String newAccessToken =
+                    jwtUtil.createJwt(
+                            jwtUtil.getUsername(refreshToken),
+                            jwtUtil.getEmail(refreshToken),
+                            jwtUtil.getRole(refreshToken),
+                            jwtUtil.isSocialLogin(refreshToken),
+                            TokenType.ACCESS_TOKEN);
+            String cookie = CookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         }
 
-        // 임시 session 저장
+        CustomUserDetails customUserDetails = new CustomUserDetails(optionalUser.get());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
+                null, customUserDetails.getAuthorities());
+
+        // session 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
 
-    private boolean isScarpRequest(String path){
-        if (path.contains("/scrap")){
-            return true;
-        }
-
-        return false;
+    private boolean isScarpRequest(String path) {
+        return path.contains("/scarp");
     }
+
+
 }

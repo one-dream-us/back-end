@@ -8,8 +8,12 @@ import com.onedreamus.project.bank.model.dto.UserCheckDto;
 import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.global.config.jwt.JWTUtil;
+import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.config.oauth2.UserChecker;
+
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -24,7 +28,8 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-//    private final UserChecker userChecker;
+    private final JWTUtil jwtUtil;
+    private final UserChecker userChecker;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -48,15 +53,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         UserDto userDto;
         Users user;
         if (userOptional.isEmpty()) { // 새로운 유저인 경우
+
             user = Users.builder()
-                .name(oAuth2Response.getName())
-                .email(oAuth2Response.getEmail())
-                .provider(oAuth2Response.getProvider())
-                .nickname(nickname)
-                .role("ROLE_USER")
-                .socialId(oAuth2Response.getSocialId())
-                .build();
-            userRepository.save(user);
+                    .name(oAuth2Response.getName())
+                    .email(oAuth2Response.getEmail())
+                    .provider(oAuth2Response.getProvider())
+                    .nickname(nickname)
+                    .role("ROLE_USER")
+                    .socialId(oAuth2Response.getSocialId())
+                    .build();
+
+
             /**
              * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
              * - 새로운 유저의 경우 현제 클래스에서 DB 저장 X
@@ -78,12 +85,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setNickname(nickname);
             user.setSocialId(oAuth2Response.getSocialId());
             user.setProvider(oAuth2Response.getProvider());
-            userRepository.save(user);
-        } else { // 기존 유저인 경우
+
+
+        } else { // 기존 유저인 경우(단순 로그인)
             user = userOptional.get();
             user.setName(oAuth2Response.getName());
 
-            userRepository.save(user);
             /**
              * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
              */
@@ -97,8 +104,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 //            userChecker.addEmail(existUser.getEmail(), userCheckDto);
         }
 
-        userDto = UserDto.from(user);
-
-        return new CustomOAuth2User(userDto);
+        return new CustomOAuth2User(user);
     }
 }

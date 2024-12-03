@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onedreamus.project.global.exception.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
+
+import javax.lang.model.type.ErrorType;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -17,7 +19,8 @@ public class FilterException {
 
     public static void throwException(HttpServletResponse response, ErrorCode errorCode)
         throws IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 

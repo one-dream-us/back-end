@@ -20,6 +20,7 @@ public class UserDto {
     private String email;
     private String role;
     private String provider;
+    private Long socialId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -30,6 +31,7 @@ public class UserDto {
             .email(user.getEmail())
             .role(user.getRole())
             .provider(user.getProvider())
+                .socialId(user.getSocialId())
             .createdAt(user.getCreatedAt())
             .updatedAt(user.getUpdatedAt())
             .build();

@@ -33,6 +33,7 @@ public class Users extends BaseEntity{
     private String provider;
     private Long socialId;
     private boolean deleted;
+    private String refreshToken;
 
 
     public static Users from(JoinDto dto) {

@@ -18,15 +18,18 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class KakaoOAuth2Service {
 
-    //TODO: .env 파일 수정후 코드 변경 필수!!
-//    @Value("${spring.security.oauth2.client.registration.kakao.admin-key}")
-    private final String KAKAO_ADMIN_KEY = "2eae9fe406f06f04c904c133737c7ff0";
+    private final String KAKAO_ADMIN_KEY;
 
     private final RestTemplate restTemplate;
+
+    public KakaoOAuth2Service(@Value("${spring.security.oauth2.client.registration.kakao.admin-key}") String kakaoAdminKey,
+                              RestTemplate restTemplate) {
+        this.KAKAO_ADMIN_KEY = kakaoAdminKey;
+        this.restTemplate = restTemplate;
+    }
 
     public boolean unlinkKakaoAccount(Long kakaoId) {
         String unlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
