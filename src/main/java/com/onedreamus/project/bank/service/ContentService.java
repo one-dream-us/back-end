@@ -10,9 +10,10 @@ import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
-import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.bank.repository.ScriptParagraphRepository;
+import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.util.ViewCountFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,6 +84,7 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+        String formattedViewCount = ViewCountFormatter.format(viewCount != null ? viewCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -95,7 +97,7 @@ public class ContentService {
             .contentUrl(content.getContentUrl())
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
-            .viewCount(viewCount != null ? viewCount : 0)
+            .viewCount(formattedViewCount)
             .tags(tags)
             .summaryText(summaryText)
             .build();
@@ -111,6 +113,7 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+        String formattedViewCount = ViewCountFormatter.format(viewCount != null ? viewCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -132,7 +135,7 @@ public class ContentService {
             .contentUrl(content.getContentUrl())
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
-            .viewCount(viewCount != null ? viewCount : 0)
+            .viewCount(formattedViewCount)
             .tags(tags)
             .summaryText(summaryText)
             .author(content.getAuthor())

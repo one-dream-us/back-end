@@ -5,12 +5,11 @@ import lombok.*;
 
 import java.time.LocalTime;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
+@Table(name = "script_paragraph")
 public class ScriptParagraph {
 
     @Id

@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
 @Table(name = "content_view")
 public class ContentView {

@@ -13,7 +13,7 @@ public class ContentDetailResponse {
 	private String contentUrl;
 	private String thumbnailUrl;
 	private LocalDateTime createdAt;
-	private int viewCount;
+	private String viewCount;
 	private List<String> tags;
 	private String summaryText;
 	private String author;  // 추가

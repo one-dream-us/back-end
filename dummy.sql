@@ -65,10 +65,13 @@ INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (2, NOW(), 1);
 
 INSERT INTO content_view (content_id, view_date, view_count)
-VALUES (1, NOW(), 1)
+VALUES (3, NOW(), 1)
 ON CONFLICT (content_id)
-    DO UPDATE SET view_count = content_view.view_count + 10,
+    DO UPDATE SET view_count = content_view.view_count + 13999,
                   view_date  = NOW();
+UPDATE content_view
+SET view_count = view_count+13999
+WHERE content_id = 3;
 
 UPDATE content
 SET author = '내일은 투자왕 - 김단테'

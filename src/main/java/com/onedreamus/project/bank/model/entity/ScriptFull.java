@@ -4,17 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
+@Table(name = "script_full")
 public class ScriptFull {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @JoinColumn
     @OneToOne(fetch = FetchType.LAZY)
