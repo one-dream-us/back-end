@@ -8,12 +8,13 @@ import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
+import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
 import com.onedreamus.project.bank.repository.ScriptParagraphRepository;
 import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.util.ViewCountFormatter;
+import com.onedreamus.project.global.util.NumberFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContentService {
 
     private final ContentRepository contentRepository;
+    private  final ContentScrapRepository contentScrapRepository;
     private final ContentTagRepository contentTagRepository;
     private final ContentViewRepository contentViewRepository;
     private final ScriptSummaryRepository scriptSummaryRepository;
@@ -84,7 +86,9 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
-        String formattedViewCount = ViewCountFormatter.format(viewCount != null ? viewCount : 0);
+        String formattedViewCount = NumberFormatter.format(viewCount != null ? viewCount : 0);
+        Integer scrapCount = contentScrapRepository.countByContentId(content.getId());
+        String formattedScrapCount = NumberFormatter.format(scrapCount != null ? scrapCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -98,6 +102,7 @@ public class ContentService {
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
             .viewCount(formattedViewCount)
+            .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
             .build();
@@ -113,7 +118,9 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
-        String formattedViewCount = ViewCountFormatter.format(viewCount != null ? viewCount : 0);
+        String formattedViewCount = NumberFormatter.format(viewCount != null ? viewCount : 0);
+        Integer scrapCount = contentScrapRepository.countByContentId(content.getId());
+        String formattedScrapCount = NumberFormatter.format(scrapCount != null ? scrapCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -136,6 +143,7 @@ public class ContentService {
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
             .viewCount(formattedViewCount)
+            .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
             .author(content.getAuthor())

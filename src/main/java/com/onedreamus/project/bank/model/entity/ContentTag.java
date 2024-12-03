@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Builder
 @Table(name = "content_tag")
+@Entity(name="ContentTag")
 public class ContentTag {
 
     @Id

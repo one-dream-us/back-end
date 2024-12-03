@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @Builder
 @Table(name = "content_view")
+@Entity(name="ContentView")
 public class ContentView {
 
     @Id

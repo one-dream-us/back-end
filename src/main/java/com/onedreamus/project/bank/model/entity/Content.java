@@ -1,6 +1,7 @@
 package com.onedreamus.project.bank.model.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @Table(name = "content")
+@Entity(name="Content")
 public class Content {
 
     @Id

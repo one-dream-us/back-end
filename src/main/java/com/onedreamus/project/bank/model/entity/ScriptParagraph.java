@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @Getter
 @Builder
 @Table(name = "script_paragraph")
+@Entity(name="ScriptParagraph")
 public class ScriptParagraph {
 
     @Id

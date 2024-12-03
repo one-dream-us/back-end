@@ -53,10 +53,7 @@ INSERT INTO tag (value)
 VALUES ('다좋은데유튜버발음좀');
 
 INSERT INTO content_tag (content_id, tag_id)
-VALUES (1, 1);
-
-INSERT INTO content_tag (content_id, tag_id)
-VALUES (2, 1);
+VALUES (9, 7);
 
 INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (1, NOW(), 1);
@@ -73,6 +70,12 @@ UPDATE content_view
 SET view_count = view_count+13999
 WHERE content_id = 3;
 
+INSERT INTO content_scrap (created_at, updated_at, content_id, user_id)
+VALUES (NOW(), NOW(), 13, 3);
+
 UPDATE content
 SET author = '내일은 투자왕 - 김단테'
 WHERE id = 1;
+
+DELETE FROM content_tag
+WHERE id = 10;

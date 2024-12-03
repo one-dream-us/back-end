@@ -14,6 +14,7 @@ public class ContentListResponse {
 	private String thumbnailUrl;
 	private LocalDateTime createdAt;
 	private String viewCount;
+	private String scrapCount;
 	private List<String> tags;
 	private String summaryText;
 }

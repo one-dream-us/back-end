@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @Builder
 @Table(name = "script_full")
+@Entity(name="ScriptFull")
 public class ScriptFull {
 
     @Id

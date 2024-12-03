@@ -1,6 +1,6 @@
 package com.onedreamus.project.global.util;
 
-public class ViewCountFormatter {
+public class NumberFormatter {
 	public static String format(int viewCount) {
 		if (viewCount < 10000) {
 			return String.valueOf(viewCount);
