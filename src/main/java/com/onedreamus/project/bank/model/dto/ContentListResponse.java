@@ -15,4 +15,5 @@ public class ContentListResponse {
 	private LocalDateTime createdAt;
 	private int viewCount;
 	private List<String> tags;
+	private String summaryText;
 }

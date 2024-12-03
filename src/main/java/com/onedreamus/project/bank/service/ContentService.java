@@ -5,9 +5,11 @@ import com.onedreamus.project.bank.model.dto.ContentListDto;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.model.entity.Content;
+import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
+import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -27,6 +29,7 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentTagRepository contentTagRepository;
     private final ContentViewRepository contentViewRepository;
+    private final ScriptSummaryRepository scriptSummaryRepository;
 
     public Optional<Content> getContentById(Integer contentId){
         return contentRepository.findById(contentId);
@@ -50,6 +53,10 @@ public class ContentService {
                     .collect(Collectors.toList());
 
                 Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+                String summaryText = scriptSummaryRepository
+                    .findByContentId(content.getId())
+                    .map(ScriptSummary::getSummaryText)
+                    .orElse(null);
 
                 return ContentListResponse.builder()
                     .id(content.getId())
@@ -59,6 +66,7 @@ public class ContentService {
                     .createdAt(content.getCreatedAt())
                     .viewCount(viewCount != null ? viewCount : 0)
                     .tags(tags)
+                    .summaryText(summaryText)
                     .build();
             })
             .collect(Collectors.toList());
