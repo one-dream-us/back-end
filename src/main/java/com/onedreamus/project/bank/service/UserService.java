@@ -1,10 +1,7 @@
 package com.onedreamus.project.bank.service;
 
 import com.onedreamus.project.bank.exception.UserException;
-import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
-import com.onedreamus.project.bank.model.dto.JoinDto;
-import com.onedreamus.project.bank.model.dto.LoginDto;
-import com.onedreamus.project.bank.model.dto.UserDto;
+import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
@@ -34,11 +31,11 @@ public class UserService {
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserDto getUserInfo(){
+    public UserInfoDto getUserInfo(){
         Users user = getUser();
 
         log.info("[회원 정보 조회] 이메일 : {}", user.getEmail());
-        return UserDto.from(user);
+        return UserInfoDto.from(user);
     }
 
     /**

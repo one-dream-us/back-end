@@ -4,6 +4,7 @@ import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.LoginDto;
 import com.onedreamus.project.bank.model.dto.UserDto;
+import com.onedreamus.project.bank.model.dto.UserInfoDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.bank.service.KakaoOAuth2Service;
@@ -41,8 +42,8 @@ public class UserController {
     @Operation(
         summary = "유저 데이터 조회",
         description = "유저데이터 조회 API")
-    public ResponseEntity<UserDto> getUserInfo(){
-        UserDto userDto = userService.getUserInfo();
+    public ResponseEntity<UserInfoDto> getUserInfo(){
+        UserInfoDto userDto = userService.getUserInfo();
         return ResponseEntity.ok(userDto);
     }
 
