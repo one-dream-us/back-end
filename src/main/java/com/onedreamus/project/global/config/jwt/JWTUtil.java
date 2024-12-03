@@ -18,41 +18,38 @@ public class JWTUtil {
 
     private SecretKey secretKey;
 
-    private final Long JWT_EXPIRE_TIME = 60 * 60 * 1000L; // 1시간
     private final Long TEMP_JWT_EXPIRE_TIME = 3 * 60 * 1000L; // 3분
 
     public JWTUtil(@Value("${spring.jwt.secret-key}") String secret) {
 
         secretKey = new SecretKeySpec(
-            secret.getBytes(StandardCharsets.UTF_8),
-            Jwts.SIG.HS256.key().build().getAlgorithm()
+                secret.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm()
         );
     }
 
     public String getUsername(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload()
-            .get("username", String.class);
+        return getPayload(token)
+                .get("username", String.class);
     }
 
     public String getEmail(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload()
-            .get("email", String.class);
+        return getPayload(token)
+                .get("email", String.class);
     }
 
     public String getRole(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload()
-            .get("role", String.class);
+        return getPayload(token)
+                .get("role", String.class);
     }
 
     public Boolean isExpired(String token) {
         try {
-            Claims claims = getPayload(token);
+            Jwts.parser().verifyWith(secretKey).build()
+                    .parseSignedClaims(token).getPayload();
             return false;
         } catch (ExpiredJwtException e) {
             log.info("JWT 만료!!");
@@ -61,31 +58,35 @@ public class JWTUtil {
     }
 
     public Boolean isSocialLogin(String token) {
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload()
-            .get("isSocialLogin", Boolean.class);
+        return getPayload(token)
+                .get("isSocialLogin", Boolean.class);
     }
 
     private Claims getPayload(String token) {
-        return Jwts.parser().verifyWith(secretKey).build()
-            .parseSignedClaims(token).getPayload();
+
+        try {
+            return Jwts.parser().verifyWith(secretKey).build()
+                    .parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
-    public Long getSocialId(String token){
+    public Long getSocialId(String token) {
         return getPayload(token).get("socialId", Long.class);
     }
 
-    public String createJwt(String username, String email, String role, boolean isSocialLogin) {
+    public String createJwt(String username, String email, String role, boolean isSocialLogin, TokenType tokenType) {
 
         return Jwts.builder()
-            .claim("username", username)
-            .claim("email", email)
-            .claim("role", role)
-            .claim("isSocialLogin", isSocialLogin)
-            .issuedAt(new Date(System.currentTimeMillis()))
-            .expiration(new Date(System.currentTimeMillis() + JWT_EXPIRE_TIME))
-            .signWith(secretKey)
-            .compact();
+                .claim("username", username)
+                .claim("email", email)
+                .claim("role", role)
+                .claim("isSocialLogin", isSocialLogin)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + tokenType.getExpiredTime()))
+                .signWith(secretKey)
+                .compact();
     }
 
     /**
