@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContentViewRepository extends JpaRepository<ContentView, Integer> {
-	@Query("SELECT SUM(cv.viewCount) FROM ContentView cv WHERE cv.contentId = :contentId")
+	@Query("SELECT SUM(cv.viewCount) FROM ContentView cv WHERE cv.content.id = :contentId")
 	Integer findTotalViewCountByContentId(@Param("contentId") Long contentId);
 }
