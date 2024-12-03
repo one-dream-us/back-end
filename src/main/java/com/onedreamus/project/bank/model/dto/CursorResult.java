@@ -10,5 +10,6 @@ public class CursorResult<T> {
 	private List<T> contents;
 	private boolean hasNext;
 	private Long nextCursor;
+	private long totalElements;
 
 }

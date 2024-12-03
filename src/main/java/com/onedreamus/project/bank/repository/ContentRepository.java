@@ -16,4 +16,7 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
 		@Param("cursor") Long cursor,
 		Pageable pageable
 	);
+
+	@Query("SELECT COUNT(c) FROM Content c")
+	long countTotalContents();
 }

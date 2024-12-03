@@ -39,6 +39,7 @@ public class ContentService {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
         List<Content> contents = contentRepository.findByIdLessThanOrderByIdDesc(
             cursor, pageRequest);
+        long totalElements = contentRepository.countTotalContents();  // 전체 수 조회
 
         boolean hasNext = contents.size() > size;
         if (hasNext) {
@@ -78,6 +79,7 @@ public class ContentService {
             .contents(responses)
             .hasNext(hasNext)
             .nextCursor(nextCursor)
+            .totalElements(totalElements)
             .build();
     }
 }
