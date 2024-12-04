@@ -8,7 +8,9 @@ import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +45,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-        throws Exception {
+            throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -52,55 +54,55 @@ public class SecurityConfig {
 
         // cors 설정
         http
-            .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
-                @Override
-                public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
-                    CorsConfiguration corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://thisismoney.site"));
-                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "FETCH", "OPTIONS"));
-                    corsConfiguration.setAllowCredentials(true);
-                    corsConfiguration.setAllowedHeaders(List.of("*"));
-                    corsConfiguration.setMaxAge(360L);
+                        CorsConfiguration corsConfiguration = new CorsConfiguration();
+                        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://thisismoney.site"));
+                        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "FETCH", "OPTIONS"));
+                        corsConfiguration.setAllowCredentials(true);
+                        corsConfiguration.setAllowedHeaders(List.of("*"));
+                        corsConfiguration.setMaxAge(360L);
 
-                    return corsConfiguration;
-                }
-            }));
+                        return corsConfiguration;
+                    }
+                }));
 
         http
-            .csrf(AbstractHttpConfigurer::disable) // csrf disable
-            .formLogin(AbstractHttpConfigurer::disable) // form 로그인 disable
-            .httpBasic(AbstractHttpConfigurer::disable); // http basic 인증 방식 disable
+                .csrf(AbstractHttpConfigurer::disable) // csrf disable
+                .formLogin(AbstractHttpConfigurer::disable) // form 로그인 disable
+                .httpBasic(AbstractHttpConfigurer::disable); // http basic 인증 방식 disable
 
         // oauth2
         http
-            .oauth2Login((oauth2) -> oauth2
-                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                    .userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler) // login 성공 시
-            );
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler) // login 성공 시
+                );
 
         http
-            .authorizeHttpRequests((auth) -> auth
-                .requestMatchers(
-                    "/login/**", "/user/join", "/oauth2/**", "/swagger-ui.html",
-                    "/v3/api-docs/**", "/swagger-ui/**", "/user/test/**"
-                ).permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers( "/user/info", "/scrap/**", "/user/withdraw", "/user/logout").hasAnyRole("USER")
-                .anyRequest().authenticated());
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers(
+                                "login/**", "/user/join", "/oauth2/**", "/swagger-ui.html",
+                                "/v3/api-docs/**", "/swagger-ui/**"
+                        ).permitAll()
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/user/info", "/api/v1/scrap/**", "/api/v1/user/withdraw", "/api/v1/user/logout").hasAnyRole("USER")
+                        .anyRequest().authenticated());
 
         // 필터 추가
         http
 //            .addFilterAt( // LoginFilter 등록
 //                new LoginFilter(new ObjectMapper(), jwtUtil, authenticationManager(configuration)),
 //                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTFilter(jwtUtil, userRepository, cookieUtils), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
+                .addFilterBefore(new JWTFilter(jwtUtil, userRepository, cookieUtils), UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
 
         // session -> stateless
         http
-            .sessionManagement(
-                (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(
+                        (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

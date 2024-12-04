@@ -42,6 +42,11 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        if (isPublicPath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = null;
         String refreshToken = null;
         Cookie accessTokenCookie = null;
@@ -65,7 +70,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (accessToken == null) {
             log.info("[path: {}] access-token null", request.getServletPath());
-            if (isScarpRequest(request.getServletPath())) {
+            if (isScrapRequest(request.getServletPath())) {
                 FilterException.throwException(response, ErrorCode.NEED_LOGIN);
                 return;
             }
@@ -88,6 +93,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // 2. refresh-token 확인
             Users user = optionalUser.get();
+            if (user.isDeleted()){
+                FilterException.throwException(response,ErrorCode.NO_USER);
+            }
+
             // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
             if (!user.getRefreshToken().equals(refreshToken)) {
                 FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
@@ -129,9 +138,25 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isScarpRequest(String path) {
-        return path.contains("/scarp");
+    private boolean isScrapRequest(String path) {
+        return path.contains("/scrap");
     }
 
+    private boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        List<String> publicPaths = List.of(
+                "/login/**",
+                "/user/join",
+                "/oauth2/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/swagger-ui/**"
+        );
+
+        return publicPaths.stream().anyMatch(publicPath ->
+                path.startsWith(publicPath.replace("/**", "")) ||
+                        path.matches(publicPath.replace("**", ".*"))
+        );
+    }
 
 }

@@ -5,6 +5,8 @@ import com.onedreamus.project.bank.exception.ScrapException;
 import com.onedreamus.project.bank.exception.DictionaryException;
 import com.onedreamus.project.bank.model.dto.ContentScrapDto;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapDto;
+import com.onedreamus.project.bank.exception.UserException;
+import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
 import com.onedreamus.project.bank.model.entity.Dictionary;
@@ -13,7 +15,9 @@ import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.util.SecurityUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,5 +125,46 @@ public class ScrapService {
         } else {
             throw new ScrapException(ErrorCode.SCRAP_NO_EXIST);
         }
+    }
+
+    /**
+     * 전체 스크랩 수 조회
+     */
+    public TotalScarpCntDto getTotalScarpCnt() {
+        Users user = userService.getUser();
+
+        int totalScrapCnt = getContentScarpCnt(user) + getDictionaryScrapCnt(user);
+
+        return TotalScarpCntDto.builder()
+                .totalScrapCnt(totalScrapCnt)
+                .build();
+    }
+
+    /**
+     * 콘텐츠 스크랩 수 조회
+     */
+    public ContentScrapCntDto getContentScrapCnt(){
+        Users user = userService.getUser();
+        return ContentScrapCntDto.builder()
+                .contentScrapCnt(getContentScarpCnt(user))
+                .build();
+    }
+
+    /**
+     * 용어 스크랩 수 조회
+     */
+    public DictionaryScrapCntDto getDictionaryScrapCnt(){
+        Users user = userService.getUser();
+        return DictionaryScrapCntDto.builder()
+                .dictionaryScrapCnt(getDictionaryScrapCnt(user))
+                .build();
+    }
+
+    private Integer getContentScarpCnt(Users user){
+        return contentScrapRepository.countByUser(user);
+    }
+
+    private Integer getDictionaryScrapCnt(Users user) {
+        return dictionaryScrapRepository.countByUser(user);
     }
 }

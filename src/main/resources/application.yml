@@ -28,7 +28,7 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            admin-key: ${KAKAO_ADMIN_KEY}
+            admin-key: 2eae9fe406f06f04c904c133737c7ff0
             client-server: # seucurity id
             client-authentication-method: ${KAKAO_CLIENT_AUTHENTICATION_METHOD}
             redirect-uri: ${KAKAO_REDIRECT_URI}

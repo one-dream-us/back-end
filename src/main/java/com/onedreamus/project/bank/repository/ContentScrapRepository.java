@@ -18,4 +18,6 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
     Optional<ContentScrap> findByUserAndContent(Users user, Content content);
     @Query("SELECT COUNT(cs) FROM ContentScrap cs WHERE cs.content.id = :contentId")
     Integer countByContentId(@Param("contentId") Long contentId);
+
+    Integer countByUser(Users user);
 }
