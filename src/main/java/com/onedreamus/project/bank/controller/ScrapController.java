@@ -39,9 +39,9 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 스크랩 조회", description = "스크랩한 콘텐츠 전체 조회하는 API")
     @GetMapping("/content")
-    public ResponseEntity<List<ContentScrapDto>> getContentScrapped() {
-        List<ContentScrapDto> contentScrapDtos = scrapService.getContentScrapped();
-        return ResponseEntity.ok(contentScrapDtos);
+    public ResponseEntity<ContentScrapResponse> getContentScrapped() {
+        ContentScrapResponse contentScrapResponse = scrapService.getContentScrapped();
+        return ResponseEntity.ok(contentScrapResponse);
     }
 
     /**
@@ -69,8 +69,8 @@ public class ScrapController {
      */
     @Operation(summary = "용어 스크랩 조회", description = "스크랩한 용어 전체 조회하는 API")
     @GetMapping("/dictionary")
-    public ResponseEntity<List<DictionaryScrapDto>> getDictionaryScrapped(){
-        List<DictionaryScrapDto> dictionaryScrapDtos = scrapService.getDictionaryScrapped();
+    public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(){
+        DictionaryScrapResponse dictionaryScrapDtos = scrapService.getDictionaryScrapped();
         return ResponseEntity.ok(dictionaryScrapDtos);
     }
 
