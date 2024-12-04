@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "content")
 @Entity(name="Content")
-public class Content {
+public class Content{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

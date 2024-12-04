@@ -17,7 +17,7 @@ public class Tooltip {
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER)
-    private Term term;
+    private Dictionary dictionary;
 
     @JoinColumn
     @OneToOne(fetch = FetchType.LAZY)

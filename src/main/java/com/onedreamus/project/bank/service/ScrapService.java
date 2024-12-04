@@ -2,21 +2,18 @@ package com.onedreamus.project.bank.service;
 
 import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.exception.ScrapException;
-import com.onedreamus.project.bank.exception.TermException;
-import com.onedreamus.project.bank.exception.UserException;
+import com.onedreamus.project.bank.exception.DictionaryException;
 import com.onedreamus.project.bank.model.dto.ContentScrapDto;
-import com.onedreamus.project.bank.model.dto.TermScrapDto;
+import com.onedreamus.project.bank.model.dto.DictionaryScrapDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
-import com.onedreamus.project.bank.model.entity.Term;
-import com.onedreamus.project.bank.model.entity.TermScrap;
+import com.onedreamus.project.bank.model.entity.Dictionary;
+import com.onedreamus.project.bank.model.entity.DictionaryScrap;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
-import com.onedreamus.project.bank.repository.TermScrapRepository;
+import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.util.SecurityUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,10 +26,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ScrapService {
 
-    private final TermScrapRepository termScrapRepository;
+    private final DictionaryScrapRepository dictionaryScrapRepository;
     private final ContentScrapRepository contentScrapRepository;
     private final ContentService contentService;
-    private final TermService termService;
+    private final DictionaryService dictionaryService;
     private final UserService userService;
 
     public void scrapContent(Integer contentId) {
@@ -83,18 +80,19 @@ public class ScrapService {
     /**
      * 용어 스크랩
      */
-    public void scrapTerm(Integer termId) {
+    public void scrapDictionary(Long dictionaryId) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
-        Term term = termService.getTermById(termId)
-                .orElseThrow(() -> new TermException(ErrorCode.TERM_NOT_EXIST));
+        Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
+                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
         // 스크랩하려는 유저 데이터 획득
         Users user = userService.getUser();
 
         // 기존에 스크랩된 용어인지 확인
-        Optional<TermScrap> termScrapOptional = termScrapRepository.findByUserAndTerm(user, term);
-        if (termScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
-            TermScrap newTermScrap = TermScrap.make(user, term);
-            termScrapRepository.save(newTermScrap);
+        Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(user,
+            dictionary);
+        if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
+            DictionaryScrap newDictionaryScrap = DictionaryScrap.make(user, dictionary);
+            dictionaryScrapRepository.save(newDictionaryScrap);
         } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
         }
@@ -103,23 +101,23 @@ public class ScrapService {
     /**
      * 스크랩된 용어 전체 조회
      */
-    public List<TermScrapDto> getTermScrapped() {
+    public List<DictionaryScrapDto> getDictionaryScrapped() {
 
         Users user = userService.getUser();
 
-        return termScrapRepository.findAllByUser(user).stream()
-                .map(TermScrapDto::from)
+        return dictionaryScrapRepository.findAllByUser(user).stream()
+                .map(DictionaryScrapDto::from)
                 .toList();
     }
 
     /**
      * 스크랩된 용어 삭제
      */
-    public void deleteTermScrapped(Integer termScrapId) {
-        boolean isExist = termScrapRepository.existsById(termScrapId);
+    public void deleteDictionaryScrapped(Long dictionaryScrapId) {
+        boolean isExist = dictionaryScrapRepository.existsById(dictionaryScrapId);
 
         if (isExist) {
-            termScrapRepository.deleteById(termScrapId);
+            dictionaryScrapRepository.deleteById(dictionaryScrapId);
         } else {
             throw new ScrapException(ErrorCode.SCRAP_NO_EXIST);
         }
