@@ -17,4 +17,5 @@ public class ContentListResponse {
 	private String scrapCount;
 	private List<String> tags;
 	private String summaryText;
+	private String videoId;
 }

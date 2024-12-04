@@ -8,17 +8,22 @@ import com.onedreamus.project.bank.model.dto.DictionaryDto;
 import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
+import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
+import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.bank.repository.ScriptParagraphDictionaryRepository;
 import com.onedreamus.project.bank.repository.ScriptParagraphRepository;
 import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.NumberFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +42,7 @@ public class ContentService {
     private final ScriptSummaryRepository scriptSummaryRepository;
     private final ScriptParagraphRepository scriptParagraphRepository;
     private final ScriptParagraphDictionaryRepository scriptParagraphDictionaryRepository;
+    private final DictionaryScrapRepository dictionaryScrapRepository;
 
     public Optional<Content> getContentById(Integer contentId){
         return contentRepository.findById(contentId);
@@ -108,10 +114,11 @@ public class ContentService {
             .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
+            .videoId(extractVideoId(content.getContentUrl()))
             .build();
     }
 
-    public ContentDetailResponse getContentDetail(Long contentId) {
+    public ContentDetailResponse getContentDetail(Long contentId, Users user) {
         Content content = contentRepository.findById(contentId)
             .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
@@ -130,24 +137,45 @@ public class ContentService {
             .map(ScriptSummary::getSummaryText)
             .orElse(null);
 
+        Set<String> processedTerms = new HashSet<>();
+
         List<ScriptParagraphDto> scriptParagraphs = scriptParagraphRepository
             .findByContentIdOrderByTimestamp(content.getId())
             .stream()
             .map(sp -> {
+                AtomicReference<String> paragraphTextRef = new AtomicReference<>(sp.getParagraphText());
+
                 List<DictionaryDto> dictionaries = scriptParagraphDictionaryRepository
                     .findByScriptParagraphIdWithDictionary(sp.getId())
                     .stream()
-                    .map(mapping -> DictionaryDto.builder()
-                        .id(mapping.getDictionary().getId())
-                        .term(mapping.getDictionary().getTerm())
-                        .details(mapping.getDictionary().getDetails())
-                        .build())
+                    .filter(mapping -> {
+                        String term = mapping.getDictionary().getTerm();
+                        boolean isFirstAppearance = processedTerms.add(term);
+
+                        if (!isFirstAppearance) {
+                            paragraphTextRef.set(paragraphTextRef.get()
+                                .replace("<mark>" + term + "</mark>", term));
+                        }
+                        return isFirstAppearance;
+                    })
+                    .map(mapping -> {
+                        boolean isScrapped = dictionaryScrapRepository
+                            .findByUserAndDictionary(user, mapping.getDictionary())
+                            .isPresent();
+
+                        return DictionaryDto.builder()
+                            .id(mapping.getDictionary().getId())
+                            .term(mapping.getDictionary().getTerm())
+                            .details(mapping.getDictionary().getDetails())
+                            .isScrapped(isScrapped)
+                            .build();
+                    })
                     .collect(Collectors.toList());
 
                 return ScriptParagraphDto.builder()
                     .id(sp.getId())
                     .timestamp(sp.getTimestamp())
-                    .paragraphText(sp.getParagraphText())
+                    .paragraphText(paragraphTextRef.get())
                     .dictionaries(dictionaries)
                     .build();
             })
@@ -165,6 +193,24 @@ public class ContentService {
             .summaryText(summaryText)
             .author(content.getAuthor())
             .scriptParagraphs(scriptParagraphs)
+            .videoId(extractVideoId(content.getContentUrl()))
             .build();
+    }
+
+    private String extractVideoId(String contentUrl) {
+        if (contentUrl == null || !contentUrl.contains("v=")) {
+            return null;
+        }
+        String[] parts = contentUrl.split("v=");
+        if (parts.length < 2) {
+            return null;
+        }
+        String videoId = parts[1];
+        // & 파라미터가 있는 경우 처리
+        int ampersandIndex = videoId.indexOf("&");
+        if (ampersandIndex != -1) {
+            videoId = videoId.substring(0, ampersandIndex);
+        }
+        return videoId;
     }
 }

@@ -17,6 +17,7 @@ public class ContentDetailResponse {
 	private String scrapCount;
 	private List<String> tags;
 	private String summaryText;
-	private String author;  // 추가
-	private List<ScriptParagraphDto> scriptParagraphs;  // 추가
+	private String author;
+	private List<ScriptParagraphDto> scriptParagraphs;
+	private String videoId;
 }

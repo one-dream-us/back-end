@@ -9,4 +9,5 @@ public class DictionaryDto {
 	private Long id;
 	private String term;
 	private String details;
+	private boolean isScrapped;
 }
