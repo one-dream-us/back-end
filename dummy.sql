@@ -79,3 +79,19 @@ WHERE id = 1;
 
 DELETE FROM content_tag
 WHERE id = 10;
+
+INSERT INTO dictionary (term, details)
+VALUES
+    ('마이크로스트레티지', '비트코인을 대량 보유한 기업으로 유명한 기업분석 소프트웨어 회사'),
+    ('MSTR', '마이크로스트레티지의 주식 심볼');
+
+INSERT INTO dictionary (term, details)
+VALUES ('ETF', '상장지수펀드(Exchange Traded Fund)의 약자로, 특정 지수나 자산의 가격 변동을 추적하여 거래되는 펀드');
+
+-- 첫 번째 문단에 대한 용어 매핑
+INSERT INTO script_paragraph_dictionary (script_paragraph_id, dictionary_id)
+SELECT 1, id FROM dictionary WHERE term = '마이크로스트레티지';
+
+-- 5번 문단에 ETF 용어 매핑
+INSERT INTO script_paragraph_dictionary (script_paragraph_id, dictionary_id)
+SELECT 5, id FROM dictionary WHERE term = 'ETF';
