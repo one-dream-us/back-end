@@ -60,12 +60,14 @@ public class ScrapService {
     /**
      * 스크랩된 콘텐츠 전체 획득
      */
-    public List<ContentScrapDto> getContentScrapped() {
+    public ContentScrapResponse getContentScrapped() {
         Users user = userService.getUser();
 
-        return contentScrapRepository.findAllByUser(user).stream()
+        List<ContentScrapDto> contentScrapDtos = contentScrapRepository.findAllByUser(user).stream()
                 .map(ContentScrapDto::from)
                 .toList();
+
+        return ContentScrapResponse.from(contentScrapDtos);
     }
 
     /**
@@ -93,7 +95,7 @@ public class ScrapService {
 
         // 기존에 스크랩된 용어인지 확인
         Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(user,
-            dictionary);
+                dictionary);
         if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
             DictionaryScrap newDictionaryScrap = DictionaryScrap.make(user, dictionary);
             dictionaryScrapRepository.save(newDictionaryScrap);
@@ -105,13 +107,15 @@ public class ScrapService {
     /**
      * 스크랩된 용어 전체 조회
      */
-    public List<DictionaryScrapDto> getDictionaryScrapped() {
+    public DictionaryScrapResponse getDictionaryScrapped() {
 
         Users user = userService.getUser();
 
-        return dictionaryScrapRepository.findAllByUser(user).stream()
+        List<DictionaryScrapDto> dictionaryScrapDtos = dictionaryScrapRepository.findAllByUser(user).stream()
                 .map(DictionaryScrapDto::from)
                 .toList();
+
+        return DictionaryScrapResponse.from(dictionaryScrapDtos);
     }
 
     /**
@@ -143,7 +147,7 @@ public class ScrapService {
     /**
      * 콘텐츠 스크랩 수 조회
      */
-    public ContentScrapCntDto getContentScrapCnt(){
+    public ContentScrapCntDto getContentScrapCnt() {
         Users user = userService.getUser();
         return ContentScrapCntDto.builder()
                 .contentScrapCnt(getContentScarpCnt(user))
@@ -153,14 +157,14 @@ public class ScrapService {
     /**
      * 용어 스크랩 수 조회
      */
-    public DictionaryScrapCntDto getDictionaryScrapCnt(){
+    public DictionaryScrapCntDto getDictionaryScrapCnt() {
         Users user = userService.getUser();
         return DictionaryScrapCntDto.builder()
                 .dictionaryScrapCnt(getDictionaryScrapCnt(user))
                 .build();
     }
 
-    private Integer getContentScarpCnt(Users user){
+    private Integer getContentScarpCnt(Users user) {
         return contentScrapRepository.countByUser(user);
     }
 
