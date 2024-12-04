@@ -42,6 +42,11 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        if (isPublicPath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = null;
         String refreshToken = null;
         Cookie accessTokenCookie = null;
@@ -133,5 +138,21 @@ public class JWTFilter extends OncePerRequestFilter {
         return path.contains("/scrap");
     }
 
+    private boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        List<String> publicPaths = List.of(
+                "/login/**",
+                "/user/join",
+                "/oauth2/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/swagger-ui/**"
+        );
+
+        return publicPaths.stream().anyMatch(publicPath ->
+                path.startsWith(publicPath.replace("/**", "")) ||
+                        path.matches(publicPath.replace("**", ".*"))
+        );
+    }
 
 }
