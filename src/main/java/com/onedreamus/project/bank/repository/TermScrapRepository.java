@@ -15,4 +15,6 @@ public interface TermScrapRepository extends JpaRepository<TermScrap, Integer> {
     List<TermScrap> findAllByUser(Users user);
 
     Optional<TermScrap> findByUserAndTerm(Users user, Term term);
+
+    Integer countByUser(Users user);
 }

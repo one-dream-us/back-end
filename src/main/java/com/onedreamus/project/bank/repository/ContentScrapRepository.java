@@ -15,4 +15,6 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
     List<ContentScrap> findAllByUser(Users user);
 
     Optional<ContentScrap> findByUserAndContent(Users user, Content content);
+
+    Integer countByUser(Users user);
 }

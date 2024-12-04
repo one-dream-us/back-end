@@ -1,10 +1,11 @@
 package com.onedreamus.project.bank.controller;
 
-import com.onedreamus.project.bank.model.dto.ContentScrapDto;
-import com.onedreamus.project.bank.model.dto.TermScrapDto;
+import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.service.ScrapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.Dictionary;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/scrap")
+@RequestMapping("/api/v1/scrap")
 @RequiredArgsConstructor
 @Tag(name = "Scrap Controller", description = "스크랩 관련 API")
 public class ScrapController {
@@ -81,6 +82,36 @@ public class ScrapController {
     public ResponseEntity<String> deleteTermScrapped(@PathVariable("termScrapId") Integer termScrapId){
         scrapService.deleteTermScrapped(termScrapId);
         return ResponseEntity.ok("삭제 성공");
+    }
+
+    /**
+     * 전체 스크랩 수 조회 API
+     */
+    @Operation(summary = "전체 스크랩 수 조회", description = "전체 스크랩 수를 조회합니다.")
+    @GetMapping("/total/cnt")
+    public ResponseEntity<TotalScarpCntDto> getTotalScrapCnt() {
+        TotalScarpCntDto totalScarpCntDto = scrapService.getTotalScarpCnt();
+        return ResponseEntity.ok(totalScarpCntDto);
+    }
+
+    /**
+     * 콘텐츠 스크랩 수 조회 API
+     */
+    @Operation(summary = "콘텐츠 스크랩 수 조회", description = "콘텐츠의 스크랩 수를 조회합니다.")
+    @GetMapping("/content/cnt")
+    public ResponseEntity<ContentScrapCntDto> getContentScrapCnt() {
+        ContentScrapCntDto contentScrapCntDto = scrapService.getContentScrapCnt();
+        return ResponseEntity.ok(contentScrapCntDto);
+    }
+
+    /**
+     * 콘텐츠 스크랩 수 조회 API
+     */
+    @Operation(summary = "스크랩 수 조회", description = "용어 스크랩 수를 조회합니다.")
+    @GetMapping("/content/cnt")
+    public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt() {
+        DictionaryScrapCntDto dictionaryScrapCntDto = scrapService.getDictionaryScrapCnt();
+        return ResponseEntity.ok(dictionaryScrapCntDto);
     }
 
 }

@@ -4,8 +4,7 @@ import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.exception.ScrapException;
 import com.onedreamus.project.bank.exception.TermException;
 import com.onedreamus.project.bank.exception.UserException;
-import com.onedreamus.project.bank.model.dto.ContentScrapDto;
-import com.onedreamus.project.bank.model.dto.TermScrapDto;
+import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
 import com.onedreamus.project.bank.model.entity.Term;
@@ -123,5 +122,40 @@ public class ScrapService {
         } else {
             throw new ScrapException(ErrorCode.SCRAP_NO_EXIST);
         }
+    }
+
+    /**
+     * 전체 스크랩 수 조회
+     */
+    public TotalScarpCntDto getTotalScarpCnt() {
+        Users user = userService.getUser();
+
+        int totalScrapCnt = getContentScarpCnt(user) + getDictionaryScrapCnt(user);
+
+        return TotalScarpCntDto.builder()
+                .totalScrapCnt(totalScrapCnt)
+                .build();
+    }
+
+    public ContentScrapCntDto getContentScrapCnt(){
+        Users user = userService.getUser();
+        return ContentScrapCntDto.builder()
+                .contentScrapCnt(getContentScarpCnt(user))
+                .build();
+    }
+
+    public DictionaryScrapCntDto getDictionaryScrapCnt(){
+        Users user = userService.getUser();
+        return DictionaryScrapCntDto.builder()
+                .dictionaryScrapCnt(getDictionaryScrapCnt(user))
+                .build();
+    }
+
+    private Integer getContentScarpCnt(Users user){
+        return contentScrapRepository.countByUser(user);
+    }
+
+    private Integer getDictionaryScrapCnt(Users user) {
+        return termScrapRepository.countByUser(user);
     }
 }
