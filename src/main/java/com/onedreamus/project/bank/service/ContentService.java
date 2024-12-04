@@ -4,15 +4,19 @@ import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
+import com.onedreamus.project.bank.model.dto.DictionaryDto;
 import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
+import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
 import com.onedreamus.project.bank.repository.ContentViewRepository;
-import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
+import com.onedreamus.project.bank.repository.ScriptParagraphDictionaryRepository;
 import com.onedreamus.project.bank.repository.ScriptParagraphRepository;
+import com.onedreamus.project.bank.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.util.NumberFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,10 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContentService {
 
     private final ContentRepository contentRepository;
+    private  final ContentScrapRepository contentScrapRepository;
     private final ContentTagRepository contentTagRepository;
     private final ContentViewRepository contentViewRepository;
     private final ScriptSummaryRepository scriptSummaryRepository;
     private final ScriptParagraphRepository scriptParagraphRepository;
+    private final ScriptParagraphDictionaryRepository scriptParagraphDictionaryRepository;
 
     public Optional<Content> getContentById(Integer contentId){
         return contentRepository.findById(contentId);
@@ -83,6 +89,9 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+        String formattedViewCount = NumberFormatter.format(viewCount != null ? viewCount : 0);
+        Integer scrapCount = contentScrapRepository.countByContentId(content.getId());
+        String formattedScrapCount = NumberFormatter.format(scrapCount != null ? scrapCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -95,7 +104,8 @@ public class ContentService {
             .contentUrl(content.getContentUrl())
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
-            .viewCount(viewCount != null ? viewCount : 0)
+            .viewCount(formattedViewCount)
+            .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
             .build();
@@ -111,6 +121,9 @@ public class ContentService {
             .collect(Collectors.toList());
 
         Integer viewCount = contentViewRepository.findTotalViewCountByContentId(content.getId());
+        String formattedViewCount = NumberFormatter.format(viewCount != null ? viewCount : 0);
+        Integer scrapCount = contentScrapRepository.countByContentId(content.getId());
+        String formattedScrapCount = NumberFormatter.format(scrapCount != null ? scrapCount : 0);
 
         String summaryText = scriptSummaryRepository
             .findByContentId(content.getId())
@@ -120,10 +133,24 @@ public class ContentService {
         List<ScriptParagraphDto> scriptParagraphs = scriptParagraphRepository
             .findByContentIdOrderByTimestamp(content.getId())
             .stream()
-            .map(sp -> ScriptParagraphDto.builder()
-                .timestamp(sp.getTimestamp())
-                .paragraphText(sp.getParagraphText())
-                .build())
+            .map(sp -> {
+                List<DictionaryDto> dictionaries = scriptParagraphDictionaryRepository
+                    .findByScriptParagraphIdWithDictionary(sp.getId())
+                    .stream()
+                    .map(mapping -> DictionaryDto.builder()
+                        .id(mapping.getDictionary().getId())
+                        .term(mapping.getDictionary().getTerm())
+                        .details(mapping.getDictionary().getDetails())
+                        .build())
+                    .collect(Collectors.toList());
+
+                return ScriptParagraphDto.builder()
+                    .id(sp.getId())
+                    .timestamp(sp.getTimestamp())
+                    .paragraphText(sp.getParagraphText())
+                    .dictionaries(dictionaries)
+                    .build();
+            })
             .collect(Collectors.toList());
 
         return ContentDetailResponse.builder()
@@ -132,7 +159,8 @@ public class ContentService {
             .contentUrl(content.getContentUrl())
             .thumbnailUrl(content.getThumbnailUrl())
             .createdAt(content.getCreatedAt())
-            .viewCount(viewCount != null ? viewCount : 0)
+            .viewCount(formattedViewCount)
+            .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
             .author(content.getAuthor())

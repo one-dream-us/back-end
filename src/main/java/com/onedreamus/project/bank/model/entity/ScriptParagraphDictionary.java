@@ -3,26 +3,22 @@ package com.onedreamus.project.bank.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
-public class Tooltip {
-
+@Entity(name="ScriptParagraphDictionary")
+@Table(name="script_paragraph_dictionary")
+public class ScriptParagraphDictionary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Term term;
-
     @JoinColumn
     @OneToOne(fetch = FetchType.LAZY)
     private ScriptParagraph scriptParagraph;
-
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Dictionary dictionary;
     private Integer startIdx;
     private Integer endIdx;
 }

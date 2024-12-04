@@ -53,10 +53,7 @@ INSERT INTO tag (value)
 VALUES ('다좋은데유튜버발음좀');
 
 INSERT INTO content_tag (content_id, tag_id)
-VALUES (1, 1);
-
-INSERT INTO content_tag (content_id, tag_id)
-VALUES (2, 1);
+VALUES (9, 7);
 
 INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (1, NOW(), 1);
@@ -65,11 +62,36 @@ INSERT INTO content_view (content_id, viewed_at, view_count)
 VALUES (2, NOW(), 1);
 
 INSERT INTO content_view (content_id, view_date, view_count)
-VALUES (1, NOW(), 1)
+VALUES (3, NOW(), 1)
 ON CONFLICT (content_id)
-    DO UPDATE SET view_count = content_view.view_count + 10,
+    DO UPDATE SET view_count = content_view.view_count + 13999,
                   view_date  = NOW();
+UPDATE content_view
+SET view_count = view_count+13999
+WHERE content_id = 3;
+
+INSERT INTO content_scrap (created_at, updated_at, content_id, user_id)
+VALUES (NOW(), NOW(), 13, 3);
 
 UPDATE content
 SET author = '내일은 투자왕 - 김단테'
 WHERE id = 1;
+
+DELETE FROM content_tag
+WHERE id = 10;
+
+INSERT INTO dictionary (term, details)
+VALUES
+    ('마이크로스트레티지', '비트코인을 대량 보유한 기업으로 유명한 기업분석 소프트웨어 회사'),
+    ('MSTR', '마이크로스트레티지의 주식 심볼');
+
+INSERT INTO dictionary (term, details)
+VALUES ('ETF', '상장지수펀드(Exchange Traded Fund)의 약자로, 특정 지수나 자산의 가격 변동을 추적하여 거래되는 펀드');
+
+-- 첫 번째 문단에 대한 용어 매핑
+INSERT INTO script_paragraph_dictionary (script_paragraph_id, dictionary_id)
+SELECT 1, id FROM dictionary WHERE term = '마이크로스트레티지';
+
+-- 5번 문단에 ETF 용어 매핑
+INSERT INTO script_paragraph_dictionary (script_paragraph_id, dictionary_id)
+SELECT 5, id FROM dictionary WHERE term = 'ETF';

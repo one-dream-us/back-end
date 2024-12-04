@@ -27,8 +27,8 @@ public enum ErrorCode {
     // Content
     CONTENT_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 컨텐츠 입니다."),
 
-    // Term
-    TERM_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
+    // Dictionary
+    DICTIONARY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
 
     // Scarp
     SCRAP_NO_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),

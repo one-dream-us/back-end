@@ -58,9 +58,9 @@ public class ScrapController {
      * 용어 스크랩 API
      */
     @Operation(summary = "용어 스크랩 추가", description = "용어 스크랩 API")
-    @PostMapping("/term/{termId}")
-    public ResponseEntity<String> scrapTerm(@PathVariable("termId") Integer termId) {
-        scrapService.scrapTerm(termId);
+    @PostMapping("/dictionary/{dictionaryId}")
+    public ResponseEntity<String> scrapTerm(@PathVariable("dictionaryId") Long dictionaryId) {
+        scrapService.scrapDictionary(dictionaryId);
         return ResponseEntity.ok("스크랩 성공");
     }
 
@@ -68,19 +68,19 @@ public class ScrapController {
      * 스크랩된 용어 전체 조회 API
      */
     @Operation(summary = "용어 스크랩 조회", description = "스크랩한 용어 전체 조회하는 API")
-    @GetMapping("/term")
-    public ResponseEntity<List<TermScrapDto>> getTermScrapped(){
-        List<TermScrapDto> termScrapDtos = scrapService.getTermScrapped();
-        return ResponseEntity.ok(termScrapDtos);
+    @GetMapping("/dictionary")
+    public ResponseEntity<List<DictionaryScrapDto>> getDictionaryScrapped(){
+        List<DictionaryScrapDto> dictionaryScrapDtos = scrapService.getDictionaryScrapped();
+        return ResponseEntity.ok(dictionaryScrapDtos);
     }
 
     /**
      * 스크랩된 용어 삭제 API
      */
     @Operation(summary = "콘텐츠 용어 삭제", description = "스크랩한 용어 삭제 API")
-    @DeleteMapping("/term/{termScrapId}")
-    public ResponseEntity<String> deleteTermScrapped(@PathVariable("termScrapId") Integer termScrapId){
-        scrapService.deleteTermScrapped(termScrapId);
+    @DeleteMapping("/dictionary/{dictionaryScrapId}")
+    public ResponseEntity<String> deleteDictionaryScrapped(@PathVariable("dictionaryScrapId") Long dictionaryScrapId){
+        scrapService.deleteDictionaryScrapped(dictionaryScrapId);
         return ResponseEntity.ok("삭제 성공");
     }
 

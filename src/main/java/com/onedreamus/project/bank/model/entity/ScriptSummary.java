@@ -3,13 +3,12 @@ package com.onedreamus.project.bank.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
 @Table(name = "script_summary")
+@Entity(name="ScriptSummary")
 public class ScriptSummary {
 
     @Id

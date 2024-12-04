@@ -6,29 +6,24 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import java.util.List;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Fetch;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
-public class TermScrap extends BaseEntity{
+@Table(name = "dictionary_scrap")
+@Entity(name = "DictionaryScrap")
+public class DictionaryScrap extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,12 +31,12 @@ public class TermScrap extends BaseEntity{
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER)
-    private Term term;
+    private Dictionary dictionary;
 
-    public static TermScrap make(Users user, Term term) {
-        return TermScrap.builder()
+    public static DictionaryScrap make(Users user, Dictionary dictionary) {
+        return DictionaryScrap.builder()
             .user(user)
-            .term(term)
+            .dictionary(dictionary)
             .build();
     }
 }

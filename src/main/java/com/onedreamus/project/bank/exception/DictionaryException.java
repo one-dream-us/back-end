@@ -3,9 +3,9 @@ package com.onedreamus.project.bank.exception;
 import com.onedreamus.project.global.exception.CustomException;
 import com.onedreamus.project.global.exception.ErrorCode;
 
-public class TermException extends CustomException {
+public class DictionaryException extends CustomException {
 
-    public TermException(ErrorCode errorCode) {
+    public DictionaryException(ErrorCode errorCode) {
         super(errorCode);
     }
 }

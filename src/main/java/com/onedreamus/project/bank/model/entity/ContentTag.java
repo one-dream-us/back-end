@@ -3,18 +3,17 @@ package com.onedreamus.project.bank.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
 @Table(name = "content_tag")
+@Entity(name="ContentTag")
 public class ContentTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tag_id")

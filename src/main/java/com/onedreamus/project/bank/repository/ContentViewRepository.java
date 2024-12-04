@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContentViewRepository extends JpaRepository<ContentView, Integer> {
+public interface ContentViewRepository extends JpaRepository<ContentView, Long> {
 	@Query("SELECT SUM(cv.viewCount) FROM ContentView cv WHERE cv.content.id = :contentId")
 	Integer findTotalViewCountByContentId(@Param("contentId") Long contentId);
 }

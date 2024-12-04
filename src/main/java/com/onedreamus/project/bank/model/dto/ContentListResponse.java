@@ -13,7 +13,8 @@ public class ContentListResponse {
 	private String contentUrl;
 	private String thumbnailUrl;
 	private LocalDateTime createdAt;
-	private int viewCount;
+	private String viewCount;
+	private String scrapCount;
 	private List<String> tags;
 	private String summaryText;
 }
