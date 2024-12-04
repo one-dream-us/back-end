@@ -1,7 +1,9 @@
 package com.onedreamus.project.bank.controller;
 
 import com.onedreamus.project.bank.model.dto.*;
+import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.service.ScrapService;
+import com.onedreamus.project.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -9,6 +11,7 @@ import java.util.Dictionary;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +32,11 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 스크랩 추가", description = "콘텐츠 스크랩 추가 API")
     @PostMapping("/content/{contentId}")
-    public ResponseEntity<String> scrapContent(@PathVariable("contentId") Integer contentId) {
-        scrapService.scrapContent(contentId);
+    public ResponseEntity<String> scrapContent(
+        @PathVariable("contentId") Integer contentId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        scrapService.scrapContent(contentId, user);
         return ResponseEntity.ok("스크랩 성공");
     }
 
@@ -39,8 +45,9 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 스크랩 조회", description = "스크랩한 콘텐츠 전체 조회하는 API")
     @GetMapping("/content")
-    public ResponseEntity<ContentScrapResponse> getContentScrapped() {
-        ContentScrapResponse contentScrapResponse = scrapService.getContentScrapped();
+    public ResponseEntity<ContentScrapResponse> getContentScrapped(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        ContentScrapResponse contentScrapResponse = scrapService.getContentScrapped(user);
         return ResponseEntity.ok(contentScrapResponse);
     }
 
@@ -49,8 +56,11 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 스크랩 삭제", description = "스크랩한 콘텐츠 삭제하는 API")
     @DeleteMapping("/content/{contentScrapId}")
-    public ResponseEntity<String> deleteContentScrapped(@PathVariable("contentScrapId") Integer contentScrapId){
-        scrapService.deleteContentScrapped(contentScrapId);
+    public ResponseEntity<String> deleteContentScrapped(
+        @PathVariable("contentScrapId") Integer contentScrapId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        scrapService.deleteContentScrapped(contentScrapId, user);
         return ResponseEntity.ok("스크랩 삭제 성공");
     }
 
@@ -59,8 +69,11 @@ public class ScrapController {
      */
     @Operation(summary = "용어 스크랩 추가", description = "용어 스크랩 API")
     @PostMapping("/dictionary/{dictionaryId}")
-    public ResponseEntity<String> scrapTerm(@PathVariable("dictionaryId") Long dictionaryId) {
-        scrapService.scrapDictionary(dictionaryId);
+    public ResponseEntity<String> scrapTerm(
+        @PathVariable("dictionaryId") Long dictionaryId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        scrapService.scrapDictionary(dictionaryId, user);
         return ResponseEntity.ok("스크랩 성공");
     }
 
@@ -69,8 +82,10 @@ public class ScrapController {
      */
     @Operation(summary = "용어 스크랩 조회", description = "스크랩한 용어 전체 조회하는 API")
     @GetMapping("/dictionary")
-    public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(){
-        DictionaryScrapResponse dictionaryScrapDtos = scrapService.getDictionaryScrapped();
+    public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        DictionaryScrapResponse dictionaryScrapDtos = scrapService.getDictionaryScrapped(user);
         return ResponseEntity.ok(dictionaryScrapDtos);
     }
 
@@ -79,8 +94,11 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 용어 삭제", description = "스크랩한 용어 삭제 API")
     @DeleteMapping("/dictionary/{dictionaryScrapId}")
-    public ResponseEntity<String> deleteDictionaryScrapped(@PathVariable("dictionaryScrapId") Long dictionaryScrapId){
-        scrapService.deleteDictionaryScrapped(dictionaryScrapId);
+    public ResponseEntity<String> deleteDictionaryScrapped(
+        @PathVariable("dictionaryScrapId") Long dictionaryScrapId,
+        @AuthenticationPrincipal CustomUserDetails userDetails){
+        Users user = userDetails.getUser();
+        scrapService.deleteDictionaryScrapped(dictionaryScrapId, user);
         return ResponseEntity.ok("삭제 성공");
     }
 
@@ -89,8 +107,9 @@ public class ScrapController {
      */
     @Operation(summary = "전체 스크랩 수 조회", description = "전체 스크랩 수를 조회합니다.")
     @GetMapping("/total/cnt")
-    public ResponseEntity<TotalScarpCntDto> getTotalScrapCnt() {
-        TotalScarpCntDto totalScarpCntDto = scrapService.getTotalScarpCnt();
+    public ResponseEntity<TotalScarpCntDto> getTotalScrapCnt(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        TotalScarpCntDto totalScarpCntDto = scrapService.getTotalScarpCnt(user);
         return ResponseEntity.ok(totalScarpCntDto);
     }
 
@@ -99,8 +118,10 @@ public class ScrapController {
      */
     @Operation(summary = "콘텐츠 스크랩 수 조회", description = "콘텐츠의 스크랩 수를 조회합니다.")
     @GetMapping("/content/cnt")
-    public ResponseEntity<ContentScrapCntDto> getContentScrapCnt() {
-        ContentScrapCntDto contentScrapCntDto = scrapService.getContentScrapCnt();
+    public ResponseEntity<ContentScrapCntDto> getContentScrapCnt(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        ContentScrapCntDto contentScrapCntDto = scrapService.getContentScrapCnt(user);
         return ResponseEntity.ok(contentScrapCntDto);
     }
 
@@ -109,8 +130,10 @@ public class ScrapController {
      */
     @Operation(summary = "용어 스크랩 수 조회", description = "용어 스크랩 수를 조회합니다.")
     @GetMapping("/dictionary/cnt")
-    public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt() {
-        DictionaryScrapCntDto dictionaryScrapCntDto = scrapService.getDictionaryScrapCnt();
+    public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        DictionaryScrapCntDto dictionaryScrapCntDto = scrapService.getDictionaryScrapCnt(user);
         return ResponseEntity.ok(dictionaryScrapCntDto);
     }
 

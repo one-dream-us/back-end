@@ -20,4 +20,6 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
     Integer countByContentId(@Param("contentId") Long contentId);
 
     Integer countByUser(Users user);
+
+    boolean existsByIdAndUser(Integer contentScrapId, Users user);
 }

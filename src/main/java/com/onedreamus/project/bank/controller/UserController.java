@@ -1,6 +1,7 @@
 package com.onedreamus.project.bank.controller;
 
 import com.onedreamus.project.bank.exception.UserException;
+import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.LoginDto;
 import com.onedreamus.project.bank.model.dto.UserDto;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.web.bind.annotation.*;
@@ -36,14 +38,16 @@ public class UserController {
     private final UserService userService;
 
     /**
-     *토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
+     * 토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
      */
     @GetMapping("/info")
     @Operation(
         summary = "유저 데이터 조회",
         description = "유저데이터 조회 API")
-    public ResponseEntity<UserInfoDto> getUserInfo(){
-        UserInfoDto userDto = userService.getUserInfo();
+    public ResponseEntity<UserInfoDto> getUserInfo(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        UserInfoDto userDto = userService.getUserInfo(user);
         return ResponseEntity.ok(userDto);
     }
 
@@ -64,8 +68,11 @@ public class UserController {
      */
     @Operation(summary = "로그아웃", description = "로그아웃")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response){
-        userService.logout(response);
+    public ResponseEntity<String> logout(
+        HttpServletResponse response,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        userService.logout(response, user);
         return ResponseEntity.ok("로그아웃 성공");
     }
 
@@ -74,8 +81,11 @@ public class UserController {
      */
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 - soft delete + 소셜 서비스 연결 해제")
     @DeleteMapping("/withdraw")
-    public ResponseEntity<String> withdrawMembership(HttpServletResponse response){
-        userService.withdraw(response);
+    public ResponseEntity<String> withdrawMembership(
+        HttpServletResponse response,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        userService.withdraw(response, user);
         return ResponseEntity.ok("회원 탈퇴 성공");
     }
 

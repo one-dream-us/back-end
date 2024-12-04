@@ -5,7 +5,6 @@ import com.onedreamus.project.bank.exception.ScrapException;
 import com.onedreamus.project.bank.exception.DictionaryException;
 import com.onedreamus.project.bank.model.dto.ContentScrapDto;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapDto;
-import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
@@ -15,9 +14,7 @@ import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.util.SecurityUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +33,10 @@ public class ScrapService {
     private final DictionaryService dictionaryService;
     private final UserService userService;
 
-    public void scrapContent(Integer contentId) {
+    public void scrapContent(Integer contentId, Users user) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
                 .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
-
-        // 컨텐츠가 있는 경우
-        Users user = userService.getUser();
 
         // 기존에 스크랩한 항목인지 점검
         Optional<ContentScrap> contentScrapOptional =
@@ -60,8 +54,7 @@ public class ScrapService {
     /**
      * 스크랩된 콘텐츠 전체 획득
      */
-    public ContentScrapResponse getContentScrapped() {
-        Users user = userService.getUser();
+    public ContentScrapResponse getContentScrapped(Users user) {
 
         List<ContentScrapDto> contentScrapDtos = contentScrapRepository.findAllByUser(user).stream()
                 .map(ContentScrapDto::from)
@@ -73,8 +66,8 @@ public class ScrapService {
     /**
      * 스크랩된 콘텐츠 삭제
      */
-    public void deleteContentScrapped(Integer contentScrapId) {
-        boolean isExist = contentScrapRepository.existsById(contentScrapId);
+    public void deleteContentScrapped(Integer contentScrapId, Users user) {
+         boolean isExist = contentScrapRepository.existsByIdAndUser(contentScrapId, user);
 
         if (isExist) {
             contentScrapRepository.deleteById(contentScrapId);
@@ -86,12 +79,10 @@ public class ScrapService {
     /**
      * 용어 스크랩
      */
-    public void scrapDictionary(Long dictionaryId) {
+    public void scrapDictionary(Long dictionaryId, Users user) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
-        // 스크랩하려는 유저 데이터 획득
-        Users user = userService.getUser();
 
         // 기존에 스크랩된 용어인지 확인
         Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(user,
@@ -107,9 +98,7 @@ public class ScrapService {
     /**
      * 스크랩된 용어 전체 조회
      */
-    public DictionaryScrapResponse getDictionaryScrapped() {
-
-        Users user = userService.getUser();
+    public DictionaryScrapResponse getDictionaryScrapped(Users user) {
 
         List<DictionaryScrapDto> dictionaryScrapDtos = dictionaryScrapRepository.findAllByUser(user).stream()
                 .map(DictionaryScrapDto::from)
@@ -121,8 +110,8 @@ public class ScrapService {
     /**
      * 스크랩된 용어 삭제
      */
-    public void deleteDictionaryScrapped(Long dictionaryScrapId) {
-        boolean isExist = dictionaryScrapRepository.existsById(dictionaryScrapId);
+    public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
+        boolean isExist = dictionaryScrapRepository.existsByIdAndUser(dictionaryScrapId, user);
 
         if (isExist) {
             dictionaryScrapRepository.deleteById(dictionaryScrapId);
@@ -134,10 +123,11 @@ public class ScrapService {
     /**
      * 전체 스크랩 수 조회
      */
-    public TotalScarpCntDto getTotalScarpCnt() {
-        Users user = userService.getUser();
+    public TotalScarpCntDto getTotalScarpCnt(Users user) {
 
-        int totalScrapCnt = getContentScarpCnt(user) + getDictionaryScrapCnt(user);
+        int totalScrapCnt = 0;
+        totalScrapCnt += getContentScrapCnt(user).getContentScrapCnt();
+        totalScrapCnt += getDictionaryScrapCnt(user).getDictionaryScrapCnt();
 
         return TotalScarpCntDto.builder()
                 .totalScrapCnt(totalScrapCnt)
@@ -147,28 +137,20 @@ public class ScrapService {
     /**
      * 콘텐츠 스크랩 수 조회
      */
-    public ContentScrapCntDto getContentScrapCnt() {
-        Users user = userService.getUser();
+    public ContentScrapCntDto getContentScrapCnt(Users user) {
+        Integer contentScrapCnt = contentScrapRepository.countByUser(user);
         return ContentScrapCntDto.builder()
-                .contentScrapCnt(getContentScarpCnt(user))
+                .contentScrapCnt(contentScrapCnt)
                 .build();
     }
 
     /**
      * 용어 스크랩 수 조회
      */
-    public DictionaryScrapCntDto getDictionaryScrapCnt() {
-        Users user = userService.getUser();
+    public DictionaryScrapCntDto getDictionaryScrapCnt(Users user) {
+        Integer dictionaryScrapCnt = dictionaryScrapRepository.countByUser(user);
         return DictionaryScrapCntDto.builder()
-                .dictionaryScrapCnt(getDictionaryScrapCnt(user))
+                .dictionaryScrapCnt(dictionaryScrapCnt)
                 .build();
-    }
-
-    private Integer getContentScarpCnt(Users user) {
-        return contentScrapRepository.countByUser(user);
-    }
-
-    private Integer getDictionaryScrapCnt(Users user) {
-        return dictionaryScrapRepository.countByUser(user);
     }
 }
