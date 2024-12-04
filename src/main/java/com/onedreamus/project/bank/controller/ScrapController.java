@@ -107,8 +107,8 @@ public class ScrapController {
     /**
      * 콘텐츠 스크랩 수 조회 API
      */
-    @Operation(summary = "스크랩 수 조회", description = "용어 스크랩 수를 조회합니다.")
-    @GetMapping("/content/cnt")
+    @Operation(summary = "용어 스크랩 수 조회", description = "용어 스크랩 수를 조회합니다.")
+    @GetMapping("/dictionary/cnt")
     public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt() {
         DictionaryScrapCntDto dictionaryScrapCntDto = scrapService.getDictionaryScrapCnt();
         return ResponseEntity.ok(dictionaryScrapCntDto);

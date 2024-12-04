@@ -65,7 +65,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (accessToken == null) {
             log.info("[path: {}] access-token null", request.getServletPath());
-            if (isScarpRequest(request.getServletPath())) {
+            if (isScrapRequest(request.getServletPath())) {
                 FilterException.throwException(response, ErrorCode.NEED_LOGIN);
                 return;
             }
@@ -129,8 +129,8 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isScarpRequest(String path) {
-        return path.contains("/scarp");
+    private boolean isScrapRequest(String path) {
+        return path.contains("/scrap");
     }
 
 
