@@ -93,6 +93,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // 2. refresh-token 확인
             Users user = optionalUser.get();
+            if (user.isDeleted()){
+                FilterException.throwException(response,ErrorCode.NO_USER);
+            }
+
             // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
             if (!user.getRefreshToken().equals(refreshToken)) {
                 FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
