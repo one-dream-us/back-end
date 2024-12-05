@@ -76,7 +76,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String requestDomain = request.getHeader("Referer");
 
         //TODO: 프론트 배포 서버와 연결 시 수정 필요!!
-        response.sendRedirect("http://localhost:3000");
+        response.sendRedirect("https://thisismoney.site");
     }
 
 }
