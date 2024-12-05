@@ -10,4 +10,5 @@ public class DictionaryDto {
 	private String term;
 	private String details;
 	private boolean isScrapped;
+	private Long dictionaryScrapId;
 }

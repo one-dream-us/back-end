@@ -7,6 +7,7 @@ import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.model.dto.DictionaryDto;
 import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
+import com.onedreamus.project.bank.model.entity.DictionaryScrap;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentRepository;
@@ -159,15 +160,25 @@ public class ContentService {
                         return isFirstAppearance;
                     })
                     .map(mapping -> {
-                        boolean isScrapped = user != null && dictionaryScrapRepository
-                            .findByUserAndDictionary(user, mapping.getDictionary())
-                            .isPresent();
+                        Long dictionaryScrapId = null;
+                        boolean isScrapped = false;
+
+                        if (user != null) {
+                            Optional<DictionaryScrap> dictionaryScrap = dictionaryScrapRepository
+                                .findByUserAndDictionary(user, mapping.getDictionary());
+
+                            if (dictionaryScrap.isPresent()) {
+                                dictionaryScrapId = dictionaryScrap.get().getId();
+                                isScrapped = true;
+                            }
+                        }
 
                         return DictionaryDto.builder()
                             .id(mapping.getDictionary().getId())
                             .term(mapping.getDictionary().getTerm())
                             .details(mapping.getDictionary().getDetails())
                             .isScrapped(isScrapped)
+                            .dictionaryScrapId(dictionaryScrapId)
                             .build();
                     })
                     .collect(Collectors.toList());
