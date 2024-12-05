@@ -159,7 +159,7 @@ public class ContentService {
                         return isFirstAppearance;
                     })
                     .map(mapping -> {
-                        boolean isScrapped = dictionaryScrapRepository
+                        boolean isScrapped = user != null && dictionaryScrapRepository
                             .findByUserAndDictionary(user, mapping.getDictionary())
                             .isPresent();
 
@@ -206,7 +206,6 @@ public class ContentService {
             return null;
         }
         String videoId = parts[1];
-        // & 파라미터가 있는 경우 처리
         int ampersandIndex = videoId.indexOf("&");
         if (ampersandIndex != -1) {
             videoId = videoId.substring(0, ampersandIndex);
