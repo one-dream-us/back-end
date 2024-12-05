@@ -137,12 +137,13 @@ public class JWTFilter extends OncePerRequestFilter {
     private boolean isPublicPath(HttpServletRequest request) {
         String path = request.getServletPath();
         List<String> publicPaths = List.of(
-                "/login/**",
-                "/users/join",
-                "/oauth2/**",
-                "/swagger-ui.html",
-                "/v3/api-docs/**",
-                "/swagger-ui/**"
+            "/login/**",
+            "/users/join",
+            "/oauth2/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/api/v1/contents/**"
         );
 
         return publicPaths.stream().anyMatch(publicPath ->
