@@ -1,14 +1,15 @@
 package com.onedreamus.project.bank.controller;
 
-import com.onedreamus.project.bank.model.dto.*;
+import com.onedreamus.project.bank.model.dto.ContentScrapCntDto;
+import com.onedreamus.project.bank.model.dto.ContentScrapResponse;
+import com.onedreamus.project.bank.model.dto.CustomUserDetails;
+import com.onedreamus.project.bank.model.dto.DictionaryScrapCntDto;
+import com.onedreamus.project.bank.model.dto.DictionaryScrapResponse;
+import com.onedreamus.project.bank.model.dto.TotalScarpCntDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.service.ScrapService;
-import com.onedreamus.project.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.Dictionary;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/scrap")
+@RequestMapping("/api/v1/scraps")
 @RequiredArgsConstructor
-@Tag(name = "Scrap Controller", description = "스크랩 관련 API")
+@Tag(name = "스크랩", description = "스크랩 관련 API")
 public class ScrapController {
 
     private final ScrapService scrapService;
@@ -30,8 +31,8 @@ public class ScrapController {
     /**
      * 콘텐츠 스크랩 API
      */
-    @Operation(summary = "콘텐츠 스크랩 추가", description = "콘텐츠 스크랩 추가 API")
-    @PostMapping("/content/{contentId}")
+    @Operation(summary = "콘텐츠 스크랩 추가", description = "지정한 콘텐츠를 스크랩합니다.")
+    @PostMapping("/contents/{contentId}")
     public ResponseEntity<String> scrapContent(
         @PathVariable("contentId") Integer contentId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -43,8 +44,8 @@ public class ScrapController {
     /**
      *스크랩된 콘텐츠 전체 조회 API
      */
-    @Operation(summary = "콘텐츠 스크랩 조회", description = "스크랩한 콘텐츠 전체 조회하는 API")
-    @GetMapping("/content")
+    @Operation(summary = "스크랩된 콘텐츠 조회", description = "사용자가 스크랩한 모든 콘텐츠를 조회합니다.")
+    @GetMapping("/contents")
     public ResponseEntity<ContentScrapResponse> getContentScrapped(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
         ContentScrapResponse contentScrapResponse = scrapService.getContentScrapped(user);
@@ -54,8 +55,8 @@ public class ScrapController {
     /**
      * 스크랩된 콘텐츠 삭제 API
      */
-    @Operation(summary = "콘텐츠 스크랩 삭제", description = "스크랩한 콘텐츠 삭제하는 API")
-    @DeleteMapping("/content/{contentScrapId}")
+    @Operation(summary = "콘텐츠 스크랩 삭제", description = "사용자가 스크랩한 콘텐츠를 삭제합니다.")
+    @DeleteMapping("/contents/{contentScrapId}")
     public ResponseEntity<String> deleteContentScrapped(
         @PathVariable("contentScrapId") Integer contentScrapId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -67,8 +68,8 @@ public class ScrapController {
     /**
      * 용어 스크랩 API
      */
-    @Operation(summary = "용어 스크랩 추가", description = "용어 스크랩 API")
-    @PostMapping("/dictionary/{dictionaryId}")
+    @Operation(summary = "용어 스크랩 추가", description = "지정한 용어를 스크랩합니다.")
+    @PostMapping("/dictionaries/{dictionaryId}")
     public ResponseEntity<String> scrapTerm(
         @PathVariable("dictionaryId") Long dictionaryId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -80,8 +81,8 @@ public class ScrapController {
     /**
      * 스크랩된 용어 전체 조회 API
      */
-    @Operation(summary = "용어 스크랩 조회", description = "스크랩한 용어 전체 조회하는 API")
-    @GetMapping("/dictionary")
+    @Operation(summary = "스크랩된 용어 조회", description = "사용자가 스크랩한 모든 용어를 조회합니다.")
+    @GetMapping("/dictionaries")
     public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
@@ -92,8 +93,8 @@ public class ScrapController {
     /**
      * 스크랩된 용어 삭제 API
      */
-    @Operation(summary = "콘텐츠 용어 삭제", description = "스크랩한 용어 삭제 API")
-    @DeleteMapping("/dictionary/{dictionaryScrapId}")
+    @Operation(summary = "스크랩된 용어 삭제", description = "사용자가 스크랩한 용어를 삭제합니다.")
+    @DeleteMapping("/dictionaries/{dictionaryScrapId}")
     public ResponseEntity<String> deleteDictionaryScrapped(
         @PathVariable("dictionaryScrapId") Long dictionaryScrapId,
         @AuthenticationPrincipal CustomUserDetails userDetails){
@@ -105,8 +106,8 @@ public class ScrapController {
     /**
      * 전체 스크랩 수 조회 API
      */
-    @Operation(summary = "전체 스크랩 수 조회", description = "전체 스크랩 수를 조회합니다.")
-    @GetMapping("/total/cnt")
+    @Operation(summary = "전체 스크랩 수 조회", description = "사용자가 스크랩한 전체 콘텐츠 및 용어 수를 조회합니다.")
+    @GetMapping("/count")
     public ResponseEntity<TotalScarpCntDto> getTotalScrapCnt(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
         TotalScarpCntDto totalScarpCntDto = scrapService.getTotalScarpCnt(user);
@@ -116,8 +117,8 @@ public class ScrapController {
     /**
      * 콘텐츠 스크랩 수 조회 API
      */
-    @Operation(summary = "콘텐츠 스크랩 수 조회", description = "콘텐츠의 스크랩 수를 조회합니다.")
-    @GetMapping("/content/cnt")
+    @Operation(summary = "콘텐츠 스크랩 수 조회", description = "사용자가 스크랩한 콘텐츠의 개수를 조회합니다.")
+    @GetMapping("/contents/count")
     public ResponseEntity<ContentScrapCntDto> getContentScrapCnt(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
@@ -128,8 +129,8 @@ public class ScrapController {
     /**
      * 콘텐츠 스크랩 수 조회 API
      */
-    @Operation(summary = "용어 스크랩 수 조회", description = "용어 스크랩 수를 조회합니다.")
-    @GetMapping("/dictionary/cnt")
+    @Operation(summary = "용어 스크랩 수 조회", description = "사용자가 스크랩한 용어의 개수를 조회합니다.")
+    @GetMapping("/dictionaries/count")
     public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();

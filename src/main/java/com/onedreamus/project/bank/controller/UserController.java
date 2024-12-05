@@ -1,38 +1,29 @@
 package com.onedreamus.project.bank.controller;
 
-import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.JoinDto;
-import com.onedreamus.project.bank.model.dto.LoginDto;
-import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.dto.UserInfoDto;
 import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.repository.UserRepository;
-import com.onedreamus.project.bank.service.KakaoOAuth2Service;
 import com.onedreamus.project.bank.service.UserService;
-import com.onedreamus.project.global.config.jwt.JWTUtil;
-import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "User Controller", description = "유저 관련 API")
+@Tag(name = "유저", description = "유저 관련 API")
 public class UserController {
 
     private final UserService userService;
@@ -42,8 +33,8 @@ public class UserController {
      */
     @GetMapping("/info")
     @Operation(
-        summary = "유저 데이터 조회",
-        description = "유저데이터 조회 API")
+        summary = "유저 정보 조회",
+        description = "로그인된 유저의 데이터를 조회합니다.")
     public ResponseEntity<UserInfoDto> getUserInfo(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
@@ -53,14 +44,14 @@ public class UserController {
 
     /**
      * 회원가입
-     * 소셜로그인만 진행하기로 함.
-     * deprecated
+     * 소셜 로그인으로만 진행합니다. (현재 사용되지 않음)
+     * @deprecated
      */
     @Deprecated
-    @PostMapping("/join")
+    @PostMapping("/register")
     public ResponseEntity<String> join(@RequestBody JoinDto joinDto){
         userService.join(joinDto);
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity.ok("회원가입 완료되었습니다.");
     }
 
     /**
@@ -77,9 +68,9 @@ public class UserController {
     }
 
     /**
-     * 회원 탈퇴
+     * 유저 계정을 삭제하고, 소셜 서비스와의 연결을 해제합니다. (소프트 삭제)
      */
-    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 - soft delete + 소셜 서비스 연결 해제")
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 후 계정 삭제 및 소셜 서비스 연결을 해제합니다.")
     @DeleteMapping("/withdraw")
     public ResponseEntity<String> withdrawMembership(
         HttpServletResponse response,

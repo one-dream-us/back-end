@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/content")
+@RequestMapping("/api/v1/contents")
 @RequiredArgsConstructor
 @Tag(name = "콘텐츠", description = "콘텐츠 관련 API")
 public class ContentContoller {
@@ -29,7 +29,7 @@ public class ContentContoller {
 	private final ContentService contentService;
 
 	@GetMapping
-	@Operation(summary = "콘텐츠 리스트 조회", description = "콘텐츠 리스트를 조회합니다.")
+	@Operation(summary = "콘텐츠 리스트 조회", description = "콘텐츠 전체 리스트를 조회합니다.")
 	public ResponseEntity<CursorResult<ContentListResponse>> getContentList(
 		@Parameter(description = "마지막으로 조회된 콘텐츠의 ID (첫 페이지 조회 시 null)",
 			example = "123")
@@ -42,13 +42,13 @@ public class ContentContoller {
 	}
 
 	@GetMapping("/latest")
-	@Operation(summary = "최신 콘텐츠 조회", description = "가장 최근에 업로드된 콘텐츠 1개를 조회합니다.")
+	@Operation(summary = "최신 콘텐츠 조회", description = "가장 최근에 업로드된 1개 콘텐츠를 조회합니다.")
 	public ResponseEntity<ContentListResponse> getLatestContent() {
 		return ResponseEntity.ok(contentService.getLatestContent());
 	}
 
 	@GetMapping("/popular")
-	@Operation(summary = "인기 콘텐츠 조회", description = "조회수가 많은 콘텐츠 5개를 조회합니다.")
+	@Operation(summary = "인기 콘텐츠 조회", description = "조회수가 많은 5개의 콘텐츠를 조회합니다.")
 	public ResponseEntity<List<ContentListResponse>> getPopularContents() {
 		return ResponseEntity.ok(contentService.getPopularContents());
 	}

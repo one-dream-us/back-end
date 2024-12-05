@@ -98,3 +98,6 @@ SELECT 1, id FROM dictionary WHERE term = '마이크로스트레티지';
 -- 5번 문단에 ETF 용어 매핑
 INSERT INTO script_paragraph_dictionary (script_paragraph_id, dictionary_id)
 SELECT 5, id FROM dictionary WHERE term = 'ETF';
+
+DELETE FROM content_tag
+WHERE id = 34;
