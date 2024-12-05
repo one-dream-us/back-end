@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Configuration;
 
 
 @OpenAPIDefinition(
-	info = @Info(title = "This is money",
-		description = "일몽어스_thisismoney",
-		version = "1.0v"))
+	info = @Info(title = "이게머니",
+		description = "금융 교육 서비스 API",
+		version = "v1.0"))
 @Configuration
 public class SwaggerConfig {
 
