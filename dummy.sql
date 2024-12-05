@@ -73,6 +73,9 @@ WHERE content_id = 3;
 INSERT INTO content_scrap (created_at, updated_at, content_id, user_id)
 VALUES (NOW(), NOW(), 13, 3);
 
+INSERT INTO dictionary_scrap (created_at, updated_at, dictionary_id, user_id)
+VALUES (NOW(), NOW(), 1, 1);
+
 UPDATE content
 SET author = '내일은 투자왕 - 김단테'
 WHERE id = 1;

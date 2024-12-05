@@ -36,8 +36,10 @@ public class UserService {
     private final SecurityUtils securityUtils;
     private final CookieUtils cookieUtils;
 
-    public UserInfoDto getUserInfo(){
-        Users user = getUser();
+    /**
+     * 유저 상세 정보 조회
+     */
+    public UserInfoDto getUserInfo(Users user){
 
         log.info("[회원 정보 조회] 이메일 : {}", user.getEmail());
         return UserInfoDto.from(user);
@@ -62,8 +64,8 @@ public class UserService {
     /**
      * 로그아웃
      */
-    public void logout(HttpServletResponse response) {
-        String email = securityUtils.getEmail();
+    public void logout(HttpServletResponse response, Users user) {
+        String email = user.getEmail();
 
         // 기존 쿠키 삭제
         List<String> allTokenType = Arrays.stream(TokenType.values())
@@ -78,8 +80,7 @@ public class UserService {
      * 회원 탈퇴
      */
     @Transactional
-    public void withdraw(HttpServletResponse response) {
-        Users user = getUser();
+    public void withdraw(HttpServletResponse response, Users user) {
         Long socialId = user.getSocialId();
 
         // 소셜서비스와 연결 해제
@@ -104,19 +105,19 @@ public class UserService {
     /**
      * Users 획득
      */
-    public Users getUser() {
-        String email = securityUtils.getEmail();
-       return getUserByEmail(email)
-               .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
-
-    }
+//    public Users getUser() {
+//        String email = securityUtils.getEmail();
+//       return getUserByEmail(email)
+//               .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
+//
+//    }
 
     /**
      * email로 Optional<Users> 획득
      */
-    public Optional<Users> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+//    public Optional<Users> getUserByEmail(String email) {
+//        return userRepository.findByEmail(email);
+//    }
 
 
 }
