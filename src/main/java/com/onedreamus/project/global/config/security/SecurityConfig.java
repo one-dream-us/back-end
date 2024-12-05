@@ -2,15 +2,12 @@ package com.onedreamus.project.global.config.security;
 
 import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.bank.service.CustomOAuth2UserService;
-import com.onedreamus.project.bank.service.UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -85,11 +81,11 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
-                                "login/**", "/user/join", "/oauth2/**", "/swagger-ui.html",
+                                "login/**", "/users/join", "/oauth2/**", "/swagger-ui.html",
                                 "/v3/api-docs/**", "/swagger-ui/**"
                         ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/user/info", "/api/v1/scrap/**", "/api/v1/user/withdraw", "/api/v1/user/logout").hasAnyRole("USER")
+                        .requestMatchers("/api/v1/users/info", "/api/v1/scraps/**", "/api/v1/users/withdraw", "/api/v1/users/logout").hasAnyRole("USER")
                         .anyRequest().authenticated());
 
         // 필터 추가

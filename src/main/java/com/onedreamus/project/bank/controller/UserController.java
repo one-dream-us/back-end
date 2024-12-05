@@ -48,7 +48,7 @@ public class UserController {
      * @deprecated
      */
     @Deprecated
-    @PostMapping("/register")
+    @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody JoinDto joinDto){
         userService.join(joinDto);
         return ResponseEntity.ok("회원가입 완료되었습니다.");

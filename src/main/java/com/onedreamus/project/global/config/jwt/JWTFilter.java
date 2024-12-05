@@ -1,30 +1,22 @@
 package com.onedreamus.project.global.config.jwt;
 
-import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
-import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.UserRepository;
-import com.onedreamus.project.bank.service.UserService;
-import com.onedreamus.project.global.exception.CustomException;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.exception.FilterException;
-import com.onedreamus.project.global.exception.LoginException;
 import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -139,14 +131,14 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     private boolean isScrapRequest(String path) {
-        return path.contains("/scrap");
+        return path.contains("/scraps");
     }
 
     private boolean isPublicPath(HttpServletRequest request) {
         String path = request.getServletPath();
         List<String> publicPaths = List.of(
                 "/login/**",
-                "/user/join",
+                "/users/join",
                 "/oauth2/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
