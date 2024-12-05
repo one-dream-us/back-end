@@ -35,6 +35,7 @@ public class JWTFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         if (isPublicPath(request)) {
+            log.info("JWTFilter 넘어가는 path : {}", request.getServletPath());
             filterChain.doFilter(request, response);
             return;
         }
