@@ -4,6 +4,7 @@ import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
+import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -58,7 +59,9 @@ public class ContentContoller {
 		@Parameter(description = "콘텐츠 ID", example = "1")
 		@PathVariable Long contentId,
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
-		return ResponseEntity.ok(contentService.getContentDetail(contentId, userDetails.getUser()));
+
+		Users user = userDetails != null ? userDetails.getUser() : null;
+		return ResponseEntity.ok(contentService.getContentDetail(contentId, user));
 	}
 
 }
