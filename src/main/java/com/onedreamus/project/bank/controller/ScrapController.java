@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/scrap")
+@RequestMapping("/api/v1/scraps")
 @RequiredArgsConstructor
 @Tag(name = "scraps", description = "스크랩 관련 API")
 public class ScrapController {
@@ -32,7 +32,7 @@ public class ScrapController {
      * 콘텐츠 스크랩 API
      */
     @Operation(summary = "콘텐츠 스크랩하기", description = "콘텐츠를 스크랩에 추가합니다. 'contentId'로 특정 콘텐츠를 선택해 스크랩할 수 있습니다.")
-    @PostMapping("/content/{contentId}")
+    @PostMapping("/contents/{contentId}")
     public ResponseEntity<String> scrapContent(
         @PathVariable("contentId") Integer contentId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -45,7 +45,7 @@ public class ScrapController {
      *스크랩된 콘텐츠 전체 조회 API
      */
     @Operation(summary = "스크랩한 콘텐츠 조회", description = "내가 스크랩한 모든 콘텐츠 목록을 확인할 수 있습니다.")
-    @GetMapping("/content")
+    @GetMapping("/contents")
     public ResponseEntity<ContentScrapResponse> getContentScrapped(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
         ContentScrapResponse contentScrapResponse = scrapService.getContentScrapped(user);
@@ -56,7 +56,7 @@ public class ScrapController {
      * 스크랩된 콘텐츠 삭제 API
      */
     @Operation(summary = "스크랩한 콘텐츠 삭제", description = "스크랩한 콘텐츠를 삭제할 수 있습니다. 'contentScrapId'로 삭제할 콘텐츠를 선택합니다.")
-    @DeleteMapping("/content/{contentScrapId}")
+    @DeleteMapping("/contents/{contentScrapId}")
     public ResponseEntity<String> deleteContentScrapped(
         @PathVariable("contentScrapId") Integer contentScrapId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -69,7 +69,7 @@ public class ScrapController {
      * 용어 스크랩 API
      */
     @Operation(summary = "용어 스크랩하기", description = "특정 용어를 스크랩에 추가합니다. 'dictionaryId'로 용어를 선택해 스크랩할 수 있습니다.")
-    @PostMapping("/dictionary/{dictionaryId}")
+    @PostMapping("/dictionaries/{dictionaryId}")
     public ResponseEntity<String> scrapTerm(
         @PathVariable("dictionaryId") Long dictionaryId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -82,7 +82,7 @@ public class ScrapController {
      * 스크랩된 용어 전체 조회 API
      */
     @Operation(summary = "스크랩한 용어 조회", description = "내가 스크랩한 모든 용어 목록을 확인할 수 있습니다.")
-    @GetMapping("/dictionary")
+    @GetMapping("/dictionaries")
     public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
@@ -94,7 +94,7 @@ public class ScrapController {
      * 스크랩된 용어 삭제 API
      */
     @Operation(summary = "스크랩한 용어 삭제", description = "스크랩한 용어를 삭제할 수 있습니다. 'dictionaryScrapId'로 삭제할 용어를 선택합니다.")
-    @DeleteMapping("/dictionary/{dictionaryScrapId}")
+    @DeleteMapping("/dictionaries/{dictionaryScrapId}")
     public ResponseEntity<String> deleteDictionaryScrapped(
         @PathVariable("dictionaryScrapId") Long dictionaryScrapId,
         @AuthenticationPrincipal CustomUserDetails userDetails){
@@ -104,7 +104,7 @@ public class ScrapController {
     }
 
     @Operation(summary = "사용자의 전체 스크랩 수 조회", description = "내가 스크랩한 콘텐츠와 용어의 총 개수를 조회할 수 있습니다.")
-    @GetMapping("/total/cnt")
+    @GetMapping("/total")
     public ResponseEntity<TotalScarpCntDto> getTotalScrapCnt(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
         TotalScarpCntDto totalScarpCntDto = scrapService.getTotalScarpCnt(user);
@@ -112,7 +112,7 @@ public class ScrapController {
     }
 
     @Operation(summary = "사용자가 스크랩한 콘텐츠 수 조회", description = "사용자가 스크랩한 콘텐츠의 총 개수를 조회할 수 있습니다.")
-    @GetMapping("/content/cnt")
+    @GetMapping("/contents/count")
     public ResponseEntity<ContentScrapCntDto> getContentScrapCnt(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
@@ -121,7 +121,7 @@ public class ScrapController {
     }
 
     @Operation(summary = "사용자가 스크랩한 용어의 스크랩 수 조회", description = "사용자가 스크랩한 용어의 총 개수를 조회할 수 있습니다.")
-    @GetMapping("/dictionary/cnt")
+    @GetMapping("/dictionaries/count")
     public ResponseEntity<DictionaryScrapCntDto> getDictionaryScrapCnt(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
