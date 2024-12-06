@@ -34,16 +34,29 @@ public class JWTFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
+		String path = request.getServletPath();
+
 		if (isPublicPath(request)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
+
+
 
 		String accessToken = null;
 		String refreshToken = null;
 		Cookie accessTokenCookie = null;
 		Cookie refreshTokenCookie = null;
 		Cookie[] cookies = request.getCookies();
+
+		// auth/check 엔드포인트 특별 처리
+		if (path.equals("/api/v1/auth/check")) {
+			if (cookies != null) {
+				setAuthenticationIfValidToken(cookies, request);
+			}
+			filterChain.doFilter(request, response);
+			return;
+		}
 
 		if (cookies == null) {
 			// 스크랩 요청인 경우만 로그인 필요
@@ -137,6 +150,28 @@ public class JWTFilter extends OncePerRequestFilter {
 
 	private boolean isScrapRequest(String path) {
 		return path.contains("/scrap");
+	}
+
+	private void setAuthenticationIfValidToken(Cookie[] cookies, HttpServletRequest request) {
+		String accessToken = null;
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
+				accessToken = cookie.getValue();
+				break;
+			}
+		}
+
+		if (accessToken != null && !jwtUtil.isExpired(accessToken)) {
+			String email = jwtUtil.getEmail(accessToken);
+			Optional<Users> optionalUser = userRepository.findByEmail(email);
+
+			if (optionalUser.isPresent()) {
+				CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());
+				Authentication auth = new UsernamePasswordAuthenticationToken(
+					userDetails, null, userDetails.getAuthorities());
+				SecurityContextHolder.getContext().setAuthentication(auth);
+			}
+		}
 	}
 
 	private boolean isPublicPath(HttpServletRequest request) {
