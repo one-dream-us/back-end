@@ -1,38 +1,29 @@
 package com.onedreamus.project.bank.controller;
 
-import com.onedreamus.project.bank.exception.UserException;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.JoinDto;
-import com.onedreamus.project.bank.model.dto.LoginDto;
-import com.onedreamus.project.bank.model.dto.UserDto;
 import com.onedreamus.project.bank.model.dto.UserInfoDto;
 import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.repository.UserRepository;
-import com.onedreamus.project.bank.service.KakaoOAuth2Service;
 import com.onedreamus.project.bank.service.UserService;
-import com.onedreamus.project.global.config.jwt.JWTUtil;
-import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "User Controller", description = "유저 관련 API")
+@Tag(name = "users", description = "유저 관련 API")
 public class UserController {
 
     private final UserService userService;

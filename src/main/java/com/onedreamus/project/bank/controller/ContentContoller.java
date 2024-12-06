@@ -23,18 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/content")
 @RequiredArgsConstructor
-@Tag(name = "콘텐츠", description = "콘텐츠 관련 API")
+@Tag(name = "contents", description = "콘텐츠 관련 API")
 public class ContentContoller {
 
 	private final ContentService contentService;
 
 	@GetMapping
-	@Operation(summary = "콘텐츠 리스트 조회", description = "콘텐츠 리스트를 조회합니다.")
+	@Operation(summary = "콘텐츠 목록 조회", description = "여러 개의 콘텐츠 목록을 가져옵니다. 최신 콘텐츠부터 조회할 수 있습니다. 'cursor'를 사용해 마지막으로 본 콘텐츠 이후부터 조회할 수 있습니다.")
 	public ResponseEntity<CursorResult<ContentListResponse>> getContentList(
 		@Parameter(description = "마지막으로 조회된 콘텐츠의 ID (첫 페이지 조회 시 null)",
 			example = "123")
 		@RequestParam(required = false) Long cursor,
-		@Parameter(description = "한 페이지당 조회할 콘텐츠 수",
+		@Parameter(description = "한 번에 가져올 콘텐츠의 개수",
 			example = "10",
 			schema = @Schema(minimum = "1", maximum = "100"))
 		@RequestParam(defaultValue = "10") int size) {
@@ -42,21 +42,21 @@ public class ContentContoller {
 	}
 
 	@GetMapping("/latest")
-	@Operation(summary = "최신 콘텐츠 조회", description = "가장 최근에 업로드된 콘텐츠 1개를 조회합니다.")
+	@Operation(summary = "가장 최근 콘텐츠 조회", description = "가장 최근에 업로드된 콘텐츠 1개를 가져옵니다.")
 	public ResponseEntity<ContentListResponse> getLatestContent() {
 		return ResponseEntity.ok(contentService.getLatestContent());
 	}
 
 	@GetMapping("/popular")
-	@Operation(summary = "인기 콘텐츠 조회", description = "조회수가 많은 콘텐츠 5개를 조회합니다.")
+	@Operation(summary = "인기 콘텐츠 조회", description = "가장 많이 조회된 인기 콘텐츠 5개를 가져옵니다.")
 	public ResponseEntity<List<ContentListResponse>> getPopularContents() {
 		return ResponseEntity.ok(contentService.getPopularContents());
 	}
 
 	@GetMapping("/{contentId}")
-	@Operation(summary = "콘텐츠 상세 조회", description = "콘텐츠의 상세 정보를 조회합니다.")
+	@Operation(summary = "콘텐츠 상세 조회", description = "특정 콘텐츠의 상세 정보를 가져옵니다. 콘텐츠 ID를 이용해 해당 콘텐츠의 세부 정보를 확인할 수 있습니다.")
 	public ResponseEntity<ContentDetailResponse> getContentDetail(
-		@Parameter(description = "콘텐츠 ID", example = "1")
+		@Parameter(description = "조회할 콘텐츠의 ID", example = "1")
 		@PathVariable Long contentId,
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
 
