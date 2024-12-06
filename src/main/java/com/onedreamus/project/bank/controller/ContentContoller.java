@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/content")
+@RequestMapping("/api/v1/contents")
 @RequiredArgsConstructor
 @Tag(name = "contents", description = "콘텐츠 관련 API")
 public class ContentContoller {
