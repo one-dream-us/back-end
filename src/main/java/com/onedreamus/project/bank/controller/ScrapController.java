@@ -4,15 +4,12 @@ import com.onedreamus.project.bank.model.dto.ContentScrapCntDto;
 import com.onedreamus.project.bank.model.dto.ContentScrapResponse;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapCntDto;
-import com.onedreamus.project.bank.model.dto.DictionaryScrapInfo;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapResponse;
 import com.onedreamus.project.bank.model.dto.TotalScarpCntDto;
 import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.service.DictionaryScrapService;
 import com.onedreamus.project.bank.service.ScrapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScrapController {
 
     private final ScrapService scrapService;
-    private final DictionaryScrapService dictionaryScrapService;
-
 
     @Operation(summary = "콘텐츠 스크랩하기", description = "콘텐츠를 스크랩에 추가합니다. 'contentId'로 특정 콘텐츠를 선택해 스크랩할 수 있습니다.")
     @PostMapping("/contents/{contentId}")
@@ -78,16 +73,6 @@ public class ScrapController {
         Users user = userDetails.getUser();
         DictionaryScrapResponse dictionaryScrapDtos = scrapService.getDictionaryScrapped(user);
         return ResponseEntity.ok(dictionaryScrapDtos);
-    }
-
-    @GetMapping("/dictionaries/contents/{contentId}")
-    @Operation(summary = "해당 사용자의 용어 스크랩 상태 조회", description = "현재 로그인한 사용자의 콘텐츠 상세페이지의 용어별 스크랩 상태를 조회합니다.")
-    public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
-        @PathVariable Long contentId,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(
-            dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
-        );
     }
 
     @Operation(summary = "스크랩한 용어 삭제", description = "스크랩한 용어를 삭제할 수 있습니다. 'dictionaryScrapId'로 삭제할 용어를 선택합니다.")
