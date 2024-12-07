@@ -14,4 +14,5 @@ public interface ScriptParagraphRepository extends JpaRepository<ScriptParagraph
 		"WHERE sf.content.id = :contentId " +
 		"ORDER BY sp.timestamp")
 	List<ScriptParagraph> findByContentIdOrderByTimestamp(@Param("contentId") Long contentId);
+
 }

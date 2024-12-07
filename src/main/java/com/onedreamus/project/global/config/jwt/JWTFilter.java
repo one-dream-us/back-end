@@ -49,8 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
 		Cookie refreshTokenCookie = null;
 		Cookie[] cookies = request.getCookies();
 
-		// auth/check 엔드포인트 특별 처리
-		if (path.equals("/api/v1/auth/check")) {
+		if (path.equals("/api/v1/auth/check")) {  // 추가된 부분
 			if (cookies != null) {
 				setAuthenticationIfValidToken(cookies, request);
 			}

@@ -3,8 +3,6 @@ package com.onedreamus.project.bank.controller;
 import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
-import com.onedreamus.project.bank.model.dto.CustomUserDetails;
-import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,11 +54,9 @@ public class ContentContoller {
 	@Operation(summary = "콘텐츠 상세 조회", description = "특정 콘텐츠의 상세 정보를 가져옵니다. 콘텐츠 ID를 이용해 해당 콘텐츠의 세부 정보를 확인할 수 있습니다.")
 	public ResponseEntity<ContentDetailResponse> getContentDetail(
 		@Parameter(description = "조회할 콘텐츠의 ID", example = "1")
-		@PathVariable Long contentId,
-		@AuthenticationPrincipal CustomUserDetails userDetails) {
+		@PathVariable Long contentId) {
 
-		Users user = userDetails != null ? userDetails.getUser() : null;
-		return ResponseEntity.ok(contentService.getContentDetail(contentId, user));
+		return ResponseEntity.ok(contentService.getContentDetail(contentId));
 	}
 
 }

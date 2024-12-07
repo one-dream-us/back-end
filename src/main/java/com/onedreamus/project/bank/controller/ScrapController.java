@@ -4,12 +4,15 @@ import com.onedreamus.project.bank.model.dto.ContentScrapCntDto;
 import com.onedreamus.project.bank.model.dto.ContentScrapResponse;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapCntDto;
+import com.onedreamus.project.bank.model.dto.DictionaryScrapInfo;
 import com.onedreamus.project.bank.model.dto.DictionaryScrapResponse;
 import com.onedreamus.project.bank.model.dto.TotalScarpCntDto;
 import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.bank.service.DictionaryScrapService;
 import com.onedreamus.project.bank.service.ScrapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,10 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScrapController {
 
     private final ScrapService scrapService;
+    private final DictionaryScrapService dictionaryScrapService;
 
-    /**
-     * 콘텐츠 스크랩 API
-     */
+
     @Operation(summary = "콘텐츠 스크랩하기", description = "콘텐츠를 스크랩에 추가합니다. 'contentId'로 특정 콘텐츠를 선택해 스크랩할 수 있습니다.")
     @PostMapping("/contents/{contentId}")
     public ResponseEntity<String> scrapContent(
@@ -41,9 +43,6 @@ public class ScrapController {
         return ResponseEntity.ok("콘텐츠가 스크랩되었습니다.");
     }
 
-    /**
-     *스크랩된 콘텐츠 전체 조회 API
-     */
     @Operation(summary = "스크랩한 콘텐츠 조회", description = "내가 스크랩한 모든 콘텐츠 목록을 확인할 수 있습니다.")
     @GetMapping("/contents")
     public ResponseEntity<ContentScrapResponse> getContentScrapped(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -52,9 +51,6 @@ public class ScrapController {
         return ResponseEntity.ok(contentScrapResponse);
     }
 
-    /**
-     * 스크랩된 콘텐츠 삭제 API
-     */
     @Operation(summary = "스크랩한 콘텐츠 삭제", description = "스크랩한 콘텐츠를 삭제할 수 있습니다. 'contentScrapId'로 삭제할 콘텐츠를 선택합니다.")
     @DeleteMapping("/contents/{contentScrapId}")
     public ResponseEntity<String> deleteContentScrapped(
@@ -65,9 +61,6 @@ public class ScrapController {
         return ResponseEntity.ok("스크랩된 콘텐츠가 삭제되었습니다.");
     }
 
-    /**
-     * 용어 스크랩 API
-     */
     @Operation(summary = "용어 스크랩하기", description = "특정 용어를 스크랩에 추가합니다. 'dictionaryId'로 용어를 선택해 스크랩할 수 있습니다.")
     @PostMapping("/dictionaries/{dictionaryId}")
     public ResponseEntity<String> scrapTerm(
@@ -78,9 +71,6 @@ public class ScrapController {
         return ResponseEntity.ok("용어가 스크랩되었습니다.");
     }
 
-    /**
-     * 스크랩된 용어 전체 조회 API
-     */
     @Operation(summary = "스크랩한 용어 조회", description = "내가 스크랩한 모든 용어 목록을 확인할 수 있습니다.")
     @GetMapping("/dictionaries")
     public ResponseEntity<DictionaryScrapResponse> getDictionaryScrapped(
@@ -90,9 +80,16 @@ public class ScrapController {
         return ResponseEntity.ok(dictionaryScrapDtos);
     }
 
-    /**
-     * 스크랩된 용어 삭제 API
-     */
+    @GetMapping("/dictionaries/contents/{contentId}")
+    @Operation(summary = "해당 사용자의 용어 스크랩 상태 조회", description = "현재 로그인한 사용자의 콘텐츠 상세페이지의 용어별 스크랩 상태를 조회합니다.")
+    public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
+        @PathVariable Long contentId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(
+            dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
+        );
+    }
+
     @Operation(summary = "스크랩한 용어 삭제", description = "스크랩한 용어를 삭제할 수 있습니다. 'dictionaryScrapId'로 삭제할 용어를 선택합니다.")
     @DeleteMapping("/dictionaries/{dictionaryScrapId}")
     public ResponseEntity<String> deleteDictionaryScrapped(
