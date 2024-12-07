@@ -8,7 +8,6 @@ import com.onedreamus.project.bank.model.dto.DictionaryDto;
 import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
-import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
 import com.onedreamus.project.bank.repository.ContentTagRepository;
@@ -118,7 +117,7 @@ public class ContentService {
             .build();
     }
 
-    public ContentDetailResponse getContentDetail(Long contentId, Users user) {
+    public ContentDetailResponse getContentDetail(Long contentId) {
         Content content = contentRepository.findById(contentId)
             .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
@@ -158,18 +157,12 @@ public class ContentService {
                         }
                         return isFirstAppearance;
                     })
-                    .map(mapping -> {
-                        boolean isScrapped = user != null && dictionaryScrapRepository
-                            .findByUserAndDictionary(user, mapping.getDictionary())
-                            .isPresent();
-
-                        return DictionaryDto.builder()
-                            .id(mapping.getDictionary().getId())
-                            .term(mapping.getDictionary().getTerm())
-                            .details(mapping.getDictionary().getDetails())
-                            .isScrapped(isScrapped)
-                            .build();
-                    })
+                    .map(mapping -> DictionaryDto.builder()
+                        .id(mapping.getDictionary().getId())
+                        .term(mapping.getDictionary().getTerm())
+                        .details(mapping.getDictionary().getDetails())
+                        .isScrapped(false)
+                        .build())
                     .collect(Collectors.toList());
 
                 return ScriptParagraphDto.builder()
