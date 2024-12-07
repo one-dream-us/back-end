@@ -109,3 +109,6 @@ WHERE id = 2;
 UPDATE script_paragraph
 SET paragraph_text = '제가 토스 증권에 들어가 봤는데, 참고로 PPL 아니고요. 근데 이제 거래대금 순위를 1위부터 5위까지 제가 보니까 1위가 <mark>MSTU</mark>, 2위가 리게티 컴퓨팅 (처음 들어보는 회사인데 어쨌든), 3위가 퀀텀 컴퓨팅 그리고 4위가 MSTX, 5위가 마이크로스트레티지죠.'
 WHERE id = 2;
+
+INSERT INTO content_history (is_watch, content_id, user_id)
+VALUES (true, 2, 5);

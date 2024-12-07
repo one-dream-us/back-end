@@ -9,11 +9,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Watch {
+public class ContentHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
