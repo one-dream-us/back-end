@@ -1,19 +1,25 @@
 package com.onedreamus.project.bank.controller;
 
+import com.onedreamus.project.bank.model.dto.ContentHistoryCountResponse;
 import com.onedreamus.project.bank.model.dto.CustomUserDetails;
+import com.onedreamus.project.bank.model.dto.DictionaryScrapInfo;
 import com.onedreamus.project.bank.model.dto.JoinDto;
 import com.onedreamus.project.bank.model.dto.UserInfoDto;
 import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.bank.service.ContentHistoryService;
+import com.onedreamus.project.bank.service.DictionaryScrapService;
 import com.onedreamus.project.bank.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final ContentHistoryService contentHistoryService;
+    private final DictionaryScrapService dictionaryScrapService;
 
     /**
      * 토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
@@ -126,5 +134,24 @@ public class UserController {
 //        log.info("소셜로그인 연결 해제 성공!!");
 //        return ResponseEntity.ok("소셜로그인 연결 해제 성공");
 //    }
+
+    @GetMapping("/me/content-histories/count")
+    @Operation(summary = "사용자가 확인한 콘텐츠 수 조회",
+        description = "현재 로그인한 사용자가 확인한 콘텐츠 수를 조회합니다.")
+    public ResponseEntity<ContentHistoryCountResponse> getContentHistoryCount(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        return ResponseEntity.ok(contentHistoryService.getContentHistoryCount(user));
+    }
+
+    @GetMapping("/me/dictionary-scraps/contents/{contentId}")
+    @Operation(summary = "해당 사용자의 용어 스크랩 상태 조회", description = "현재 로그인한 사용자의 콘텐츠 상세페이지의 용어별 스크랩 상태를 조회합니다.")
+    public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
+        @PathVariable Long contentId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(
+            dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
+        );
+    }
 
 }

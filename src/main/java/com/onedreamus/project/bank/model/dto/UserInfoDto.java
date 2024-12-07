@@ -21,10 +21,11 @@ public class UserInfoDto {
 
     public static UserInfoDto from(Users user) {
         return UserInfoDto.builder()
-                .name(user.getName())
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .provider(user.getProvider())
-                .build();
+            .name(user.getName())
+            .nickname(user.getNickname())
+            .email(user.getEmail())
+            .provider(user.getProvider())
+            .createdAt(user.getCreatedAt())
+            .build();
     }
 }
