@@ -1,7 +1,11 @@
 package com.onedreamus.project.bank.repository;
 
+import com.onedreamus.project.bank.model.dto.DictionaryContentDto;
+import com.onedreamus.project.bank.model.entity.Content;
+import com.onedreamus.project.bank.model.entity.Dictionary;
 import com.onedreamus.project.bank.model.entity.ScriptParagraphDictionary;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -55,11 +55,11 @@ VALUES ('다좋은데유튜버발음좀');
 INSERT INTO content_tag (content_id, tag_id)
 VALUES (9, 7);
 
-INSERT INTO content_view (content_id, viewed_at, view_count)
-VALUES (1, NOW(), 1);
+INSERT INTO content_view (content_id, view_count)
+VALUES (1, 1);
 
-INSERT INTO content_view (content_id, viewed_at, view_count)
-VALUES (2, NOW(), 1);
+INSERT INTO content_view (content_id, view_count)
+VALUES (2, 1);
 
 INSERT INTO content_view (content_id, view_date, view_count)
 VALUES (3, NOW(), 1)

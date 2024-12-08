@@ -4,14 +4,15 @@ import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.exception.ScrapException;
 import com.onedreamus.project.bank.exception.DictionaryException;
 import com.onedreamus.project.bank.model.dto.ContentScrapDto;
-import com.onedreamus.project.bank.model.dto.DictionaryScrapDto;
 import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
 import com.onedreamus.project.bank.model.entity.Dictionary;
 import com.onedreamus.project.bank.model.entity.DictionaryScrap;
+import com.onedreamus.project.bank.model.entity.DictionaryScrapContent;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
+import com.onedreamus.project.bank.repository.DictionaryScrapContentRepository;
 import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 
@@ -31,9 +32,10 @@ public class ScrapService {
     private final ContentScrapRepository contentScrapRepository;
     private final ContentService contentService;
     private final DictionaryService dictionaryService;
+    private final DictionaryScrapContentRepository dictionaryScrapContentRepository;
     private final UserService userService;
 
-    public void scrapContent(Integer contentId, Users user) {
+    public void scrapContent(Long contentId, Users user) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
                 .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
@@ -79,17 +81,25 @@ public class ScrapService {
     /**
      * 용어 스크랩
      */
-    public void scrapDictionary(Long dictionaryId, Users user) {
+    public void scrapDictionary(Long dictionaryId, Long contentId, Users user) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
+        // 콘텐츠 확인
+        Content content = contentService.getContentById(contentId)
+            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+
         // 기존에 스크랩된 용어인지 확인
         Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(user,
                 dictionary);
+
         if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
-            DictionaryScrap newDictionaryScrap = DictionaryScrap.make(user, dictionary);
-            dictionaryScrapRepository.save(newDictionaryScrap);
+
+            DictionaryScrap newDictionaryScrap =
+                dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
+
+            dictionaryScrapContentRepository.save(DictionaryScrapContent.from(newDictionaryScrap, content));
         } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
         }
@@ -100,11 +110,10 @@ public class ScrapService {
      */
     public DictionaryScrapResponse getDictionaryScrapped(Users user) {
 
-        List<DictionaryScrapDto> dictionaryScrapDtos = dictionaryScrapRepository.findAllByUser(user).stream()
-                .map(DictionaryScrapDto::from)
-                .toList();
+        List<DictionaryContentDto> dictionaryScrapContents =
+            dictionaryScrapRepository.findDictionaryScrapWithContentByUser(user);
 
-        return DictionaryScrapResponse.from(dictionaryScrapDtos);
+        return DictionaryScrapResponse.from(dictionaryScrapContents);
     }
 
     /**
