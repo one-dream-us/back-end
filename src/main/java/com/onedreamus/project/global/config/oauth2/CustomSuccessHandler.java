@@ -96,10 +96,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String redirectUrl = (String) session.getAttribute(REDIRECT_URL);
         String domain = getDomain(redirectUrl);
 
+        log.info("homeAddress : {}, servletPath : {}, redirectUrl : {}, domain : {}", homeAddress, servletPath, redirectUrl, domain);
+
         // 회원가입인 경우
         if (homeAddress == null) {
             response.sendRedirect(domain);
-        }else { // 로그인인 경우
+        } else { // 로그인인 경우
             response.sendRedirect(redirectUrl);
         }
     }
