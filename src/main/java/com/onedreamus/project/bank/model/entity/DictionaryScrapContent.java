@@ -6,16 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ContentScrap extends BaseEntity{
+public class DictionaryScrapContent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,17 +28,16 @@ public class ContentScrap extends BaseEntity{
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
-    private Users user;
-
-    @JoinColumn
-    @ManyToOne (fetch = FetchType.EAGER)
     private Content content;
 
-    public static ContentScrap from(Users user, Content content) {
-        return ContentScrap.builder()
-                .user(user)
-                .content(content)
-                .build();
-    }
+    @JoinColumn
+    @OneToOne(fetch = FetchType.EAGER)
+    private DictionaryScrap dictionaryScrap;
 
+    public static DictionaryScrapContent from(DictionaryScrap newDictionaryScrap, Content content) {
+        return DictionaryScrapContent.builder()
+            .content(content)
+            .dictionaryScrap(newDictionaryScrap)
+            .build();
+    }
 }

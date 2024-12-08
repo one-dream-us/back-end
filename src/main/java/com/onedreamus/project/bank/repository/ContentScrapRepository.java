@@ -1,5 +1,8 @@
 package com.onedreamus.project.bank.repository;
 
+import com.onedreamus.project.bank.model.dto.ContentScrapDto;
+import com.onedreamus.project.bank.model.dto.ContentScrapSummaryDto;
+import com.onedreamus.project.bank.model.dto.ContentScrapTagDto;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
 import com.onedreamus.project.bank.model.entity.Users;
@@ -22,4 +25,19 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
     Integer countByUser(Users user);
 
     boolean existsByIdAndUser(Integer contentScrapId, Users user);
+
+    @Query("SELECT new com.onedreamus.project.bank.model.dto.ContentScrapSummaryDto("
+        + "cs.id as scrapId, cs.createdAt, cs.content.id as contentId, cs.content.thumbnailUrl, cs.content.title as contentTitle, ss.summaryText) "
+        + "FROM ContentScrap cs "
+        + "LEFT JOIN ScriptSummary ss ON ss.content = cs.content "
+        + "WHERE cs.user = :user")
+    List<ContentScrapSummaryDto> findContentScrapSummaryByUser(@Param("user") Users user);
+
+    @Query("SELECT new com.onedreamus.project.bank.model.dto.ContentScrapTagDto("
+        + "cs.id as scrapId, cs.content.id as contentId, t.value as tagValue, ct.sequence as sequence) "
+        + "FROM ContentScrap cs "
+        + "LEFT JOIN ContentTag ct ON ct.content = cs.content "
+        + "LEFT JOIN Tag t ON t = ct.tag "
+        + "WHERE cs.user = :user")
+    List<ContentScrapTagDto> findContentScrapTagByUser(@Param("user") Users user);
 }

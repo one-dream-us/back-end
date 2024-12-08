@@ -31,7 +31,7 @@ public class ScrapController {
     @Operation(summary = "콘텐츠 스크랩하기", description = "콘텐츠를 스크랩에 추가합니다. 'contentId'로 특정 콘텐츠를 선택해 스크랩할 수 있습니다.")
     @PostMapping("/contents/{contentId}")
     public ResponseEntity<String> scrapContent(
-        @PathVariable("contentId") Integer contentId,
+        @PathVariable("contentId") Long contentId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
         scrapService.scrapContent(contentId, user);
@@ -57,12 +57,13 @@ public class ScrapController {
     }
 
     @Operation(summary = "용어 스크랩하기", description = "특정 용어를 스크랩에 추가합니다. 'dictionaryId'로 용어를 선택해 스크랩할 수 있습니다.")
-    @PostMapping("/dictionaries/{dictionaryId}")
+    @PostMapping("/dictionaries/{dictionaryId}/contents/{contentId}")
     public ResponseEntity<String> scrapTerm(
         @PathVariable("dictionaryId") Long dictionaryId,
+        @PathVariable("contentId") Long contentId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
-        scrapService.scrapDictionary(dictionaryId, user);
+        scrapService.scrapDictionary(dictionaryId, contentId, user);
         return ResponseEntity.ok("용어가 스크랩되었습니다.");
     }
 

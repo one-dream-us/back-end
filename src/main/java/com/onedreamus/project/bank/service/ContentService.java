@@ -4,9 +4,11 @@ import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.model.dto.ContentDetailResponse;
 import com.onedreamus.project.bank.model.dto.ContentListResponse;
 import com.onedreamus.project.bank.model.dto.CursorResult;
+import com.onedreamus.project.bank.model.dto.DictionaryContentDto;
 import com.onedreamus.project.bank.model.dto.DictionaryDto;
 import com.onedreamus.project.bank.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.bank.model.entity.Content;
+import com.onedreamus.project.bank.model.entity.Dictionary;
 import com.onedreamus.project.bank.model.entity.ScriptSummary;
 import com.onedreamus.project.bank.repository.ContentRepository;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
@@ -43,7 +45,7 @@ public class ContentService {
     private final ScriptParagraphDictionaryRepository scriptParagraphDictionaryRepository;
     private final DictionaryScrapRepository dictionaryScrapRepository;
 
-    public Optional<Content> getContentById(Integer contentId){
+    public Optional<Content> getContentById(Long contentId){
         return contentRepository.findById(contentId);
     }
 

@@ -4,9 +4,11 @@ import com.onedreamus.project.bank.repository.UserRepository;
 import com.onedreamus.project.bank.service.CustomOAuth2UserService;
 import com.onedreamus.project.global.config.jwt.JWTFilter;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
+import com.onedreamus.project.global.config.oauth2.CustomAuthorizationRequestResolver;
 import com.onedreamus.project.global.config.oauth2.CustomSuccessHandler;
 import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -33,6 +38,8 @@ public class SecurityConfig {
 	private final CustomSuccessHandler customSuccessHandler;
 	private final UserRepository userRepository;
 	private final CookieUtils cookieUtils;
+	private final CustomAuthorizationRequestResolver customAuthorizationRequestResolver;
+
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -75,10 +82,17 @@ public class SecurityConfig {
 		// oauth2
 		http
 			.oauth2Login((oauth2) -> oauth2
+				.authorizationEndpoint(authEndpoint -> authEndpoint
+					.authorizationRequestResolver(customAuthorizationRequestResolver)
+				)
 				.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
 					.userService(customOAuth2UserService))
 				.successHandler(customSuccessHandler) // login 성공 시
 			);
+
+//		http
+//			.requestCache(cache -> cache
+//				.requestCache(requestCache()));
 
 		http
 			.authorizeHttpRequests((auth) -> auth

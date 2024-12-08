@@ -12,12 +12,12 @@ import java.util.List;
 public class DictionaryScrapResponse {
 
     private Integer scrapCnt;
-    private List<DictionaryScrapDto> dictionaryScraps;
+    private List<DictionaryContentDto> dictionaryScraps;
 
-    public static DictionaryScrapResponse from(List<DictionaryScrapDto> dtos) {
+    public static DictionaryScrapResponse from(List<DictionaryContentDto> dtos) {
         return DictionaryScrapResponse.builder()
-                .scrapCnt(dtos.size())
-                .dictionaryScraps(dtos)
-                .build();
+            .scrapCnt(dtos.size())
+            .dictionaryScraps(dtos)
+            .build();
     }
 }

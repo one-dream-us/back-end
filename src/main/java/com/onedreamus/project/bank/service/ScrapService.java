@@ -4,20 +4,27 @@ import com.onedreamus.project.bank.exception.ContentException;
 import com.onedreamus.project.bank.exception.ScrapException;
 import com.onedreamus.project.bank.exception.DictionaryException;
 import com.onedreamus.project.bank.model.dto.ContentScrapDto;
-import com.onedreamus.project.bank.model.dto.DictionaryScrapDto;
 import com.onedreamus.project.bank.model.dto.*;
 import com.onedreamus.project.bank.model.entity.Content;
 import com.onedreamus.project.bank.model.entity.ContentScrap;
 import com.onedreamus.project.bank.model.entity.Dictionary;
 import com.onedreamus.project.bank.model.entity.DictionaryScrap;
+import com.onedreamus.project.bank.model.entity.DictionaryScrapContent;
 import com.onedreamus.project.bank.model.entity.Users;
 import com.onedreamus.project.bank.repository.ContentScrapRepository;
+import com.onedreamus.project.bank.repository.DictionaryScrapContentRepository;
 import com.onedreamus.project.bank.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import java.util.PriorityQueue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,16 +38,17 @@ public class ScrapService {
     private final ContentScrapRepository contentScrapRepository;
     private final ContentService contentService;
     private final DictionaryService dictionaryService;
+    private final DictionaryScrapContentRepository dictionaryScrapContentRepository;
     private final UserService userService;
 
-    public void scrapContent(Integer contentId, Users user) {
+    public void scrapContent(Long contentId, Users user) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
-                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩한 항목인지 점검
         Optional<ContentScrap> contentScrapOptional =
-                contentScrapRepository.findByUserAndContent(user, content);
+            contentScrapRepository.findByUserAndContent(user, content);
 
         // 이전에 스크랩한적 없는 경우
         if (contentScrapOptional.isEmpty()) {
@@ -56,18 +64,44 @@ public class ScrapService {
      */
     public ContentScrapResponse getContentScrapped(Users user) {
 
-        List<ContentScrapDto> contentScrapDtos = contentScrapRepository.findAllByUser(user).stream()
-                .map(ContentScrapDto::from)
-                .toList();
+        Map<Long, ContentScrapDto> map = new HashMap<>();
 
-        return ContentScrapResponse.from(contentScrapDtos);
+        List<ContentScrapSummaryDto> contentScrapSummaryDtos =
+            contentScrapRepository.findContentScrapSummaryByUser(user);
+        for (ContentScrapSummaryDto dto : contentScrapSummaryDtos) {
+
+            map.put(dto.getScrapId(), ContentScrapDto.builder()
+                .scrapId(dto.getScrapId())
+                .contentId(dto.getContentId())
+                .thumbnailUrl(dto.getThumbnailUrl())
+                .contentTitle(dto.getContentTitle())
+                .summaryText(dto.getSummaryText())
+                .createdAt(dto.getCreatedAt())
+                .tags(new ArrayList<>())
+                .build());
+        }
+
+        List<ContentScrapTagDto> contentScrapTagDtos =
+            contentScrapRepository.findContentScrapTagByUser(user);
+        for (ContentScrapTagDto dto : contentScrapTagDtos) {
+            ContentScrapDto contentScrapDto = map.get(dto.getScrapId());
+            contentScrapDto.getTags().add(TagDto.builder()
+                .tagValue(dto.getTagValue())
+                .sequence(dto.getSequence())
+                .build());
+        }
+
+        List<ContentScrapDto> result = new ArrayList<>(map.values());
+        Collections.sort(result, Comparator.comparing(ContentScrapDto::getCreatedAt));
+
+        return ContentScrapResponse.from(result);
     }
 
     /**
      * 스크랩된 콘텐츠 삭제
      */
     public void deleteContentScrapped(Integer contentScrapId, Users user) {
-         boolean isExist = contentScrapRepository.existsByIdAndUser(contentScrapId, user);
+        boolean isExist = contentScrapRepository.existsByIdAndUser(contentScrapId, user);
 
         if (isExist) {
             contentScrapRepository.deleteById(contentScrapId);
@@ -79,17 +113,27 @@ public class ScrapService {
     /**
      * 용어 스크랩
      */
-    public void scrapDictionary(Long dictionaryId, Users user) {
+    public void scrapDictionary(Long dictionaryId, Long contentId, Users user) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+            .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+
+        // 콘텐츠 확인
+        Content content = contentService.getContentById(contentId)
+            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
-        Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(user,
-                dictionary);
+        Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(
+            user,
+            dictionary);
+
         if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
-            DictionaryScrap newDictionaryScrap = DictionaryScrap.make(user, dictionary);
-            dictionaryScrapRepository.save(newDictionaryScrap);
+
+            DictionaryScrap newDictionaryScrap =
+                dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
+
+            dictionaryScrapContentRepository.save(
+                DictionaryScrapContent.from(newDictionaryScrap, content));
         } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
         }
@@ -100,11 +144,10 @@ public class ScrapService {
      */
     public DictionaryScrapResponse getDictionaryScrapped(Users user) {
 
-        List<DictionaryScrapDto> dictionaryScrapDtos = dictionaryScrapRepository.findAllByUser(user).stream()
-                .map(DictionaryScrapDto::from)
-                .toList();
+        List<DictionaryContentDto> dictionaryScrapContents =
+            dictionaryScrapRepository.findDictionaryScrapWithContentByUser(user);
 
-        return DictionaryScrapResponse.from(dictionaryScrapDtos);
+        return DictionaryScrapResponse.from(dictionaryScrapContents);
     }
 
     /**
@@ -130,8 +173,8 @@ public class ScrapService {
         totalScrapCnt += getDictionaryScrapCnt(user).getDictionaryScrapCnt();
 
         return TotalScarpCntDto.builder()
-                .totalScrapCnt(totalScrapCnt)
-                .build();
+            .totalScrapCnt(totalScrapCnt)
+            .build();
     }
 
     /**
@@ -140,8 +183,8 @@ public class ScrapService {
     public ContentScrapCntDto getContentScrapCnt(Users user) {
         Integer contentScrapCnt = contentScrapRepository.countByUser(user);
         return ContentScrapCntDto.builder()
-                .contentScrapCnt(contentScrapCnt)
-                .build();
+            .contentScrapCnt(contentScrapCnt)
+            .build();
     }
 
     /**
@@ -150,7 +193,7 @@ public class ScrapService {
     public DictionaryScrapCntDto getDictionaryScrapCnt(Users user) {
         Integer dictionaryScrapCnt = dictionaryScrapRepository.countByUser(user);
         return DictionaryScrapCntDto.builder()
-                .dictionaryScrapCnt(dictionaryScrapCnt)
-                .build();
+            .dictionaryScrapCnt(dictionaryScrapCnt)
+            .build();
     }
 }
