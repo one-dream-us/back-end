@@ -26,11 +26,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ContentScrap{
+public class ContentScrap extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,13 +40,10 @@ public class ContentScrap{
     @ManyToOne (fetch = FetchType.EAGER)
     private Content content;
 
-    private LocalDateTime createdAt;
-
     public static ContentScrap from(Users user, Content content) {
         return ContentScrap.builder()
                 .user(user)
                 .content(content)
-                .createdAt(LocalDateTime.now())
                 .build();
     }
 
