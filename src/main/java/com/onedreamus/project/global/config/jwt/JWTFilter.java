@@ -77,7 +77,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         if (accessToken == null) {
-            log.info("[path: {}] access-token null", request.getServletPath());
             if (isScrapRequest(request.getServletPath())) {
                 FilterException.throwException(response, ErrorCode.NEED_LOGIN);
                 return;
@@ -114,7 +113,7 @@ public class JWTFilter extends OncePerRequestFilter {
             // refresh-token 만료 기간 검사
             if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
                 // 만료된 경우 -> 재로그인 필요
-                log.info("[Refresh token is expired] 이메일: {}", email);
+                log.info("[Refresh token is expired-재로그인 필요] 이메일: {}", email);
 
                 List<String> allTokenType = TokenType.getAllTokenName();
                 cookieUtils.deleteAllCookie(response, allTokenType);
@@ -172,7 +171,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         if (isAccessTokenExpired) { // access-token 만료
-            log.info("Access-Token 만료!!!!");
             Users user = optionalUser.get();
             if (user.isDeleted()) {
                 return;
@@ -180,8 +178,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
             if (!user.getRefreshToken().equals(refreshToken)) {
-                log.info("user token : {}", user.getRefreshToken());
-                log.info("refresh token : {}", refreshToken);
                 return;
             }
 

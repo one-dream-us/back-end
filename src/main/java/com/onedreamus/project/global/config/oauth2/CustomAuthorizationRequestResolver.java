@@ -45,7 +45,6 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         }
 
         String redirectUrl = request.getParameter("redirectUrl");
-        log.info("Redirect URL : {}", redirectUrl);
 
         HttpSession session = request.getSession();
         session.setAttribute("redirectUrl", redirectUrl);
