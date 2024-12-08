@@ -41,6 +41,9 @@ public class ScrapService {
     private final DictionaryScrapContentRepository dictionaryScrapContentRepository;
     private final UserService userService;
 
+    /**
+     * 콘텐츠 스크랩
+     */
     public void scrapContent(Long contentId, Users user) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
@@ -101,13 +104,11 @@ public class ScrapService {
      * 스크랩된 콘텐츠 삭제
      */
     public void deleteContentScrapped(Integer contentScrapId, Users user) {
-        boolean isExist = contentScrapRepository.existsByIdAndUser(contentScrapId, user);
+        ContentScrap contentScrap = contentScrapRepository.findByIdAndUser(contentScrapId, user)
+            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
 
-        if (isExist) {
-            contentScrapRepository.deleteById(contentScrapId);
-        } else {
-            throw new ScrapException(ErrorCode.SCRAP_NO_EXIST);
-        }
+        contentScrap.setIsDeleted(true);
+        contentScrapRepository.save(contentScrap);
     }
 
     /**
@@ -154,13 +155,12 @@ public class ScrapService {
      * 스크랩된 용어 삭제
      */
     public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
-        boolean isExist = dictionaryScrapRepository.existsByIdAndUser(dictionaryScrapId, user);
+        DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUser(dictionaryScrapId, user)
+            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
 
-        if (isExist) {
-            dictionaryScrapRepository.deleteById(dictionaryScrapId);
-        } else {
-            throw new ScrapException(ErrorCode.SCRAP_NO_EXIST);
-        }
+        dictionaryScrap.setIsDeleted(true);
+
+        dictionaryScrapRepository.save(dictionaryScrap);
     }
 
     /**
