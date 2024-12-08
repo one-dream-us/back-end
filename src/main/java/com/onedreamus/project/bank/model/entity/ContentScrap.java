@@ -26,7 +26,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ContentScrap extends BaseEntity{
+public class ContentScrap extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,14 +37,17 @@ public class ContentScrap extends BaseEntity{
     private Users user;
 
     @JoinColumn
-    @ManyToOne (fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Content content;
+
+    private Boolean isDeleted;
 
     public static ContentScrap from(Users user, Content content) {
         return ContentScrap.builder()
-                .user(user)
-                .content(content)
-                .build();
+            .user(user)
+            .content(content)
+            .isDeleted(false)
+            .build();
     }
 
 }
