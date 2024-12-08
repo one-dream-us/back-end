@@ -1,5 +1,8 @@
 package com.onedreamus.project.global.config.jwt;
 
+import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.exception.FilterException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,33 +26,33 @@ public class JWTUtil {
     public JWTUtil(@Value("${spring.jwt.secret-key}") String secret) {
 
         secretKey = new SecretKeySpec(
-                secret.getBytes(StandardCharsets.UTF_8),
-                Jwts.SIG.HS256.key().build().getAlgorithm()
+            secret.getBytes(StandardCharsets.UTF_8),
+            Jwts.SIG.HS256.key().build().getAlgorithm()
         );
     }
 
     public String getUsername(String token) {
 
         return getPayload(token)
-                .get("username", String.class);
+            .get("username", String.class);
     }
 
     public String getEmail(String token) {
 
         return getPayload(token)
-                .get("email", String.class);
+            .get("email", String.class);
     }
 
     public String getRole(String token) {
 
         return getPayload(token)
-                .get("role", String.class);
+            .get("role", String.class);
     }
 
     public Boolean isExpired(String token) {
         try {
             Jwts.parser().verifyWith(secretKey).build()
-                    .parseSignedClaims(token).getPayload();
+                .parseSignedClaims(token).getPayload();
             return false;
         } catch (ExpiredJwtException e) {
             log.info("JWT 만료!!");
@@ -59,34 +62,46 @@ public class JWTUtil {
 
     public Boolean isSocialLogin(String token) {
         return getPayload(token)
-                .get("isSocialLogin", Boolean.class);
+            .get("isSocialLogin", Boolean.class);
     }
 
     private Claims getPayload(String token) {
 
         try {
             return Jwts.parser().verifyWith(secretKey).build()
-                    .parseSignedClaims(token).getPayload();
+                .parseSignedClaims(token).getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
     }
 
+    public String renewAccessToken(String refreshToken) {
+
+        return createJwt(
+            getUsername(refreshToken),
+            getEmail(refreshToken),
+            getRole(refreshToken),
+            isSocialLogin(refreshToken),
+            TokenType.ACCESS_TOKEN);
+    }
+
+
     public Long getSocialId(String token) {
         return getPayload(token).get("socialId", Long.class);
     }
 
-    public String createJwt(String username, String email, String role, boolean isSocialLogin, TokenType tokenType) {
+    public String createJwt(String username, String email, String role, boolean isSocialLogin,
+        TokenType tokenType) {
 
         return Jwts.builder()
-                .claim("username", username)
-                .claim("email", email)
-                .claim("role", role)
-                .claim("isSocialLogin", isSocialLogin)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + tokenType.getExpiredTime()))
-                .signWith(secretKey)
-                .compact();
+            .claim("username", username)
+            .claim("email", email)
+            .claim("role", role)
+            .claim("isSocialLogin", isSocialLogin)
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + tokenType.getExpiredTime()))
+            .signWith(secretKey)
+            .compact();
     }
 
     /**

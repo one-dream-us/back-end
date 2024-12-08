@@ -26,170 +26,198 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
-	private final JWTUtil jwtUtil;
-	private final UserRepository userRepository;
-	private final CookieUtils cookieUtils;
+    private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final CookieUtils cookieUtils;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
 
-		String path = request.getServletPath();
+        String path = request.getServletPath();
 
-		if (isPublicPath(request)) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+        if (isPublicPath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        String accessToken = null;
+        String refreshToken = null;
+        Cookie accessTokenCookie = null;
+        Cookie refreshTokenCookie = null;
+        Cookie[] cookies = request.getCookies();
 
+        if (path.equals("/api/v1/auth/check")) {  // 추가된 부분
+            if (cookies != null) {
+                setAuthenticationIfValidToken(cookies, response);
+            }
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-		String accessToken = null;
-		String refreshToken = null;
-		Cookie accessTokenCookie = null;
-		Cookie refreshTokenCookie = null;
-		Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            // 스크랩 요청인 경우만 로그인 필요
+            if (isScrapRequest(request.getServletPath())) {
+                FilterException.throwException(response, ErrorCode.NEED_LOGIN);
+                return;
+            }
+            // 스크랩 요청이 아닌 경우 필터 통과
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-		if (path.equals("/api/v1/auth/check")) {  // 추가된 부분
-			if (cookies != null) {
-				setAuthenticationIfValidToken(cookies, request);
-			}
-			filterChain.doFilter(request, response);
-			return;
-		}
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
+                accessTokenCookie = cookie;
+                accessToken = cookie.getValue();
+            } else if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
+                refreshTokenCookie = cookie;
+                refreshToken = cookie.getValue();
+            }
+        }
 
-		if (cookies == null) {
-			// 스크랩 요청인 경우만 로그인 필요
-			if (isScrapRequest(request.getServletPath())) {
-				FilterException.throwException(response, ErrorCode.NEED_LOGIN);
-				return;
-			}
-			// 스크랩 요청이 아닌 경우 필터 통과
-			filterChain.doFilter(request, response);
-			return;
-		}
+        if (accessToken == null) {
+            log.info("[path: {}] access-token null", request.getServletPath());
+            if (isScrapRequest(request.getServletPath())) {
+                FilterException.throwException(response, ErrorCode.NEED_LOGIN);
+                return;
+            }
+            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
+            return;
+        }
 
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
-				accessTokenCookie = cookie;
-				accessToken = cookie.getValue();
-			} else if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
-				refreshTokenCookie = cookie;
-				refreshToken = cookie.getValue();
-			}
-		}
+        boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
 
-		if (accessToken == null) {
-			log.info("[path: {}] access-token null", request.getServletPath());
-			if (isScrapRequest(request.getServletPath())) {
-				FilterException.throwException(response, ErrorCode.NEED_LOGIN);
-				return;
-			}
-			FilterException.throwException(response, ErrorCode.TOKEN_NULL);
-			return;
-		}
+        String email = jwtUtil.getEmail(accessToken);
+        Optional<Users> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            FilterException.throwException(response, ErrorCode.NO_USER);
+            return;
+        }
 
-		boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
+        // 1. access-token 확인
+        if (isAccessTokenExpired) {
+            // access-token 이 만료된 경우
+            // 2. refresh-token 확인
+            Users user = optionalUser.get();
+            if (user.isDeleted()) {
+                FilterException.throwException(response, ErrorCode.NO_USER);
+                return;
+            }
 
-		String email = jwtUtil.getEmail(accessToken);
-		Optional<Users> optionalUser = userRepository.findByEmail(email);
-		if (optionalUser.isEmpty()) {
-			FilterException.throwException(response, ErrorCode.NO_USER);
-			return;
-		}
+            // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
+            if (!user.getRefreshToken().equals(refreshToken)) {
+                FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
+                return;
+            }
 
-		// 1. access-token 확인
-		if (isAccessTokenExpired) { // access-token이 만료된 경우
+            // refresh-token 만료 기간 검사
+            if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
+                // 만료된 경우 -> 재로그인 필요
+                log.info("[Refresh token is expired] 이메일: {}", email);
 
-			// 2. refresh-token 확인
-			Users user = optionalUser.get();
-			if (user.isDeleted()) {
-				FilterException.throwException(response, ErrorCode.NO_USER);
-			}
+                List<String> allTokenType = TokenType.getAllTokenName();
+                cookieUtils.deleteAllCookie(response, allTokenType);
 
-			// DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
-			if (!user.getRefreshToken().equals(refreshToken)) {
-				FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
-				return;
-			}
+                FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
+                return;
+            }
 
-			// refresh-token 만료 기간 검사
-			if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
-				// 만료된 경우 -> 재로그인 필요
-				log.info("[Refresh token is expired] 이메일: {}", email);
+            // 만료 X -> access-token 재발급
+            String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
+            String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+        }
 
-				List<String> allTokenType = TokenType.getAllTokenName();
-				cookieUtils.deleteAllCookie(response, allTokenType);
+        CustomUserDetails customUserDetails = new CustomUserDetails(optionalUser.get());
 
-				FilterException.throwException(response, ErrorCode.TOKEN_EXPIRED);
-				return;
-			}
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
+            null, customUserDetails.getAuthorities());
 
-			// 만료 X -> access-token 재발급
-			String newAccessToken =
-				jwtUtil.createJwt(
-					jwtUtil.getUsername(refreshToken),
-					jwtUtil.getEmail(refreshToken),
-					jwtUtil.getRole(refreshToken),
-					jwtUtil.isSocialLogin(refreshToken),
-					TokenType.ACCESS_TOKEN);
-			String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
-			response.addHeader(HttpHeaders.SET_COOKIE, cookie);
-		}
+        // session 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		CustomUserDetails customUserDetails = new CustomUserDetails(optionalUser.get());
+        filterChain.doFilter(request, response);
+    }
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
-			null, customUserDetails.getAuthorities());
+    private boolean isScrapRequest(String path) {
+        return path.contains("/scrap");
+    }
 
-		// session 저장
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+    private void setAuthenticationIfValidToken(Cookie[] cookies, HttpServletResponse response)
+        throws IOException {
+        String accessToken = null;
+        String refreshToken = null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
+                accessToken = cookie.getValue();
+                continue;
+            }
 
-		filterChain.doFilter(request, response);
-	}
+            if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
+                refreshToken = cookie.getValue();
+            }
+        }
 
-	private boolean isScrapRequest(String path) {
-		return path.contains("/scrap");
-	}
+        if (accessToken == null) {
+            return;
+        }
 
-	private void setAuthenticationIfValidToken(Cookie[] cookies, HttpServletRequest request) {
-		String accessToken = null;
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
-				accessToken = cookie.getValue();
-				break;
-			}
-		}
+        boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
 
-		if (accessToken != null && !jwtUtil.isExpired(accessToken)) {
-			String email = jwtUtil.getEmail(accessToken);
-			Optional<Users> optionalUser = userRepository.findByEmail(email);
+        String email = jwtUtil.getEmail(accessToken);
+        Optional<Users> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            return;
+        }
 
-			if (optionalUser.isPresent()) {
-				CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());
-				Authentication auth = new UsernamePasswordAuthenticationToken(
-					userDetails, null, userDetails.getAuthorities());
-				SecurityContextHolder.getContext().setAuthentication(auth);
-			}
-		}
-	}
+        if (isAccessTokenExpired) { // access-token 만료
+            log.info("Access-Token 만료!!!!");
+            Users user = optionalUser.get();
+            if (user.isDeleted()) {
+                return;
+            }
 
-	private boolean isPublicPath(HttpServletRequest request) {
-		String path = request.getServletPath();
-		List<String> publicPaths = List.of(
-			"/login/**",
-			"/users/join",
-			"/oauth2/**",
-			"/swagger-ui.html",
-			"/v3/api-docs/**",
-			"/swagger-ui/**",
-			"/api/v1/contents/**",
-			"/api/v1/contents"
-		);
+            // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
+            if (!user.getRefreshToken().equals(refreshToken)) {
+                log.info("user token : {}", user.getRefreshToken());
+                log.info("refresh token : {}", refreshToken);
+                return;
+            }
 
-		return publicPaths.stream().anyMatch(publicPath ->
-			path.startsWith(publicPath.replace("/**", "")) ||
-				path.matches(publicPath.replace("**", ".*"))
-		);
-	}
+            // refresh-token 만료 기간 검사
+            if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
+                return;
+            }
+
+            String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
+            String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+        }
+
+        CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+            userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        List<String> publicPaths = List.of(
+            "/login/**",
+            "/users/join",
+            "/oauth2/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/api/v1/contents/**",
+            "/api/v1/contents"
+        );
+
+        return publicPaths.stream().anyMatch(publicPath ->
+            path.startsWith(publicPath.replace("/**", "")) ||
+                path.matches(publicPath.replace("**", ".*"))
+        );
+    }
 
 }
