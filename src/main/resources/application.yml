@@ -40,3 +40,7 @@ spring:
 
   jwt:
     secret-key: ${JWT_SECRET_KEY}
+  cookie:
+    domain:
+      server: thisismoney.site
+      local: localhost
