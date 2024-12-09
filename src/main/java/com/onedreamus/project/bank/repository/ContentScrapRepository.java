@@ -42,4 +42,6 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
         + "LEFT JOIN Tag t ON t = ct.tag "
         + "WHERE cs.user = :user AND cs.isDeleted = false")
     List<ContentScrapTagDto> findContentScrapTagByUser(@Param("user") Users user);
+
+    Integer countByUserAndIsDeleted(Users user, boolean isDeleted);
 }
