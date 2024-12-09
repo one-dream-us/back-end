@@ -112,3 +112,6 @@ WHERE id = 2;
 
 INSERT INTO content_history (is_watch, content_id, user_id)
 VALUES (true, 2, 5);
+
+INSERT INTO dictionary_scrap (created_at, updated_at, dictionary_id, user_id, is_deleted)
+VALUES (NOW(), NOW(), 1, 3, false);
