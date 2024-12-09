@@ -191,7 +191,7 @@ public class ScrapService {
      * 용어 스크랩 수 조회
      */
     public DictionaryScrapCntDto getDictionaryScrapCnt(Users user) {
-        Integer dictionaryScrapCnt = dictionaryScrapRepository.countByUser(user);
+        Integer dictionaryScrapCnt = dictionaryScrapRepository.countByUserAndIsDeleted(user, false);
         return DictionaryScrapCntDto.builder()
             .dictionaryScrapCnt(dictionaryScrapCnt)
             .build();
