@@ -211,18 +211,8 @@ public class ContentService {
         return videoId;
     }
 
-    private void incrementViewCount(Content content) {
-        ContentView contentView = contentViewRepository.findByContent(content)
-            .orElseGet(() -> ContentView.builder()
-                .content(content)
-                .viewCount(0)
-                .viewDate(LocalDateTime.now())
-                .build());
-
-        if (contentView.getId() != null) {
-            contentView.incrementViewCount();
-        }
-
-        contentViewRepository.save(contentView);
+    @Transactional(readOnly = false)
+    public void incrementViewCount(Content content) {
+        contentViewRepository.upsertViewCount(content.getId());
     }
 }
