@@ -7,6 +7,7 @@ import com.onedreamus.project.thisismoney.model.dto.CursorResult;
 import com.onedreamus.project.thisismoney.model.dto.DictionaryDto;
 import com.onedreamus.project.thisismoney.model.dto.ScriptParagraphDto;
 import com.onedreamus.project.thisismoney.model.entity.Content;
+import com.onedreamus.project.thisismoney.model.entity.ContentView;
 import com.onedreamus.project.thisismoney.model.entity.ScriptSummary;
 import com.onedreamus.project.thisismoney.repository.ContentRepository;
 import com.onedreamus.project.thisismoney.repository.ContentScrapRepository;
@@ -18,6 +19,7 @@ import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.NumberFormatter;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -117,9 +119,12 @@ public class ContentService {
             .build();
     }
 
+    @Transactional(readOnly = false)
     public ContentDetailResponse getContentDetail(Long contentId) {
         Content content = contentRepository.findById(contentId)
             .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+
+        incrementViewCount(content);
 
         List<String> tags = contentTagRepository.findByContentOrderBySequence(content)
             .stream()
@@ -204,5 +209,20 @@ public class ContentService {
             videoId = videoId.substring(0, ampersandIndex);
         }
         return videoId;
+    }
+
+    private void incrementViewCount(Content content) {
+        ContentView contentView = contentViewRepository.findByContent(content)
+            .orElseGet(() -> ContentView.builder()
+                .content(content)
+                .viewCount(0)
+                .viewDate(LocalDateTime.now())
+                .build());
+
+        if (contentView.getId() != null) {
+            contentView.incrementViewCount();
+        }
+
+        contentViewRepository.save(contentView);
     }
 }
