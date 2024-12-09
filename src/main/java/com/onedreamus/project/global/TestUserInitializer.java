@@ -1,7 +1,7 @@
 package com.onedreamus.project.global;
 
-import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.thisismoney.model.entity.Users;
+import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

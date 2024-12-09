@@ -1,8 +1,8 @@
 package com.onedreamus.project.global.config.jwt;
 
-import com.onedreamus.project.bank.model.dto.CustomUserDetails;
-import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.thisismoney.model.dto.CustomUserDetails;
+import com.onedreamus.project.thisismoney.model.entity.Users;
+import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.exception.FilterException;
 import com.onedreamus.project.global.util.CookieUtils;

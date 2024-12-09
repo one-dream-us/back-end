@@ -1,8 +1,7 @@
 package com.onedreamus.project.global.util;
 
-import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
-import com.onedreamus.project.bank.model.dto.CustomUserDetails;
-import com.onedreamus.project.bank.model.entity.Users;
+import com.onedreamus.project.thisismoney.model.dto.CustomUserDetails;
+import com.onedreamus.project.thisismoney.model.entity.Users;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
