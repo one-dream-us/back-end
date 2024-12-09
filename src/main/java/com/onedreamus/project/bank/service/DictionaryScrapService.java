@@ -30,7 +30,7 @@ public class DictionaryScrapService {
 				.stream())
 			.map(mapping -> {
 				Optional<DictionaryScrap> dictionaryScrap = dictionaryScrapRepository
-					.findByUserAndDictionary(user, mapping.getDictionary());
+					.findByUserAndDictionaryAndIsDeleted(user, mapping.getDictionary(), false);
 
 				return DictionaryScrapInfo.builder()
 					.dictionaryId(mapping.getDictionary().getId())

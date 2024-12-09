@@ -51,7 +51,7 @@ public class ScrapService {
 
         // 기존에 스크랩한 항목인지 점검
         Optional<ContentScrap> contentScrapOptional =
-            contentScrapRepository.findByUserAndContent(user, content);
+            contentScrapRepository.findByUserAndContentAndIsDeleted(user, content, false);
 
         // 이전에 스크랩한적 없는 경우
         if (contentScrapOptional.isEmpty()) {
@@ -124,9 +124,8 @@ public class ScrapService {
             .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
-        Optional<DictionaryScrap> DictionaryScrapOptional = dictionaryScrapRepository.findByUserAndDictionary(
-            user,
-            dictionary);
+        Optional<DictionaryScrap> DictionaryScrapOptional =
+                dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false);
 
         if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
 

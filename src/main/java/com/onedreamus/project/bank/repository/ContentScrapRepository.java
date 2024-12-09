@@ -18,7 +18,7 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
 
     List<ContentScrap> findAllByUser(Users user);
 
-    Optional<ContentScrap> findByUserAndContent(Users user, Content content);
+    Optional<ContentScrap> findByUserAndContentAndIsDeleted(Users user, Content content, boolean isDeleted);
     @Query("SELECT COUNT(cs) FROM ContentScrap cs WHERE cs.content.id = :contentId")
     Integer countByContentId(@Param("contentId") Long contentId);
 

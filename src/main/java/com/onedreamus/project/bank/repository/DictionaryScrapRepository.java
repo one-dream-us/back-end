@@ -16,7 +16,7 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
 
     List<DictionaryScrap> findAllByUser(Users user);
 
-    Optional<DictionaryScrap> findByUserAndDictionary(Users user, Dictionary dictionary);
+    Optional<DictionaryScrap> findByUserAndDictionaryAndIsDeleted(Users user, Dictionary dictionary, boolean isDeleted);
 
     Integer countByUserAndIsDeleted(Users user, boolean isDeleted);
 
