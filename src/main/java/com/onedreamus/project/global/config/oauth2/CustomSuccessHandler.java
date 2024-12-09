@@ -17,6 +17,7 @@ import java.util.Iterator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +30,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Value("${spring.cookie.domain.server}")
+    private String SERVER_DOMAIN;
+
+    @Value("${spring.cookie.domain.local}")
+    private String LOCAL_DOMAIN;
 
     private final String REDIRECT_URL = "redirectUrl";
     private final String REFERER = "Referer";
@@ -76,9 +83,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         userRepository.save(user);
 
         response.addHeader(HttpHeaders.SET_COOKIE,
-            cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), accessToken));
+            cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), accessToken, SERVER_DOMAIN));
         response.addHeader(HttpHeaders.SET_COOKIE,
-            cookieUtils.create(TokenType.REFRESH_TOKEN.getName(), refreshToken));
+            cookieUtils.create(TokenType.REFRESH_TOKEN.getName(), refreshToken, SERVER_DOMAIN));
+
+        response.addHeader(HttpHeaders.SET_COOKIE,
+            cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), accessToken, LOCAL_DOMAIN));
+        response.addHeader(HttpHeaders.SET_COOKIE,
+            cookieUtils.create(TokenType.REFRESH_TOKEN.getName(), refreshToken, LOCAL_DOMAIN));
 
         String homeAddress = request.getHeader(REFERER);
         String servletPath = request.getServletPath();
