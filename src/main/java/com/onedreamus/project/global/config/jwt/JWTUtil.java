@@ -1,8 +1,5 @@
 package com.onedreamus.project.global.config.jwt;
 
-import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.global.exception.ErrorCode;
-import com.onedreamus.project.global.exception.FilterException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

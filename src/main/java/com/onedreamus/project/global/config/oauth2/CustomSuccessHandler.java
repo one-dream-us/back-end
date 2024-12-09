@@ -1,37 +1,28 @@
 package com.onedreamus.project.global.config.oauth2;
 
-import com.onedreamus.project.bank.model.dto.CustomOAuth2User;
-import com.onedreamus.project.bank.model.entity.Users;
-import com.onedreamus.project.bank.repository.UserRepository;
+import com.onedreamus.project.thisismoney.model.dto.CustomOAuth2User;
+import com.onedreamus.project.thisismoney.model.entity.Users;
+import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.JWTUtil;
 import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.util.CookieUtils;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 @Component

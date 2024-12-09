@@ -1,9 +1,8 @@
 package com.onedreamus.project.global.config.oauth2;
 
-import com.onedreamus.project.bank.model.dto.UserCheckDto;
+import com.onedreamus.project.thisismoney.model.dto.UserCheckDto;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class UserChecker {
