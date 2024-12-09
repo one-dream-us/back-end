@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
+
+    @Value("${spring.cookie.domain.server}")
+    private String SERVER_DOMAIN;
+
+    @Value("${spring.cookie.domain.local}")
+    private String LOCAL_DOMAIN;
 
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
@@ -43,8 +50,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String accessToken = null;
         String refreshToken = null;
-        Cookie accessTokenCookie = null;
-        Cookie refreshTokenCookie = null;
+
         Cookie[] cookies = request.getCookies();
 
         if (path.equals("/v1/auth/check")) {  // 추가된 부분
@@ -68,10 +74,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
-                accessTokenCookie = cookie;
                 accessToken = cookie.getValue();
             } else if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
-                refreshTokenCookie = cookie;
                 refreshToken = cookie.getValue();
             }
         }
@@ -124,8 +128,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // 만료 X -> access-token 재발급
             String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
-            String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, SERVER_DOMAIN));
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, LOCAL_DOMAIN));
         }
 
         CustomUserDetails customUserDetails = new CustomUserDetails(optionalUser.get());
@@ -187,8 +191,8 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
-            String cookie = cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken);
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, SERVER_DOMAIN));
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, LOCAL_DOMAIN));
         }
 
         CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());
