@@ -180,7 +180,7 @@ public class ScrapService {
      * 콘텐츠 스크랩 수 조회
      */
     public ContentScrapCntDto getContentScrapCnt(Users user) {
-        Integer contentScrapCnt = contentScrapRepository.countByUser(user);
+        Integer contentScrapCnt = contentScrapRepository.countByUserAndIsDeleted(user, false);
         return ContentScrapCntDto.builder()
             .contentScrapCnt(contentScrapCnt)
             .build();
