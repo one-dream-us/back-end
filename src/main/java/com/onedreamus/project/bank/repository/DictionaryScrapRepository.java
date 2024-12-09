@@ -30,4 +30,10 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
     List<DictionaryContentDto> findDictionaryScrapWithContentByUser(@Param("user") Users user);
 
     Optional<DictionaryScrap> findByIdAndUser(Long dictionaryScrapId, Users user);
+
+    @Query("SELECT ds FROM DictionaryScrap ds WHERE ds.user = :user AND ds.dictionary = :dictionary AND ds.isDeleted = false")
+    Optional<DictionaryScrap> findByUserAndDictionaryAndIsDeletedFalse(
+        @Param("user") Users user,
+        @Param("dictionary") Dictionary dictionary
+    );
 }
