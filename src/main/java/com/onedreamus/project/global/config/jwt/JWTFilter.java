@@ -47,7 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
         Cookie refreshTokenCookie = null;
         Cookie[] cookies = request.getCookies();
 
-        if (path.equals("/api/v1/auth/check")) {  // 추가된 부분
+        if (path.equals("/v1/auth/check")) {  // 추가된 부분
             if (cookies != null) {
                 setAuthenticationIfValidToken(cookies, response);
             }
@@ -140,7 +140,7 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     private boolean isScrapRequest(String path) {
-        return path.contains("/scrap");
+        return path.contains("/scraps");
     }
 
     private void setAuthenticationIfValidToken(Cookie[] cookies, HttpServletResponse response)
@@ -206,8 +206,8 @@ public class JWTFilter extends OncePerRequestFilter {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/api/v1/contents/**",
-            "/api/v1/contents"
+            "/v1/contents/**",
+            "/v1/contents"
         );
 
         return publicPaths.stream().anyMatch(publicPath ->
