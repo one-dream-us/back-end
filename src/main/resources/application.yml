@@ -36,7 +36,6 @@ spring:
             client-name: kakao
             scope:
               - profile_nickname
-              - profile_image
               - account_email
 
   jwt:
