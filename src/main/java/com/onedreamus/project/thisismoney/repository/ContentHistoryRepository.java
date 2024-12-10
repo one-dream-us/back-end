@@ -14,9 +14,9 @@ public interface ContentHistoryRepository extends JpaRepository<ContentHistory, 
 	@Query("SELECT COUNT(DISTINCT ch.content.id) FROM ContentHistory ch WHERE ch.user = :user")
 	Long countByUser(@Param("user") Users user);
 
-	boolean existsByUserAndContent(Users user, Content content);
-
 	Long countByUserAndIsDeleted(Users user, boolean isDeleted);
 
-	List<ContentHistory> findAllByUser(Users user);
+	boolean existsByUserAndContentAndIsDeleted(Users user, Content content, boolean b);
+
+	List<ContentHistory> findAllByUserAndIsDeleted(Users user, boolean b);
 }
