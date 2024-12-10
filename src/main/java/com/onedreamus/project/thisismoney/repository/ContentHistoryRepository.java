@@ -1,5 +1,6 @@
 package com.onedreamus.project.thisismoney.repository;
 
+import com.onedreamus.project.thisismoney.model.entity.Content;
 import com.onedreamus.project.thisismoney.model.entity.ContentHistory;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContentHistoryRepository extends JpaRepository<ContentHistory, Integer> {
-	@Query("SELECT COUNT(DISTINCT ch.content.id) FROM ContentHistory ch " +
-		"WHERE ch.user = :user AND ch.isWatch = true")
+	@Query("SELECT COUNT(DISTINCT ch.content.id) FROM ContentHistory ch WHERE ch.user = :user")
 	Long countByUser(@Param("user") Users user);
+
+	boolean existsByUserAndContent(Users user, Content content);
 }
