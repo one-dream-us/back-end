@@ -2,6 +2,7 @@ package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.entity.ContentHistory;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.TokenType;
@@ -26,9 +27,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final KakaoOAuth2Service kakaoOAuth2Service;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final SecurityUtils securityUtils;
     private final CookieUtils cookieUtils;
+    private final ScrapService scrapService;
+    private final ContentHistoryService contentHistoryService;
 
     /**
      * 유저 상세 정보 조회
@@ -91,6 +92,12 @@ public class UserService {
         // 기존 쿠키 삭제
         List<String> allTokenType = TokenType.getAllTokenName();
         cookieUtils.deleteAllCookie(response, allTokenType);
+
+        // 기존 데이터 삭제
+        scrapService.deleteAllScraps(user);
+
+        // 컨텐츠 조회 수 삭제
+        contentHistoryService.deleteAllHistory(user);
 
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }

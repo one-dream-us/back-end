@@ -1,14 +1,11 @@
 package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.model.dto.DictionaryScrapInfo;
-import com.onedreamus.project.thisismoney.model.entity.Content;
 import com.onedreamus.project.thisismoney.model.entity.DictionaryScrap;
 import com.onedreamus.project.thisismoney.model.entity.Users;
-import com.onedreamus.project.thisismoney.repository.ContentRepository;
 import com.onedreamus.project.thisismoney.repository.DictionaryScrapRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphDictionaryRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,8 +20,6 @@ public class DictionaryScrapService {
 	private final ScriptParagraphRepository scriptParagraphRepository;
 	private final ScriptParagraphDictionaryRepository scriptParagraphDictionaryRepository;
 	private final DictionaryScrapRepository dictionaryScrapRepository;
-	private final ContentRepository contentRepository;
-	private final ContentHistoryService contentHistoryService;
 
 	public List<DictionaryScrapInfo> getUserDictionaryScrapStatus(Long contentId, Users user) {
 		return scriptParagraphRepository
