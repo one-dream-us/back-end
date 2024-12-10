@@ -16,7 +16,5 @@ public class ContentScrapTagDto {
     private Long scrapId;
     private Long contentId;
     private String tagValue;
-    private Integer sequence;
-
 
 }

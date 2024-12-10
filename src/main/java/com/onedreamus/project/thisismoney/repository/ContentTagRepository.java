@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContentTagRepository extends JpaRepository<ContentTag, Integer> {
-	List<ContentTag> findByContentOrderBySequence(Content content);
+	List<ContentTag> findByContent(Content content);
 }

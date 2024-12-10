@@ -89,7 +89,6 @@ public class ScrapService {
             ContentScrapDto contentScrapDto = map.get(dto.getScrapId());
             contentScrapDto.getTags().add(TagDto.builder()
                 .tagValue(dto.getTagValue())
-                .sequence(dto.getSequence())
                 .build());
         }
 

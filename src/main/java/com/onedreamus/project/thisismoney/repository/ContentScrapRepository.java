@@ -34,12 +34,14 @@ public interface ContentScrapRepository extends JpaRepository<ContentScrap, Inte
         + "WHERE cs.user = :user AND cs.isDeleted = false")
     List<ContentScrapSummaryDto> findContentScrapSummaryByUser(@Param("user") Users user);
 
-    @Query("SELECT new com.onedreamus.project.thisismoney.model.dto.ContentScrapTagDto("
-        + "cs.id as scrapId, cs.content.id as contentId, t.value as tagValue, ct.sequence as sequence) "
-        + "FROM ContentScrap cs "
-        + "LEFT JOIN ContentTag ct ON ct.content = cs.content "
-        + "LEFT JOIN Tag t ON t = ct.tag "
-        + "WHERE cs.user = :user AND cs.isDeleted = false")
+    @Query("SELECT new com.onedreamus.project.thisismoney.model.dto.ContentScrapTagDto(" +
+        "cs.id as scrapId, " +
+        "cs.content.id as contentId, " +
+        "t.value as tagValue) " +
+        "FROM ContentScrap cs " +
+        "LEFT JOIN ContentTag ct ON ct.content = cs.content " +
+        "LEFT JOIN Tag t ON t = ct.tag " +
+        "WHERE cs.user = :user AND cs.isDeleted = false")
     List<ContentScrapTagDto> findContentScrapTagByUser(@Param("user") Users user);
 
     Integer countByUserAndIsDeleted(Users user, boolean isDeleted);
