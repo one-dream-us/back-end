@@ -149,6 +149,9 @@ public class UserController {
     public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
         @PathVariable Long contentId,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // 콘텐츠 조회 이력 저장
+        contentHistoryService.saveHistory(contentId, userDetails.getUser());
+        // 스크랩 상태 조회
         return ResponseEntity.ok(
             dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
         );
