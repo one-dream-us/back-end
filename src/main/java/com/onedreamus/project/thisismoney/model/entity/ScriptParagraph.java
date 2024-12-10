@@ -20,7 +20,7 @@ public class ScriptParagraph {
     @Column(name = "timestamp")
     private LocalTime timestamp;
 
-    @Column(name = "paragraph_text")
+    @Column(name = "paragraph_text", columnDefinition = "text")
     private String paragraphText;
 
     @JoinColumn(name = "script_full_id")

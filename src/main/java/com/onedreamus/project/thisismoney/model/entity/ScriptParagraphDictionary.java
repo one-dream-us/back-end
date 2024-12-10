@@ -19,6 +19,4 @@ public class ScriptParagraphDictionary {
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private Dictionary dictionary;
-    private Integer startIdx;
-    private Integer endIdx;
 }

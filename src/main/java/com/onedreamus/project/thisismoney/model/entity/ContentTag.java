@@ -22,6 +22,4 @@ public class ContentTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")
     private Content content;
-
-    private Integer sequence;
 }
