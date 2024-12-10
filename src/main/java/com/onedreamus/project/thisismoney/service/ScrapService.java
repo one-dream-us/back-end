@@ -38,7 +38,6 @@ public class ScrapService {
     private final ContentService contentService;
     private final DictionaryService dictionaryService;
     private final DictionaryScrapContentRepository dictionaryScrapContentRepository;
-    private final UserService userService;
 
     /**
      * 콘텐츠 스크랩
@@ -192,5 +191,25 @@ public class ScrapService {
         return DictionaryScrapCntDto.builder()
             .dictionaryScrapCnt(dictionaryScrapCnt)
             .build();
+    }
+
+    /**
+     * 스크랩 관련 데이터 삭제
+     */
+    public void deleteAllScraps(Users user) {
+
+        // 기존에 스크랩된 모든 콘텐츠 삭제
+        List<ContentScrap> allContentScraps = contentScrapRepository.findAllByUser(user);
+        for (ContentScrap contentScrap : allContentScraps) {
+            contentScrap.setIsDeleted(true);
+        }
+        contentScrapRepository.saveAll(allContentScraps);
+
+        // 기존에 스크랩된 모든 용어 삭제
+        List<DictionaryScrap> allDictionaryScraps = dictionaryScrapRepository.findAllByUser(user);
+        for (DictionaryScrap dictionaryScrap : allDictionaryScraps) {
+            dictionaryScrap.setIsDeleted(true);
+        }
+        dictionaryScrapRepository.saveAll(allDictionaryScraps);
     }
 }

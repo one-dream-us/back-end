@@ -7,6 +7,7 @@ import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.ContentHistoryRepository;
 import com.onedreamus.project.thisismoney.repository.ContentRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ public class ContentHistoryService {
 	private final ContentRepository contentRepository;
 
 	public ContentHistoryCountResponse getContentHistoryCount(Users user) {
-		Long count = contentHistoryRepository.countByUser(user);
+		Long count = contentHistoryRepository.countByUserAndIsDeleted(user, false);
 
 		return ContentHistoryCountResponse.builder()
 			.userId(user.getId())
@@ -38,9 +39,19 @@ public class ContentHistoryService {
 				ContentHistory.builder()
 					.content(content)
 					.user(user)
+					.isDeleted(false)
 					.build()
 			);
 		}
+	}
+
+	public void deleteAllHistory(Users user){
+		List<ContentHistory> allContentHistory = contentHistoryRepository.findAllByUser(user);
+		for (ContentHistory contentHistory : allContentHistory) {
+			contentHistory.setIsDeleted(true);
+		}
+
+		contentHistoryRepository.saveAll(allContentHistory);
 	}
 
 }

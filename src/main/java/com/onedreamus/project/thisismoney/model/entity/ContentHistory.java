@@ -21,9 +21,13 @@ public class ContentHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     private Users user;
 
+    @Setter
+    private Boolean isDeleted;
+
     @Builder
-    public ContentHistory(Content content, Users user) {
+    public ContentHistory(Content content, Users user, boolean isDeleted) {
         this.content = content;
         this.user = user;
+        this.isDeleted = isDeleted;
     }
 }
