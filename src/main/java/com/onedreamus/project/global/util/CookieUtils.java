@@ -23,7 +23,7 @@ public class CookieUtils {
     public String create(String name, String value, String domain) {
 
         ResponseCookie cookie = ResponseCookie.from(name, value)
-            .maxAge(60 * 60 * 60)
+            .maxAge(60 * 60 * 24 * 5)
             .domain(domain)
             .secure(true)
             .path("/")
