@@ -94,7 +94,7 @@ public class ScrapService {
         }
 
         List<ContentScrapDto> result = new ArrayList<>(map.values());
-        Collections.sort(result, Comparator.comparing(ContentScrapDto::getCreatedAt));
+        result.sort(Comparator.comparing(ContentScrapDto::getCreatedAt).reversed());
 
         return ContentScrapResponse.from(result);
     }
