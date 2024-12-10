@@ -34,7 +34,7 @@ public class ContentHistoryService {
 		Content content = contentRepository.findById(contentId)
 			.orElseThrow(() -> new EntityNotFoundException("Content not found"));
 
-		if (!contentHistoryRepository.existsByUserAndContent(user, content)) {
+		if (!contentHistoryRepository.existsByUserAndContentAndIsDeleted(user, content, false)) {
 			contentHistoryRepository.save(
 				ContentHistory.builder()
 					.content(content)
@@ -45,8 +45,11 @@ public class ContentHistoryService {
 		}
 	}
 
+	/**
+	 * 조회했던 콘텐츠 기록 삭제
+	 */
 	public void deleteAllHistory(Users user){
-		List<ContentHistory> allContentHistory = contentHistoryRepository.findAllByUser(user);
+		List<ContentHistory> allContentHistory = contentHistoryRepository.findAllByUserAndIsDeleted(user, false);
 		for (ContentHistory contentHistory : allContentHistory) {
 			contentHistory.setIsDeleted(true);
 		}
