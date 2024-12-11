@@ -44,8 +44,6 @@ public class KakaoOAuth2Service {
 
         // HTTP 요청 생성
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        log.info("unlink 요청 kakaoId : {}", kakaoId);
-        log.info("admin-key", KAKAO_ADMIN_KEY);
         try {
             // 카카오 API 호출
             ResponseEntity<KakaoUnlinkResponse> response = restTemplate.exchange(
