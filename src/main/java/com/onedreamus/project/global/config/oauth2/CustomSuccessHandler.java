@@ -40,6 +40,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String LOCAL_DOMAIN;
 
     private final String REDIRECT_URL = "redirectUrl";
+    private final String JOIN_URL = "joinUrl";
     private final String REFERER = "Referer";
 
     private final JWTUtil jwtUtil;
@@ -57,7 +58,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String homeAddress = request.getHeader(REFERER);
         HttpSession session = request.getSession(false);
         String redirectUrl = (String) session.getAttribute(REDIRECT_URL);
+        String joinUrl = (String) session.getAttribute(JOIN_URL);
         String domain = getDomain(redirectUrl);
+
+        log.info("redirectUrl : {}, joinUrl : {}", redirectUrl, joinUrl);
 
         //OAuth2User
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
@@ -83,7 +87,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie);
             }
 
-            response.sendRedirect(redirectUrl + "?isNewUser=true&timestamp" + System.currentTimeMillis());
+            response.sendRedirect(joinUrl + "?isNewUser=true&timestamp" + System.currentTimeMillis());
             return;
         }
 
