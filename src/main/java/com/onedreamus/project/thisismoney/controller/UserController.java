@@ -33,7 +33,6 @@ public class UserController {
     private final UserService userService;
     private final ContentHistoryService contentHistoryService;
     private final DictionaryScrapService dictionaryScrapService;
-    private final CookieUtils cookieUtils;
 
     /**
      * 토큰으로 유저 데이터를 잘 반환하는지 테스트하기위한 API
@@ -93,7 +92,6 @@ public class UserController {
             description = "연령 확인 후 결과 값과 토큰을 보내면 회원가입 처리합니다.")
     @PostMapping("/join/social")
     public ResponseEntity<String> joinWithSocialLogin(
-            @RequestBody RedirectUrlDto redirectUrlDto,
             HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<String> cookies = userService.joinSocial(request);
 
@@ -109,7 +107,6 @@ public class UserController {
             description = "유저의 소셜 계정과 서비스 간 연동을 해제합니다.")
     @PostMapping("/unlink/social")
     public ResponseEntity<String> unlinkSocial(
-            @RequestBody RedirectUrlDto redirectUrlDto,
             HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         List<String> cookies = userService.unlinkSocial(request);

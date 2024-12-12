@@ -45,9 +45,11 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         }
 
         String redirectUrl = request.getParameter("redirectUrl");
+        String joinUrl = request.getParameter("joinUrl");
 
         HttpSession session = request.getSession();
         session.setAttribute("redirectUrl", redirectUrl);
+        session.setAttribute("joinUrl", joinUrl);
 
         return OAuth2AuthorizationRequest.from(originalRequest)
             .build();
