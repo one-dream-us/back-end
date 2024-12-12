@@ -105,16 +105,13 @@ public class JWTUtil {
      * MVP 이후 회원가입/로그인 프로세스 변경 시 적용
      */
 //
-//    public String createTempJwt(String username, String email, String role, Long socialId) {
-//
-//        return Jwts.builder()
-//            .claim("username", username)
-//            .claim("email", email)
-//            .claim("role", role)
-//            .claim("socialId", socialId)
-//            .issuedAt(new Date(System.currentTimeMillis()))
-//            .expiration(new Date(System.currentTimeMillis() + TEMP_JWT_EXPIRE_TIME))
-//            .signWith(secretKey)
-//            .compact();
-//    }
+    public String createTempJwt(String email) {
+
+        return Jwts.builder()
+            .claim("email", email)
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + TEMP_JWT_EXPIRE_TIME))
+            .signWith(secretKey)
+            .compact();
+    }
 }

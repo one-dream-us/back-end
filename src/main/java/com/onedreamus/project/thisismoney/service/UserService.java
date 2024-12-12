@@ -1,5 +1,8 @@
 package com.onedreamus.project.thisismoney.service;
 
+import com.onedreamus.project.global.config.jwt.JWTUtil;
+import com.onedreamus.project.global.config.oauth2.UserChecker;
+import com.onedreamus.project.global.exception.LoginException;
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.ContentHistory;
@@ -9,11 +12,15 @@ import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.CookieUtils;
 import com.onedreamus.project.global.util.SecurityUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,11 +37,13 @@ public class UserService {
     private final CookieUtils cookieUtils;
     private final ScrapService scrapService;
     private final ContentHistoryService contentHistoryService;
+    private final UserChecker userChecker;
+    private final JWTUtil jwtUtil;
 
     /**
      * 유저 상세 정보 조회
      */
-    public UserInfoDto getUserInfo(Users user){
+    public UserInfoDto getUserInfo(Users user) {
 
         log.info("[회원 정보 조회] 이메일 : {}", user.getEmail());
         return UserInfoDto.from(user);
@@ -80,7 +89,7 @@ public class UserService {
 
         // 소셜서비스와 연결 해제
         boolean isUnlinked = kakaoOAuth2Service.unlinkKakaoAccount(socialId);
-        if (!isUnlinked){
+        if (!isUnlinked) {
             throw new UserException(ErrorCode.UNLINK_FAIL);
         }
 
@@ -102,23 +111,65 @@ public class UserService {
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }
 
+    /**
+     * 소셜로그인 회원가입
+     */
+    public List<String> joinSocial(HttpServletRequest request) {
+
+        String verifyToken = findTokenFromCookie(request.getCookies(), TokenType.VERIFY_TOKEN);
+
+        if (verifyToken == null) {
+            throw new UserException(ErrorCode.TOKEN_NULL);
+        }
+
+        String email = jwtUtil.getEmail(verifyToken);
+        UserCheckDto userCheck = userChecker.get(email);
+
+        List<String> tokenCookies = new ArrayList<>();
+        String accessToken = jwtUtil.createJwt(userCheck.getName(), userCheck.getEmail(), userCheck.getRole(), true, TokenType.ACCESS_TOKEN);
+        String refreshToken = jwtUtil.createJwt(userCheck.getName(), userCheck.getEmail(), userCheck.getRole(), true, TokenType.REFRESH_TOKEN);
+
+        Users newUser = Users.from(userCheck, refreshToken);
+        userRepository.save(newUser);
+
+        tokenCookies.addAll(cookieUtils.createAllCookies(TokenType.ACCESS_TOKEN.getName(), accessToken));
+        tokenCookies.addAll(cookieUtils.createAllCookies(TokenType.REFRESH_TOKEN.getName(), refreshToken));
+        tokenCookies.add(cookieUtils.createDeleteCookie(TokenType.VERIFY_TOKEN.getName(), "localhost"));
+        tokenCookies.add(cookieUtils.createDeleteCookie(TokenType.VERIFY_TOKEN.getName(), "thisismoney.site"));
+
+        return tokenCookies;
+    }
 
     /**
-     * Users 획득
+     * 소셜 연동 해제
      */
-//    public Users getUser() {
-//        String email = securityUtils.getEmail();
-//       return getUserByEmail(email)
-//               .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
-//
-//    }
+    public List<String> unlinkSocial(HttpServletRequest request) {
+        // 쿠키 조회
+        String verifyToken = findTokenFromCookie(request.getCookies(), TokenType.VERIFY_TOKEN);
 
-    /**
-     * email로 Optional<Users> 획득
-     */
-//    public Optional<Users> getUserByEmail(String email) {
-//        return userRepository.findByEmail(email);
-//    }
+        if (verifyToken == null) {
+            throw new LoginException(ErrorCode.TOKEN_NULL);
+        }
 
+        String email = jwtUtil.getEmail(verifyToken);
+        Long socialId = userChecker.getSocialId(email);
+        kakaoOAuth2Service.unlinkKakaoAccount(socialId);
+
+        List<String> tokenCookies = new ArrayList<>();
+        cookieUtils.createDeleteCookie(TokenType.VERIFY_TOKEN.getName(), "localhost");
+        cookieUtils.createDeleteCookie(TokenType.VERIFY_TOKEN.getName(), "thisismoney.site");
+
+        return tokenCookies;
+    }
+
+    private String findTokenFromCookie(Cookie[] cookies, TokenType tokenType) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(tokenType.getName())) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
 
 }

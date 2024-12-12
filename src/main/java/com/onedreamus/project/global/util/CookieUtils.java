@@ -47,6 +47,13 @@ public class CookieUtils {
         return cookie.toString();
     }
 
+    public List<String> createAllCookies(String name, String value) {
+        String localCookie = create(name, value, "localhost");
+        String serverCookie = create(name, value, "thisismoney.site");
+
+        return new ArrayList<>(List.of(localCookie, serverCookie));
+    }
+
     public void deleteCookie(HttpServletResponse response, String name) {
         response.addHeader(HttpHeaders.SET_COOKIE, createDeleteCookie(name, SERVER_DOMAIN));
         response.addHeader(HttpHeaders.SET_COOKIE, createDeleteCookie(name, LOCAL_DOMAIN));

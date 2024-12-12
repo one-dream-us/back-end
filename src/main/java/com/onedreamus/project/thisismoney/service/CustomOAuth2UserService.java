@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private final JWTUtil jwtUtil;
     private final UserChecker userChecker;
 
     @Override
@@ -36,10 +35,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
         if (registrationId.equals("kakao")) {
-
             oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         } else {
-
             return null;
         }
 
@@ -49,6 +46,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         UserDto userDto;
         Users user;
+        boolean isUser;
         if (userOptional.isEmpty()) { // 새로운 유저인 경우
 
             user = Users.builder()
@@ -60,19 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .socialId(oAuth2Response.getSocialId())
                     .build();
 
-
-            /**
-             * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
-             * - 새로운 유저의 경우 현제 클래스에서 DB 저장 X
-             */
-//            UserCheckDto userCheckDto = UserCheckDto.builder()
-//                .isUser(false)
-//                .email(newUser.getEmail())
-//                .name(newUser.getName())
-//                .role(newUser.getRole())
-//                .socialId(oAuth2Response.getSocialId())
-//                .build();
-//            userChecker.addEmail(newUser.getEmail(), userCheckDto);
+            isUser = false;
 
         } else if (userOptional.get().isDeleted()) { // soft delete된 유저의 재가입인 경우
 
@@ -83,24 +69,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setSocialId(oAuth2Response.getSocialId());
             user.setProvider(oAuth2Response.getProvider());
 
+            isUser = false;
 
         } else { // 기존 유저인 경우(단순 로그인)
             user = userOptional.get();
             user.setName(oAuth2Response.getName());
+            user.setSocialId(oAuth2Response.getSocialId());
 
-            /**
-             * MVP 이후 새로운 회원가입/로그인 프로세스에 적용
-             */
-//            UserCheckDto userCheckDto = UserCheckDto.builder()
-//                .isUser(true)
-//                .email(existUser.getEmail())
-//                .name(existUser.getName())
-//                .role(existUser.getRole())
-//                .socialId(oAuth2Response.getSocialId())
-//                .build();
-//            userChecker.addEmail(existUser.getEmail(), userCheckDto);
+            isUser = true;
         }
 
-        return new CustomOAuth2User(user);
+        return new CustomOAuth2User(user, isUser);
     }
 }
