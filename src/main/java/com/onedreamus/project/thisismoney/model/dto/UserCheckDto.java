@@ -1,5 +1,6 @@
 package com.onedreamus.project.thisismoney.model.dto;
 
+import com.onedreamus.project.thisismoney.model.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +14,23 @@ import lombok.Setter;
 @Builder
 public class UserCheckDto {
 
-    private boolean isUser;
+    private Integer userId;
     private String email;
     private String name;
-    private String role;
+    private String provider;
     private Long socialId;
+    private String nickName;
+    private String role;
+
+    public static UserCheckDto from(Users user) {
+        return UserCheckDto.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .provider(user.getProvider())
+                .socialId(user.getSocialId())
+                .nickName(user.getNickname())
+                .role(user.getRole())
+                .build();
+    }
 }

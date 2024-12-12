@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.model.entity;
 
 import com.onedreamus.project.thisismoney.model.dto.JoinDto;
+import com.onedreamus.project.thisismoney.model.dto.UserCheckDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,4 +43,23 @@ public class Users extends BaseEntity{
             .build();
     }
 
+    public static Users from(UserCheckDto dto, String refreshToken) {
+        Users user = Users.builder()
+                .id(dto.getUserId())
+                .name(dto.getName())
+                .nickname(dto.getNickName())
+                .email(dto.getEmail())
+                .role(dto.getRole())
+                .provider(dto.getProvider())
+                .deleted(false)
+                .socialId(dto.getSocialId())
+                .refreshToken(refreshToken)
+                .build();
+
+        if (dto.getUserId() != null){
+            user.setId(dto.getUserId());
+        }
+
+        return user;
+    }
 }

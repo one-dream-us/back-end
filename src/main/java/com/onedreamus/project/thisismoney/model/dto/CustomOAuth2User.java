@@ -13,6 +13,8 @@ public class CustomOAuth2User implements OAuth2User {
 
     private final Users user;
 
+    private final Boolean isUser;
+
     @Override
     public Map<String, Object> getAttributes() {
         return null;
@@ -45,6 +47,10 @@ public class CustomOAuth2User implements OAuth2User {
 
     public String getEmail(){
         return user.getEmail();
+    }
+
+    public Boolean isUser(){
+        return this.isUser;
     }
 
     public Users getUser(){
