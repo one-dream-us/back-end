@@ -6,6 +6,7 @@ import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.DictionaryScrapRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphDictionaryRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ public class DictionaryScrapService {
 				(existing, replacement) -> existing))
 			.values()
 			.stream()
+			.sorted(Comparator.comparing(DictionaryScrapInfo::getDictionaryId))
 			.collect(Collectors.toList());
 	}
 }
