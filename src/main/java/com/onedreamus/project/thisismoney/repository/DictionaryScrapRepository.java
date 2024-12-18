@@ -39,4 +39,6 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
             @Param("user") Users user,
             @Param("dictionary") Dictionary dictionary
     );
+
+    List<DictionaryScrap> findByUserAndIsDeletedFalse(Users user);
 }
