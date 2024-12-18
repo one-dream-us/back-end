@@ -10,9 +10,11 @@ import com.onedreamus.project.thisismoney.repository.ScriptParagraphDictionaryRe
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ public class DictionaryScrapService {
 		Map<Long, DictionaryScrap> userScrapMap = userScraps.stream()
 			.collect(Collectors.toMap(scrap -> scrap.getDictionary().getId(), scrap -> scrap));
 
+		// 중복을 제거하기 위해 Set을 사용하여 이미 처리된 dictionaryId 추적
+		Set<Long> processedDictionaryIds = new HashSet<>();  // 중복을 추적할 Set 추가
 		// 스크립트 문단과 관련된 Dictionary 정보를 처리
 		List<DictionaryScrapInfo> result = new ArrayList<>();
 
@@ -54,14 +58,22 @@ public class DictionaryScrapService {
 
 				// 정렬된 순서대로 DictionaryScrapInfo를 생성
 				mappings.forEach(mapping -> {
-					DictionaryScrap dictionaryScrap = userScrapMap.get(mapping.getDictionary().getId());
+					// 중복된 dictionaryId는 처리하지 않도록 Set에 있는지 확인
+					Long dictionaryId = mapping.getDictionary().getId();
+					if (!processedDictionaryIds.contains(dictionaryId)) {  // 중복 체크
+						processedDictionaryIds.add(dictionaryId);  // 처리된 dictionaryId 추가
+						// Map에서 스크랩 정보 조회
+						DictionaryScrap dictionaryScrap = userScrapMap.get(dictionaryId);
 
-					result.add(DictionaryScrapInfo.builder()
-						.dictionaryId(mapping.getDictionary().getId())
-						.dictionaryScrapId(dictionaryScrap != null ? dictionaryScrap.getId() : null)
-						.isScrapped(dictionaryScrap != null)
-						.build());
+						result.add(DictionaryScrapInfo.builder()
+							.dictionaryId(dictionaryId)
+							.dictionaryScrapId(
+								dictionaryScrap != null ? dictionaryScrap.getId() : null)
+							.isScrapped(dictionaryScrap != null)
+							.build());
+					}
 				});
+
 			});
 
 		return result;
