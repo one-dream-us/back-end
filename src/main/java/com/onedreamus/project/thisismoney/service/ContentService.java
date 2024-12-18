@@ -1,5 +1,7 @@
 package com.onedreamus.project.thisismoney.service;
 
+import com.onedreamus.project.global.util.StringUtils;
+import com.onedreamus.project.global.util.UrlUtils;
 import com.onedreamus.project.thisismoney.exception.ContentException;
 import com.onedreamus.project.thisismoney.model.dto.ContentDetailResponse;
 import com.onedreamus.project.thisismoney.model.dto.ContentListResponse;
@@ -18,6 +20,7 @@ import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptSummaryRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.NumberFormatter;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -113,7 +116,7 @@ public class ContentService {
             .scrapCount(formattedScrapCount)
             .tags(tags)
             .summaryText(summaryText)
-            .videoId(extractVideoId(content.getContentUrl()))
+            .videoId(UrlUtils.extractVideoId(content.getContentUrl()))
             .build();
     }
 
@@ -147,6 +150,9 @@ public class ContentService {
             .map(sp -> {
                 AtomicReference<String> paragraphTextRef = new AtomicReference<>(sp.getParagraphText());
 
+                // <mark> 태그 내 용어 순서대로 추출
+                List<String> markedTerms = StringUtils.extractMarkedTerms(paragraphTextRef.get());
+
                 List<DictionaryDto> dictionaries = scriptParagraphDictionaryRepository
                     .findByScriptParagraphIdWithDictionary(sp.getId())
                     .stream()
@@ -167,6 +173,10 @@ public class ContentService {
                         .isScrapped(false)
                         .build())
                     .collect(Collectors.toList());
+
+                dictionaries.sort(Comparator.comparingInt(
+                    dictionary -> markedTerms.indexOf(dictionary.getTerm())
+                ));
 
                 return ScriptParagraphDto.builder()
                     .id(sp.getId())
@@ -189,24 +199,8 @@ public class ContentService {
             .summaryText(summaryText)
             .author(content.getAuthor())
             .scriptParagraphs(scriptParagraphs)
-            .videoId(extractVideoId(content.getContentUrl()))
+            .videoId(UrlUtils.extractVideoId(content.getContentUrl()))
             .build();
-    }
-
-    private String extractVideoId(String contentUrl) {
-        if (contentUrl == null || !contentUrl.contains("v=")) {
-            return null;
-        }
-        String[] parts = contentUrl.split("v=");
-        if (parts.length < 2) {
-            return null;
-        }
-        String videoId = parts[1];
-        int ampersandIndex = videoId.indexOf("&");
-        if (ampersandIndex != -1) {
-            videoId = videoId.substring(0, ampersandIndex);
-        }
-        return videoId;
     }
 
     @Transactional(readOnly = false)
