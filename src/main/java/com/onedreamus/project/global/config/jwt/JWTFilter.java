@@ -27,12 +27,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
-    @Value("${spring.cookie.domain.server}")
-    private final String SERVER_DOMAIN;
-
-    @Value("${spring.cookie.domain.local}")
-    private final String LOCAL_DOMAIN;
-
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
     private final CookieUtils cookieUtils;
@@ -127,10 +121,9 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             // 만료 X -> access-token 재발급
-            log.info("Server Domain : {}", SERVER_DOMAIN);
             String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
-            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, SERVER_DOMAIN));
-            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, LOCAL_DOMAIN));
+            cookieUtils.createAllCookies(TokenType.ACCESS_TOKEN.getName(), newAccessToken)
+                    .forEach(cookie -> response.addHeader(HttpHeaders.SET_COOKIE, cookie));
         }
 
         CustomUserDetails customUserDetails = new CustomUserDetails(optionalUser.get());
@@ -192,8 +185,8 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
-            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, SERVER_DOMAIN));
-            response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, LOCAL_DOMAIN));
+            cookieUtils.createAllCookies(TokenType.ACCESS_TOKEN.getName(), newAccessToken)
+                            .forEach(cookie -> response.addHeader(HttpHeaders.SET_COOKIE, cookie));
         }
 
         CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());

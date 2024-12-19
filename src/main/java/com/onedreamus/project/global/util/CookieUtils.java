@@ -48,8 +48,8 @@ public class CookieUtils {
     }
 
     public List<String> createAllCookies(String name, String value) {
-        String localCookie = create(name, value, "localhost");
-        String serverCookie = create(name, value, "thisismoney.site");
+        String localCookie = create(name, value, LOCAL_DOMAIN);
+        String serverCookie = create(name, value, SERVER_DOMAIN);
 
         return new ArrayList<>(List.of(localCookie, serverCookie));
     }
