@@ -127,6 +127,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             // 만료 X -> access-token 재발급
+            log.info("Server Domain : {}", SERVER_DOMAIN);
             String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
             response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, SERVER_DOMAIN));
             response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.create(TokenType.ACCESS_TOKEN.getName(), newAccessToken, LOCAL_DOMAIN));
