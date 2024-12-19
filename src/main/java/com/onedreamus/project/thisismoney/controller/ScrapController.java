@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/scraps")
+@RequestMapping("/v1/scraps")
 @RequiredArgsConstructor
 @Tag(name = "scraps", description = "스크랩 관련 API")
 public class ScrapController {
