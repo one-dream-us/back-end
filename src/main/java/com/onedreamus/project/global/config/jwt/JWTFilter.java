@@ -28,10 +28,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
     @Value("${spring.cookie.domain.server}")
-    private String SERVER_DOMAIN;
+    private final String SERVER_DOMAIN;
 
     @Value("${spring.cookie.domain.local}")
-    private String LOCAL_DOMAIN;
+    private final String LOCAL_DOMAIN;
 
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
