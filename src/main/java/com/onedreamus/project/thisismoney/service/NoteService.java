@@ -43,13 +43,11 @@ public class NoteService {
      * 핵심노트 추가
      */
     public void addKeyNote(Long dictionaryId, Users user) {
-
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
-
         Optional<DictionaryKeyNote> keyNoteOptional =
-                dictionaryKeyNoteRepository.findByDictionary(dictionary);
+                dictionaryKeyNoteRepository.findByUserAndDictionary(user, dictionary);
         if (keyNoteOptional.isPresent()) {
             DictionaryKeyNote keyNote = keyNoteOptional.get();
             if (keyNote.isGraduated()) {
@@ -60,6 +58,9 @@ public class NoteService {
         }
 
         dictionaryKeyNoteRepository.save(DictionaryKeyNote.from(user, dictionary));
+
+        // 스크랩에서 삭제
+        scrapService.deleteDictionaryScrapped(dictionaryId, user);
     }
 
     /**
@@ -92,7 +93,8 @@ public class NoteService {
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
-        Optional<DictionaryWrongAnswerNote> wrongAnswerNoteOptional = dictionaryWrongAnswerNoteRepository.findByDictionary(dictionary);
+        Optional<DictionaryWrongAnswerNote> wrongAnswerNoteOptional =
+                dictionaryWrongAnswerNoteRepository.findByUserAndDictionary(user, dictionary);
 
         DictionaryWrongAnswerNote wrongAnswerNote;
         if (wrongAnswerNoteOptional.isEmpty()) { // 새롭게 틀린 단어인 경우
@@ -104,6 +106,11 @@ public class NoteService {
         }
 
         dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
+
+        // 핵심노트에서 삭제
+        DictionaryKeyNote keyNote = dictionaryKeyNoteRepository.findByUserAndDictionary(user, dictionary)
+                .orElseThrow(() -> new KeyNoteException(ErrorCode.KEYNOTE_NOT_EXIST));
+        deleteKeyNote(keyNote.getId(), user);
     }
 
     /**
@@ -126,15 +133,6 @@ public class NoteService {
             DictionaryWrongAnswerNote wrongAnswerNote = wrongAnswerNoteOptional.get();
             wrongAnswerNote.setGraduated(true);
             dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
-        }
-
-        // 핵심 노트에서 삭제
-        Optional<DictionaryKeyNote> keyNoteOptional = dictionaryKeyNoteRepository.findByDictionaryAndIsGraduated(dictionary, false);
-        if (keyNoteOptional.isPresent()) {
-            DictionaryKeyNote keyNote = keyNoteOptional.get();
-            keyNote.setGraduated(true);
-
-            dictionaryKeyNoteRepository.save(keyNote);
         }
 
         // 졸업노트 추가
