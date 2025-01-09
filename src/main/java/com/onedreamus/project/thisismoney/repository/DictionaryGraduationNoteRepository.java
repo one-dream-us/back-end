@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface DictionaryGraduationNoteRepository extends JpaRepository<DictionaryGraduationNote, Long> {
     List<DictionaryGraduationNote> findByUser(Users user);
+
+    int countByUser(Users user);
 }

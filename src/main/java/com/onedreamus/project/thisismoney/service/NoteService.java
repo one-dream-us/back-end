@@ -6,6 +6,7 @@ import com.onedreamus.project.thisismoney.exception.KeyNoteException;
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.GraduationNoteResponse;
 import com.onedreamus.project.thisismoney.model.dto.KeyNoteResponse;
+import com.onedreamus.project.thisismoney.model.dto.LearningStatus;
 import com.onedreamus.project.thisismoney.model.dto.WrongAnswerNoteResponse;
 import com.onedreamus.project.thisismoney.model.entity.*;
 import com.onedreamus.project.thisismoney.repository.DictionaryGraduationNoteRepository;
@@ -27,6 +28,7 @@ public class NoteService {
     private final DictionaryWrongAnswerNoteRepository dictionaryWrongAnswerNoteRepository;
     private final DictionaryGraduationNoteRepository dictionaryGraduationNoteRepository;
     private final DictionaryService dictionaryService;
+    private final ScrapService scrapService;
 
     /**
      * 핵심노트 조회
@@ -52,7 +54,7 @@ public class NoteService {
             DictionaryKeyNote keyNote = keyNoteOptional.get();
             if (keyNote.isGraduated()) {
                 throw new KeyNoteException(ErrorCode.GRADUATED_ALREADY);
-            }else{
+            } else {
                 throw new KeyNoteException(ErrorCode.KEYNOTE_ALREADY_EXIST);
             }
         }
@@ -135,10 +137,20 @@ public class NoteService {
             dictionaryKeyNoteRepository.save(keyNote);
         }
 
-
         // 졸업노트 추가
         dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
     }
 
+    /**
+     * 학습상태 창 정보 조회
+     */
+    public LearningStatus getLearningStatus(Users user) {
+        int keyNoteCnt = dictionaryKeyNoteRepository.countByUserAndIsGraduated(user, false);
+        int totalScrapCnt = scrapService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
+        int graduationCnt = dictionaryGraduationNoteRepository.countByUser(user);
+        int accuracyRate = 0;
+
+        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate);
+    }
 
 }

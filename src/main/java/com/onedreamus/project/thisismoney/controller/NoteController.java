@@ -1,9 +1,6 @@
 package com.onedreamus.project.thisismoney.controller;
 
-import com.onedreamus.project.thisismoney.model.dto.CustomUserDetails;
-import com.onedreamus.project.thisismoney.model.dto.GraduationNoteResponse;
-import com.onedreamus.project.thisismoney.model.dto.KeyNoteResponse;
-import com.onedreamus.project.thisismoney.model.dto.WrongAnswerNoteResponse;
+import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.service.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,5 +60,13 @@ public class NoteController {
         Users user = userDetails.getUser();
         GraduationNoteResponse graduationNoteResponse = noteService.getGraduationNoteList(user);
         return ResponseEntity.ok(graduationNoteResponse);
+    }
+
+    @Operation(summary = "학습상태창 조회", description = "스크랩, 핵심노트, 졸업 용어 현황을 조회합니다.")
+    @GetMapping("/learning-status/")
+    public ResponseEntity<LearningStatus> getLearningStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Users user = userDetails.getUser();
+        LearningStatus learningStatus = noteService.getLearningStatus(user);
+        return ResponseEntity.ok(learningStatus);
     }
 }
