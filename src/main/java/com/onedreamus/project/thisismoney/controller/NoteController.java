@@ -43,7 +43,7 @@ public class NoteController {
     ) {
         Users user = userDetails.getUser();
         noteService.deleteKeyNote(keyNoteId, user);
-        return ResponseEntity.ok("핵심 노트에서 삭제되었습닏.");
+        return ResponseEntity.ok("핵심 노트에서 삭제되었습니다.");
     }
 
     @Operation(summary = "오답노트 조회", description = "오답노트를 조회합니다.")
