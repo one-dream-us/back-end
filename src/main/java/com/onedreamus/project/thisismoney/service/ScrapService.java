@@ -211,4 +211,8 @@ public class ScrapService {
         }
         dictionaryScrapRepository.saveAll(allDictionaryScraps);
     }
+
+    public List<DictionaryScrap> getDictionaryScrapList(Users user) {
+        return dictionaryScrapRepository.findByUserAndIsDeletedFalse(user);
+    }
 }

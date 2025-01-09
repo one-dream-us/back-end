@@ -2,6 +2,9 @@ package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.repository.DictionaryRepository;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,4 +19,11 @@ public class DictionaryService {
         return dictionaryRepository.findById(dictionaryId);
     }
 
+    public Long countAll() {
+        return dictionaryRepository.count();
+    }
+
+    public List<Dictionary> getDictionaryList(List<Long> randomNumList) {
+        return dictionaryRepository.findByIdIn(randomNumList);
+    }
 }

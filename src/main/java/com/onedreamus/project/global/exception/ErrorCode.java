@@ -38,10 +38,12 @@ public enum ErrorCode {
     // KeyNote
     KEYNOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 핵심 노트에 존재하는 용어 입니다."),
     KEYNOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "핵심노트에 존재하지 않는 용어 입니다."),
-    GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 단어이거나, 오답노트에 있는 단어입니다.");
+    GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 단어이거나, 오답노트에 있는 단어입니다."),
 
     // GraduateNote
 
+    // Quiz
+    NOT_ENOUGH_DICTIONARY(HttpStatus.BAD_REQUEST, "핵심단어와 오답노트에 단어가 총 3개 이상 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

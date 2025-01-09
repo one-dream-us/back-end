@@ -151,4 +151,18 @@ public class NoteService {
         return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate);
     }
 
+    /**
+     * 핵심 노트 조회
+     */
+    public List<DictionaryKeyNote> getKeynotes(Users user) {
+        return dictionaryKeyNoteRepository.findByUserAndIsGraduated(user, false);
+    }
+
+    /**
+     * 오답 노트 조회
+     */
+    public List<DictionaryWrongAnswerNote> getWrongAnswerNotes(Users user) {
+        return dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduated(user, false);
+    }
+
 }
