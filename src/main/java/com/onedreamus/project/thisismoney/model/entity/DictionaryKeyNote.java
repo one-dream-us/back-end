@@ -19,8 +19,21 @@ public class DictionaryKeyNote extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     private Users user;
 
-    private boolean isDeleted;
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Dictionary dictionary;
+
+    private boolean isGraduated;
 
     private int correctCnt;
+
+    public static DictionaryKeyNote from(Users user, Dictionary dictionary) {
+        return DictionaryKeyNote.builder()
+                .user(user)
+                .dictionary(dictionary)
+                .isGraduated(false)
+                .correctCnt(0)
+                .build();
+    }
 
 }

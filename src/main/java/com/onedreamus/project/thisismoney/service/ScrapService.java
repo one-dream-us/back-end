@@ -17,7 +17,6 @@ import com.onedreamus.project.thisismoney.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +101,7 @@ public class ScrapService {
      */
     public void deleteContentScrapped(Integer contentScrapId, Users user) {
         ContentScrap contentScrap = contentScrapRepository.findByIdAndUser(contentScrapId, user)
-            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
+            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         contentScrap.setIsDeleted(true);
         contentScrapRepository.save(contentScrap);
@@ -152,7 +151,7 @@ public class ScrapService {
      */
     public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
         DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUser(dictionaryScrapId, user)
-            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
+            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         dictionaryScrap.setIsDeleted(true);
 

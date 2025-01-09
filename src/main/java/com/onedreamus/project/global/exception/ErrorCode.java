@@ -31,8 +31,16 @@ public enum ErrorCode {
     DICTIONARY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
 
     // Scarp
-    SCRAP_NO_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
-    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다.");
+    SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
+    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다."),
+
+    // KeyNote
+    KEYNOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 핵심 노트에 존재하는 용어 입니다."),
+    KEYNOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "핵심노트에 존재하지 않는 용어 입니다."),
+    GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 용어 입니다.");
+
+    // GraduateNote
+
 
     private final HttpStatus httpStatus;
     private final String message;

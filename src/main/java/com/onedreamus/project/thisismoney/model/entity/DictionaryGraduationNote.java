@@ -3,13 +3,15 @@ package com.onedreamus.project.thisismoney.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class DictionaryGraduatedNote extends BaseEntity{
+public class DictionaryGraduationNote{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,5 +25,13 @@ public class DictionaryGraduatedNote extends BaseEntity{
     @ManyToOne(fetch = FetchType.EAGER)
     private Dictionary dictionary;
 
-    private boolean is_deleted;
+    private LocalDateTime createdAt;
+
+    public static DictionaryGraduationNote from(Users user, Dictionary dictionary) {
+        return DictionaryGraduationNote.builder()
+                .user(user)
+                .dictionary(dictionary)
+                .build();
+    }
+
 }

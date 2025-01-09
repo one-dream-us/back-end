@@ -26,4 +26,13 @@ public class DictionaryWrongAnswerNote extends BaseEntity{
     private boolean isGraduated;
 
     private int wrongCnt;
+
+    public static DictionaryWrongAnswerNote from(Dictionary dictionary, Users user) {
+        return DictionaryWrongAnswerNote.builder()
+                .user(user)
+                .dictionary(dictionary)
+                .isGraduated(false)
+                .wrongCnt(1)
+                .build();
+    }
 }
