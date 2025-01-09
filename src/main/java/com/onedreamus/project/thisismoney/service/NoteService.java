@@ -3,6 +3,7 @@ package com.onedreamus.project.thisismoney.service;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.KeyNoteException;
+import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.GraduationNoteResponse;
 import com.onedreamus.project.thisismoney.model.dto.KeyNoteResponse;
 import com.onedreamus.project.thisismoney.model.dto.WrongAnswerNoteResponse;
@@ -57,6 +58,20 @@ public class NoteService {
         }
 
         dictionaryKeyNoteRepository.save(DictionaryKeyNote.from(user, dictionary));
+    }
+
+    /**
+     * 핵심노트에서 삭제
+     */
+    public void deleteKeyNote(Long keyNoteId, Users user) {
+        DictionaryKeyNote keyNote = dictionaryKeyNoteRepository.findById(keyNoteId)
+                .orElseThrow(() -> new KeyNoteException(ErrorCode.KEYNOTE_NOT_EXIST));
+
+        if (!keyNote.getUser().getId().equals(user.getId())) {
+            throw new UserException(ErrorCode.USER_NOT_MATCH);
+        }
+
+        dictionaryKeyNoteRepository.delete(keyNote);
     }
 
     /**

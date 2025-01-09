@@ -39,6 +39,16 @@ public class NoteController {
         return ResponseEntity.ok("핵심 노트에 추가되었습니다.");
     }
 
+    @Operation(summary = "용어 핵심노트에 추가", description = "스크랩된 용어를 핵십노트에 추가합니다. dictionaryId로")
+    @DeleteMapping("/key-note/{keyNoteId}")
+    public ResponseEntity<String> deleteKeyNote(
+            @PathVariable Long keyNoteId, @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Users user = userDetails.getUser();
+        noteService.deleteKeyNote(keyNoteId, user);
+        return ResponseEntity.ok("핵심 노트에서 삭제되었습닏.");
+    }
+
     @Operation(summary = "오답노트 조회", description = "오답노트를 조회합니다.")
     @GetMapping("/wrong-answer-note")
     public ResponseEntity<WrongAnswerNoteResponse> getWrongAnswerNoteList(@AuthenticationPrincipal CustomUserDetails userDetails) {

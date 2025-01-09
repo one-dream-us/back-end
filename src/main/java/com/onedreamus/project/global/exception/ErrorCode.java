@@ -12,6 +12,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일 입니다."),
     NO_USER(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."),
     UNLINK_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "소셜로그인 연결 해제 실패"),
+    USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "유저 정보가 동일하지 않습니다."),
 
     // Login
     WRONG_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 Content-Type 입니다. (required: application/json))"),
