@@ -55,13 +55,9 @@ public class QuizService {
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
 
-        // 랜덤으로 2개의 index 선택
-        List<Long> randomNumList = NumberUtils.pickRandomNumber(totalDictionarySize, 2, dictionaryIds);;
-
-
         // 랜덤으로 전체 단어에서 2개 뽑음
         List<DictionaryQuiz> dictionaries2 =
-                dictionaryService.getDictionaryList(randomNumList).stream()
+                getRandomDictionary(totalDictionarySize, 2, dictionaryIds).stream()
                         .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
                         .toList();
 
@@ -73,10 +69,15 @@ public class QuizService {
         // 각 선지 추출
         for (DictionaryQuiz answerDictionary : quizDictionaries) {
             QuizChoice[] choices = new QuizChoice[4];
-            randomNumList = NumberUtils.pickRandomNumber(totalDictionarySize, 3);
-            List<DictionaryQuiz> choiceDictionary = dictionaryService.getDictionaryList(randomNumList).stream()
-                    .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
-                    .toList();
+
+            List<DictionaryQuiz> choiceDictionary =
+                    getRandomDictionary(
+                            totalDictionarySize,
+                            3,
+                            new HashSet<>(List.of(answerDictionary.getDictionaryId()))
+                    ).stream()
+                            .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
+                            .toList();
             List<Integer> randomIdx = NumberUtils.shuffleNumber(0, 4);
 
             for (int i = 0; i < randomIdx.size(); i++) {
@@ -89,6 +90,54 @@ public class QuizService {
             }
 
             result.add(Quiz.from(randomIdx.get(0), choices));
+        }
+
+        return result;
+    }
+
+    /**
+     * @param totalDictionarySize
+     * @param n
+     * @return {@code List<Dictionary>}
+     */
+    private List<Dictionary> getRandomDictionary(long totalDictionarySize, int n, Set<Long> notBeDuplicatedNum) {
+        List<Long> randomNumList = NumberUtils.pickRandomNumber(totalDictionarySize, n);
+        Set<Long> randomNumSet = new HashSet<>();
+        for (Long randNum : randomNumList) {
+            if (!notBeDuplicatedNum.contains(randNum)) {
+                randomNumSet.add(randNum);
+            }
+        }
+
+        List<Dictionary> result = dictionaryService.getDictionaryList(new ArrayList<>(randomNumSet));
+
+        // 원하는 수 만큼의 dictionary 가 뽑히지 않은 경우 (해당 id 값이 존재하지 않는 경우 부족할 수 있음)
+        while (result.size() != n) {
+            // 1. 부족 수 만큼 랜덤 수 뽑기
+            // - 근데 이전에 뽑은 랜덤 수와 중복되면 안댐.
+            int insufficientNum = n - result.size();
+            List<Long> newRandomNum = NumberUtils.pickRandomNumber(totalDictionarySize, insufficientNum);
+            List<Long> notDuplicate = new ArrayList<>();
+            for (Long randomNum : newRandomNum) {
+                if (randomNumSet.contains(randomNum)) {
+                    continue;
+                }
+
+                if (notBeDuplicatedNum.contains(randomNum)) {
+                    continue;
+                }
+
+                notDuplicate.add(randomNum);
+            }
+
+            randomNumSet.addAll(notDuplicate);
+
+            if (notDuplicate.isEmpty()) {
+                continue;
+            }
+
+            // 중복없이 새로 뽑힌 랜덤수로 다시 랜덤 문제 선정 -> result 에 추가
+            result.addAll(dictionaryService.getDictionaryList(notDuplicate));
         }
 
         return result;

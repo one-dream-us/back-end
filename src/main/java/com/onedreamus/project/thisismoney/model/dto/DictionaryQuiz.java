@@ -23,6 +23,7 @@ public class DictionaryQuiz {
                 .dictionaryId(dictionary.getId())
                 .term(dictionary.getTerm())
                 .details(dictionary.getDetails())
+                .status(status)
                 .build();
     }
 }

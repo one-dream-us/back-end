@@ -13,12 +13,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class QuizChoice {
 
+    private Long dictionaryId;
     private String term;
     private String detail;
     private DictionaryStatus status; // 용어 위치
 
     public static QuizChoice from(DictionaryQuiz dictionaryQuiz) {
         return QuizChoice.builder()
+                .dictionaryId(dictionaryQuiz.getDictionaryId())
                 .term(dictionaryQuiz.getTerm())
                 .detail(dictionaryQuiz.getDetails())
                 .status(dictionaryQuiz.getStatus())

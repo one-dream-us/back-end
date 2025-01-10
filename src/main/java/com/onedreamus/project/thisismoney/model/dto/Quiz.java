@@ -20,8 +20,8 @@ public class Quiz {
 
     public static Quiz from(int answerNum, QuizChoice[] choices) {
         return Quiz.builder()
-                .question(choices[answerNum - 1].getDetail())
-                .answerNum(answerNum)
+                .question(choices[answerNum].getDetail())
+                .answerNum(answerNum + 1)
                 .choices(choices)
                 .build();
     }

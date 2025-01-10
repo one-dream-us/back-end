@@ -15,6 +15,7 @@ import com.onedreamus.project.thisismoney.repository.DictionaryWrongAnswerNoteRe
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +41,17 @@ public class NoteService {
     }
 
     /**
-     * 핵심노트 추가
+     * <p>[핵심 노트 추가]</p>
+     * @param dictionaryId
+     * @param user
      */
+    @Transactional
     public void addKeyNote(Long dictionaryId, Users user) {
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+
+        // 스크랩에서 삭제()
+        scrapService.deleteDictionaryScrapped(dictionary, user);
 
         Optional<DictionaryKeyNote> keyNoteOptional =
                 dictionaryKeyNoteRepository.findByUserAndDictionary(user, dictionary);
@@ -58,9 +65,6 @@ public class NoteService {
         }
 
         dictionaryKeyNoteRepository.save(DictionaryKeyNote.from(user, dictionary));
-
-        // 스크랩에서 삭제
-        scrapService.deleteDictionaryScrapped(dictionaryId, user);
     }
 
     /**

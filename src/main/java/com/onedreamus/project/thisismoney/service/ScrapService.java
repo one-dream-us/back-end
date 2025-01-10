@@ -148,10 +148,29 @@ public class ScrapService {
 
     /**
      * 스크랩된 용어 삭제
+     * - scrap ID로 삭제
      */
     public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
         DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUser(dictionaryScrapId, user)
             .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
+
+        dictionaryScrap.setIsDeleted(true);
+
+        dictionaryScrapRepository.save(dictionaryScrap);
+    }
+
+    /**
+     * <p>[스크랩 삭제]</p>
+     * {@code user}가 스크랩한 {@code dictionary}삭제
+     * (해당 스크랩이 존재하지 않을 경우 SCRAP_NOT_EXIST 에러 반환)
+     * @param dictionary
+     * @param user
+     * @throws ScrapException
+     */
+    public void deleteDictionaryScrapped(Dictionary dictionary, Users user) {
+        DictionaryScrap dictionaryScrap =
+                dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
+                        .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         dictionaryScrap.setIsDeleted(true);
 
@@ -212,7 +231,14 @@ public class ScrapService {
         dictionaryScrapRepository.saveAll(allDictionaryScraps);
     }
 
+    /**
+     *
+     * @param user
+     * user가 스크랩한 용어 리스트 조회
+     *
+     */
     public List<DictionaryScrap> getDictionaryScrapList(Users user) {
         return dictionaryScrapRepository.findByUserAndIsDeletedFalse(user);
     }
+
 }
