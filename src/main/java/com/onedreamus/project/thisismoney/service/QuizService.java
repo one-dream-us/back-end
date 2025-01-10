@@ -49,7 +49,7 @@ public class QuizService {
 
 
         // 2. 2문제 : 전체 단어 중 랜덤 선택
-        long totalDictionarySize = dictionaryService.countAll();
+        long maxId = dictionaryService.getMaxId();
         Set<Long> dictionaryIds = dictionaries1.stream()
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
@@ -62,7 +62,7 @@ public class QuizService {
 
         // 랜덤으로 전체 단어에서 2개 뽑음
         List<DictionaryQuiz> dictionaries2 =
-                getRandomDictionary(totalDictionarySize, 2, dictionaryIds).stream()
+                getRandomDictionary(maxId, 2, dictionaryIds).stream()
                         .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
                         .toList();
 
@@ -77,7 +77,7 @@ public class QuizService {
 
             List<DictionaryQuiz> choiceDictionary =
                     getRandomDictionary(
-                            totalDictionarySize,
+                            maxId,
                             3,
                             new HashSet<>(List.of(answerDictionary.getDictionaryId()))
                     ).stream()
@@ -104,8 +104,8 @@ public class QuizService {
      * <p>[랜덤 용어 구하기]</p>
      * notBeDuplicatedNum에 중복되지 않는 dictionary를 n개 구하는 함수.
      */
-    private List<Dictionary> getRandomDictionary(long totalDictionarySize, int n, Set<Long> notBeDuplicatedNum) {
-        List<Long> randomNumList = NumberUtils.pickRandomNumber(totalDictionarySize, n);
+    private List<Dictionary> getRandomDictionary(long maxId, int n, Set<Long> notBeDuplicatedNum) {
+        List<Long> randomNumList = NumberUtils.pickRandomNumber(maxId, n);
         Set<Long> randomNumSet = new HashSet<>();
         for (Long randNum : randomNumList) {
             if (!notBeDuplicatedNum.contains(randNum)) {
@@ -120,7 +120,7 @@ public class QuizService {
             // 1. 부족 수 만큼 랜덤 수 뽑기
             // - 근데 이전에 뽑은 랜덤 수와 중복되면 안댐.
             int insufficientNum = n - result.size();
-            List<Long> newRandomNum = NumberUtils.pickRandomNumber(totalDictionarySize, insufficientNum);
+            List<Long> newRandomNum = NumberUtils.pickRandomNumber(maxId, insufficientNum);
             List<Long> notDuplicate = new ArrayList<>();
             for (Long randomNum : newRandomNum) {
                 if (randomNumSet.contains(randomNum)) {
@@ -147,6 +147,50 @@ public class QuizService {
         return result;
     }
 
+    /**
+     * <p>[더미 퀴즈 획득]</p>
+     * - 더미 퀴즈에 사용 될 퀴즈 목록 획득
+     * @param user
+     * @return
+     */
+    public List<Quiz> getRandomQuizList(Users user) {
+        long maxId = dictionaryService.getMaxId();
+        Set<Long> scrapedDictionaryIds = scrapService.getDictionaryScrapList(user).stream()
+                .map(scrap -> scrap.getDictionary().getId())
+                .collect(Collectors.toSet());
+
+        List<DictionaryQuiz> quizAnswerList = getRandomDictionary(maxId, 5, scrapedDictionaryIds).stream()
+                .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
+                .toList();
+
+        List<Quiz> quizList = new ArrayList<>();
+        for (DictionaryQuiz answerDictionary : quizAnswerList) {
+            QuizChoice[] choices = new QuizChoice[4];
+
+            Set<Long> notBeDuplicatedNum = new HashSet<>();
+            notBeDuplicatedNum.add(answerDictionary.getDictionaryId());
+
+            List<DictionaryQuiz> choiceDictionary = new ArrayList<>();
+            for (Dictionary randDictionary : getRandomDictionary(maxId, 3, notBeDuplicatedNum)) {
+                choiceDictionary.add(DictionaryQuiz.from(randDictionary, DictionaryStatus.NONE));
+            }
+
+            List<Integer> randomIdx = NumberUtils.shuffleNumber(0, 4);
+
+            for (int i = 0; i < randomIdx.size(); i++) {
+                if (i == 0) {
+                    choices[randomIdx.get(i)] = QuizChoice.from(answerDictionary, i + 1);
+                    continue;
+                }
+
+                choices[randomIdx.get(i)] = QuizChoice.from(choiceDictionary.get(i - 1), i + 1);
+            }
+
+            quizList.add(Quiz.from(randomIdx.get(0), choices));
+        }
+
+        return quizList;
+    }
 
     /**
      * 퀴즈 결과 처리
@@ -176,4 +220,6 @@ public class QuizService {
 
         return QuizResultResponse.from(totalGraduation, totalWrong, accuracyRate, resultDetails);
     }
+
+
 }

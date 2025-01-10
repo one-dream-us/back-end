@@ -26,6 +26,13 @@ public class QuizController {
         return ResponseEntity.ok(quizList);
     }
 
+    @Operation(summary = "더미 퀴즈 문제 획득", description = "로그인한 유저에 대한 더미 퀴즈 문제를 획득합니다.")
+    @GetMapping("/random")
+    public ResponseEntity<List<Quiz>> getRandomQuizList(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<Quiz> quizList = quizService.getRandomQuizList(userDetails.getUser());
+        return ResponseEntity.ok(quizList);
+    }
+
     @Operation(summary = "퀴즈 결과 처리", description = "퀴즈 결과를 받아 용어 상태를 처리합니다.")
     @PostMapping
     public ResponseEntity<QuizResultResponse> processResults(
