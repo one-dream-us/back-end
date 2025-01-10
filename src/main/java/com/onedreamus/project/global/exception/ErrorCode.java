@@ -12,6 +12,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일 입니다."),
     NO_USER(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."),
     UNLINK_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "소셜로그인 연결 해제 실패"),
+    USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "유저 정보가 동일하지 않습니다."),
 
     // Login
     WRONG_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 Content-Type 입니다. (required: application/json))"),
@@ -29,10 +30,24 @@ public enum ErrorCode {
 
     // Dictionary
     DICTIONARY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
+    NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST,"적절한 상태값이 없습니다."),
 
-    // Scarp
-    SCRAP_NO_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
-    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다.");
+            // Scarp
+    SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
+    ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다."),
+
+    // KeyNote
+    KEYNOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 핵심 노트에 존재하는 용어 입니다."),
+    KEYNOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "핵심노트에 존재하지 않는 용어 입니다."),
+    GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 단어이거나, 오답노트에 있는 단어입니다."),
+
+    // GraduateNote
+
+    // WrongAnswerNote
+    WRONG_ANSWER_NOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "오답노트에 존재하지 않는 용어입니다."),
+
+    // Quiz
+    NOT_ENOUGH_DICTIONARY(HttpStatus.BAD_REQUEST, "핵심단어와 오답노트에 단어가 총 3개 이상 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

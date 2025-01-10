@@ -17,7 +17,6 @@ import com.onedreamus.project.thisismoney.repository.DictionaryScrapRepository;
 import com.onedreamus.project.global.exception.ErrorCode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -45,11 +44,11 @@ public class ScrapService {
     public void scrapContent(Long contentId, Users user) {
         // 컨텐츠가 없는 경우
         Content content = contentService.getContentById(contentId)
-            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩한 항목인지 점검
         Optional<ContentScrap> contentScrapOptional =
-            contentScrapRepository.findByUserAndContentAndIsDeleted(user, content, false);
+                contentScrapRepository.findByUserAndContentAndIsDeleted(user, content, false);
 
         // 이전에 스크랩한적 없는 경우
         if (contentScrapOptional.isEmpty()) {
@@ -68,27 +67,27 @@ public class ScrapService {
         Map<Long, ContentScrapDto> map = new HashMap<>();
 
         List<ContentScrapSummaryDto> contentScrapSummaryDtos =
-            contentScrapRepository.findContentScrapSummaryByUser(user);
+                contentScrapRepository.findContentScrapSummaryByUser(user);
         for (ContentScrapSummaryDto dto : contentScrapSummaryDtos) {
 
             map.put(dto.getScrapId(), ContentScrapDto.builder()
-                .scrapId(dto.getScrapId())
-                .contentId(dto.getContentId())
-                .thumbnailUrl(dto.getThumbnailUrl())
-                .contentTitle(dto.getContentTitle())
-                .summaryText(dto.getSummaryText())
-                .createdAt(dto.getCreatedAt())
-                .tags(new ArrayList<>())
-                .build());
+                    .scrapId(dto.getScrapId())
+                    .contentId(dto.getContentId())
+                    .thumbnailUrl(dto.getThumbnailUrl())
+                    .contentTitle(dto.getContentTitle())
+                    .summaryText(dto.getSummaryText())
+                    .createdAt(dto.getCreatedAt())
+                    .tags(new ArrayList<>())
+                    .build());
         }
 
         List<ContentScrapTagDto> contentScrapTagDtos =
-            contentScrapRepository.findContentScrapTagByUser(user);
+                contentScrapRepository.findContentScrapTagByUser(user);
         for (ContentScrapTagDto dto : contentScrapTagDtos) {
             ContentScrapDto contentScrapDto = map.get(dto.getScrapId());
             contentScrapDto.getTags().add(TagDto.builder()
-                .tagValue(dto.getTagValue())
-                .build());
+                    .tagValue(dto.getTagValue())
+                    .build());
         }
 
         List<ContentScrapDto> result = new ArrayList<>(map.values());
@@ -102,7 +101,7 @@ public class ScrapService {
      */
     public void deleteContentScrapped(Integer contentScrapId, Users user) {
         ContentScrap contentScrap = contentScrapRepository.findByIdAndUser(contentScrapId, user)
-            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
+                .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         contentScrap.setIsDeleted(true);
         contentScrapRepository.save(contentScrap);
@@ -114,11 +113,11 @@ public class ScrapService {
     public void scrapDictionary(Long dictionaryId, Long contentId, Users user) {
         // 스크랩하려는 용어가 존재하는 용어인지 확인
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-            .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
         // 콘텐츠 확인
         Content content = contentService.getContentById(contentId)
-            .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
+                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
         Optional<DictionaryScrap> DictionaryScrapOptional =
@@ -127,13 +126,21 @@ public class ScrapService {
         if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
 
             DictionaryScrap newDictionaryScrap =
-                dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
+                    dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
 
             dictionaryScrapContentRepository.save(
-                DictionaryScrapContent.from(newDictionaryScrap, content));
+                    DictionaryScrapContent.from(newDictionaryScrap, content));
         } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
         }
+    }
+
+    /**
+     * <p>스크랩 추가</p>
+     * dictionaryId 로만 스크랩 추가
+     */
+    public void add(Dictionary dictionary, Users user) {
+        dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
     }
 
     /**
@@ -142,17 +149,37 @@ public class ScrapService {
     public DictionaryScrapResponse getDictionaryScrapped(Users user) {
 
         List<DictionaryContentDto> dictionaryScrapContents =
-            dictionaryScrapRepository.findDictionaryScrapWithContentByUser(user);
+                dictionaryScrapRepository.findDictionaryScrapWithContentByUser(user);
 
         return DictionaryScrapResponse.from(dictionaryScrapContents);
     }
 
     /**
      * 스크랩된 용어 삭제
+     * - scrap ID로 삭제
      */
     public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
         DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUser(dictionaryScrapId, user)
-            .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NO_EXIST));
+                .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
+
+        dictionaryScrap.setIsDeleted(true);
+
+        dictionaryScrapRepository.save(dictionaryScrap);
+    }
+
+    /**
+     * <p>[스크랩 삭제]</p>
+     * {@code user}가 스크랩한 {@code dictionary}삭제
+     * (해당 스크랩이 존재하지 않을 경우 SCRAP_NOT_EXIST 에러 반환)
+     *
+     * @param dictionary
+     * @param user
+     * @throws ScrapException
+     */
+    public void deleteDictionaryScrapped(Dictionary dictionary, Users user) {
+        DictionaryScrap dictionaryScrap =
+                dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
+                        .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         dictionaryScrap.setIsDeleted(true);
 
@@ -169,8 +196,8 @@ public class ScrapService {
         totalScrapCnt += getDictionaryScrapCnt(user).getDictionaryScrapCnt();
 
         return TotalScarpCntDto.builder()
-            .totalScrapCnt(totalScrapCnt)
-            .build();
+                .totalScrapCnt(totalScrapCnt)
+                .build();
     }
 
     /**
@@ -179,8 +206,8 @@ public class ScrapService {
     public ContentScrapCntDto getContentScrapCnt(Users user) {
         Integer contentScrapCnt = contentScrapRepository.countByUserAndIsDeleted(user, false);
         return ContentScrapCntDto.builder()
-            .contentScrapCnt(contentScrapCnt)
-            .build();
+                .contentScrapCnt(contentScrapCnt)
+                .build();
     }
 
     /**
@@ -189,8 +216,8 @@ public class ScrapService {
     public DictionaryScrapCntDto getDictionaryScrapCnt(Users user) {
         Integer dictionaryScrapCnt = dictionaryScrapRepository.countByUserAndIsDeleted(user, false);
         return DictionaryScrapCntDto.builder()
-            .dictionaryScrapCnt(dictionaryScrapCnt)
-            .build();
+                .dictionaryScrapCnt(dictionaryScrapCnt)
+                .build();
     }
 
     /**
@@ -212,4 +239,12 @@ public class ScrapService {
         }
         dictionaryScrapRepository.saveAll(allDictionaryScraps);
     }
+
+    /**
+     * @param user user가 스크랩한 용어 리스트 조회
+     */
+    public List<DictionaryScrap> getDictionaryScrapList(Users user) {
+        return dictionaryScrapRepository.findByUserAndIsDeletedFalse(user);
+    }
+
 }

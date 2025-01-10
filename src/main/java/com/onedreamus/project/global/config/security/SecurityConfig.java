@@ -100,7 +100,7 @@ public class SecurityConfig {
 				).permitAll()
 				.requestMatchers("/admin").hasRole("ADMIN")
 				.requestMatchers("/v1/users/info", "/v1/scraps/**", "/v1/users/withdraw",
-					"/v1/user/logout").hasAnyRole("USER")
+					"/v1/user/logout", "/v1/note/**","/v1/quiz/**").hasAnyRole("USER")
 				.anyRequest().authenticated());
 
 		// 필터 추가

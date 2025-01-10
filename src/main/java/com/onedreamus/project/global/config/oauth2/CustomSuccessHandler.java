@@ -55,11 +55,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        String homeAddress = request.getHeader(REFERER);
+//        String homeAddress = request.getHeader(REFERER);
         HttpSession session = request.getSession(false);
         String redirectUrl = (String) session.getAttribute(REDIRECT_URL);
         String joinUrl = (String) session.getAttribute(JOIN_URL);
-        String domain = getDomain(redirectUrl);
+//        String domain = getDomain(redirectUrl);
 
         log.info("redirectUrl : {}, joinUrl : {}", redirectUrl, joinUrl);
 
