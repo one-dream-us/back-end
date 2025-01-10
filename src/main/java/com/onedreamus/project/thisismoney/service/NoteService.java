@@ -4,10 +4,9 @@ import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.KeyNoteException;
 import com.onedreamus.project.thisismoney.exception.UserException;
-import com.onedreamus.project.thisismoney.model.dto.GraduationNoteResponse;
-import com.onedreamus.project.thisismoney.model.dto.KeyNoteResponse;
-import com.onedreamus.project.thisismoney.model.dto.LearningStatus;
-import com.onedreamus.project.thisismoney.model.dto.WrongAnswerNoteResponse;
+import com.onedreamus.project.thisismoney.exception.WrongAnswerException;
+import com.onedreamus.project.thisismoney.model.constant.DictionaryStatus;
+import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.*;
 import com.onedreamus.project.thisismoney.repository.DictionaryGraduationNoteRepository;
 import com.onedreamus.project.thisismoney.repository.DictionaryKeyNoteRepository;
@@ -42,6 +41,7 @@ public class NoteService {
 
     /**
      * <p>[핵심 노트 추가]</p>
+     *
      * @param dictionaryId
      * @param user
      */
@@ -121,8 +121,13 @@ public class NoteService {
      * 졸업노트 조회
      */
     public GraduationNoteResponse getGraduationNoteList(Users user) {
-        List<DictionaryGraduationNote> graduationNotes = dictionaryGraduationNoteRepository.findByUser(user);
+        List<DictionaryGraduationNote> graduationNotes = getAllGraduationNote(user);
         return GraduationNoteResponse.from(graduationNotes);
+    }
+
+
+    public List<DictionaryGraduationNote> getAllGraduationNote(Users user) {
+        return dictionaryGraduationNoteRepository.findByUser(user);
     }
 
 
@@ -169,4 +174,92 @@ public class NoteService {
         return dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduated(user, false);
     }
 
+    /**
+     * <p>[용어 위치 이동]</p>
+     * => 문제를 맞추거나 틀릴 경우 용어의 위치 및 상태 수정
+     * <p>EX)</p>
+     * <ul>
+     *     <li> 오답노트에 있는 단어를 또 틀렸을 경우 틀린 회수  + 1</li>
+     *     <li> 용어를 3회 이상 맞출 경우 졸업노트로 이동</li>
+     * </ul>
+     *
+     * @param quizResult
+     * @param user
+     */
+    public DictionaryStatusDto changeStatus(QuizResult quizResult, Users user) {
+        Dictionary dictionary = dictionaryService.getDictionaryById(quizResult.getDictionaryId())
+                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+        switch (quizResult.getStatus()) {
+            case NONE -> {
+                return changeNone(quizResult, user, dictionary);
+            }
+            case KEY_NOTE -> {
+                return changeKeyNote(quizResult, user, dictionary);
+            }
+            case WRONG_ANSWER_NOTE -> {
+                return changeWrongAnswerNote(quizResult, user, dictionary);
+            }
+        }
+
+        throw new DictionaryException(ErrorCode.NO_APPROPRIATE_STATUS);
+    }
+
+    private DictionaryStatusDto changeNone(QuizResult quizResult, Users user, Dictionary dictionary) {
+
+        scrapService.add(dictionary, user);
+        quizResult.setStatus(DictionaryStatus.SCRAP);
+
+        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), 0, 0);
+    }
+
+    private DictionaryStatusDto changeKeyNote(QuizResult quizResult, Users user, Dictionary dictionary) {
+        DictionaryKeyNote keyNote =
+                dictionaryKeyNoteRepository.findByUserAndDictionaryAndIsGraduated(user, dictionary, false)
+                        .orElseThrow(() -> new KeyNoteException(ErrorCode.KEYNOTE_NOT_EXIST));
+
+        // 맞춘 경우
+        if (quizResult.isCorrect()) {
+            keyNote.setCorrectCnt(keyNote.getCorrectCnt() + 1);
+
+            // 총 정답 수 3번 이상인 경우
+            if (keyNote.getCorrectCnt() >= 3) {
+                quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
+                keyNote.setGraduated(true);
+            }
+
+            dictionaryKeyNoteRepository.save(keyNote);
+        } else {
+            // 틀린 경우
+            keyNote.setGraduated(true);
+            DictionaryWrongAnswerNote wrongAnswerNote = DictionaryWrongAnswerNote.from(dictionary, user);
+            wrongAnswerNote.setCorrectCnt(keyNote.getCorrectCnt());
+            quizResult.setStatus(DictionaryStatus.WRONG_ANSWER_NOTE);
+            dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
+        }
+
+        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), keyNote.getCorrectCnt(), 1);
+    }
+
+    private DictionaryStatusDto changeWrongAnswerNote(QuizResult quizResult, Users user, Dictionary dictionary) {
+        DictionaryWrongAnswerNote wrongAnswerNote =
+                dictionaryWrongAnswerNoteRepository.findByUserAndDictionaryAndIsGraduated(user, dictionary, false)
+                        .orElseThrow(() -> new WrongAnswerException(ErrorCode.WRONG_ANSWER_NOTE_NOT_EXIST));
+
+        // 맞춘 경우
+        if (quizResult.isCorrect()) {
+            wrongAnswerNote.setCorrectCnt(wrongAnswerNote.getCorrectCnt() + 1);
+            if (wrongAnswerNote.getCorrectCnt() >= 3) {
+                wrongAnswerNote.setGraduated(true);
+                quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
+            }
+
+        } else {
+            // 틀린 경우
+            wrongAnswerNote.setWrongCnt(wrongAnswerNote.getWrongCnt() + 1);
+        }
+
+        dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
+
+        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), wrongAnswerNote.getCorrectCnt(), wrongAnswerNote.getWrongCnt());
+    }
 }

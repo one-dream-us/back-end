@@ -48,12 +48,17 @@ public class QuizService {
         quizDictionaries.addAll(dictionaries1.subList(0, 3));
 
 
-        // 2. 2문제 : 아무 단어 중 랜덤 선택
+        // 2. 2문제 : 전체 단어 중 랜덤 선택
         long totalDictionarySize = dictionaryService.countAll();
-
-        Set<Long> dictionaryIds = quizDictionaries.stream()
+        Set<Long> dictionaryIds = dictionaries1.stream()
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
+        dictionaryIds.addAll(noteService.getAllGraduationNote(user).stream()
+                .map(graduationNote -> graduationNote.getDictionary().getId())
+                .toList());
+        dictionaryIds.addAll(scrapService.getDictionaryScrapList(user).stream()
+                .map(scrap -> scrap.getDictionary().getId())
+                .toList());
 
         // 랜덤으로 전체 단어에서 2개 뽑음
         List<DictionaryQuiz> dictionaries2 =
@@ -96,9 +101,8 @@ public class QuizService {
     }
 
     /**
-     * @param totalDictionarySize
-     * @param n
-     * @return {@code List<Dictionary>}
+     * <p>[랜덤 용어 구하기]</p>
+     * notBeDuplicatedNum에 중복되지 않는 dictionary를 n개 구하는 함수.
      */
     private List<Dictionary> getRandomDictionary(long totalDictionarySize, int n, Set<Long> notBeDuplicatedNum) {
         List<Long> randomNumList = NumberUtils.pickRandomNumber(totalDictionarySize, n);
@@ -149,7 +153,27 @@ public class QuizService {
      */
     public QuizResultResponse processQuizResult(Users user, List<QuizResult> quizResults) {
 
+        int totalCorrect = 0;
+        int totalWrong = 0;
+        int totalGraduation = 0;
+        List<DictionaryStatusDto> resultDetails = new ArrayList<>();
 
-        return null;
+        for (QuizResult quizResult : quizResults) {
+            if (quizResult.isCorrect()) {
+                totalCorrect++;
+            } else {
+                totalWrong++;
+            }
+
+            DictionaryStatusDto statusDto = noteService.changeStatus(quizResult, user);
+            resultDetails.add(statusDto);
+            if (statusDto.getStatus().equals(DictionaryStatus.GRADUATION_NOTE)) {
+                totalGraduation++;
+            }
+        }
+
+        int accuracyRate = (int) Math.round(((double) totalCorrect / quizResults.size()) * 100);
+
+        return QuizResultResponse.from(totalGraduation, totalWrong, accuracyRate, resultDetails);
     }
 }

@@ -25,4 +25,6 @@ public interface DictionaryKeyNoteRepository extends JpaRepository<DictionaryKey
     int countByUserAndIsGraduated(Users user, boolean isGraduated);
 
     Optional<DictionaryKeyNote> findByUserAndDictionary(Users user, Dictionary dictionary);
+
+    Optional<DictionaryKeyNote> findByUserAndDictionaryAndIsGraduated(Users user, Dictionary dictionary, boolean isGraduated);
 }

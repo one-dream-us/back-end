@@ -30,8 +30,9 @@ public enum ErrorCode {
 
     // Dictionary
     DICTIONARY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
+    NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST,"적절한 상태값이 없습니다."),
 
-    // Scarp
+            // Scarp
     SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
     ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 항목 입니다."),
 
@@ -41,6 +42,9 @@ public enum ErrorCode {
     GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 단어이거나, 오답노트에 있는 단어입니다."),
 
     // GraduateNote
+
+    // WrongAnswerNote
+    WRONG_ANSWER_NOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "오답노트에 존재하지 않는 용어입니다."),
 
     // Quiz
     NOT_ENOUGH_DICTIONARY(HttpStatus.BAD_REQUEST, "핵심단어와 오답노트에 단어가 총 3개 이상 필요합니다.");
