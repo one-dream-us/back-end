@@ -16,13 +16,15 @@ public class QuizChoice {
     private Long dictionaryId;
     private String term;
     private String detail;
+    private Integer quizNum;
     private DictionaryStatus status; // 용어 위치
 
-    public static QuizChoice from(DictionaryQuiz dictionaryQuiz) {
+    public static QuizChoice from(DictionaryQuiz dictionaryQuiz, int quizNum) {
         return QuizChoice.builder()
                 .dictionaryId(dictionaryQuiz.getDictionaryId())
                 .term(dictionaryQuiz.getTerm())
                 .detail(dictionaryQuiz.getDetails())
+                .quizNum(quizNum)
                 .status(dictionaryQuiz.getStatus())
                 .build();
     }

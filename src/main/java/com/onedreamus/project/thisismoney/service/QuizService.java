@@ -82,11 +82,11 @@ public class QuizService {
 
             for (int i = 0; i < randomIdx.size(); i++) {
                 if (i == 0) {
-                    choices[randomIdx.get(i)] = QuizChoice.from(answerDictionary);
+                    choices[randomIdx.get(i)] = QuizChoice.from(answerDictionary, i + 1);
                     continue;
                 }
 
-                choices[randomIdx.get(i)] = QuizChoice.from(choiceDictionary.get(i - 1));
+                choices[randomIdx.get(i)] = QuizChoice.from(choiceDictionary.get(i - 1), i + 1);
             }
 
             result.add(Quiz.from(randomIdx.get(0), choices));
