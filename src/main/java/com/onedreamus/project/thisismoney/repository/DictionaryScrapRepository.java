@@ -24,7 +24,7 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
 
     boolean existsByIdAndUser(Long dictionaryScrapId, Users user);
 
-    @Query("SELECT new  com.onedreamus.project.thisismoney.model.dto.DictionaryContentDto(ds.id, d.id, d.term, d.details, dsc.content.id) "
+    @Query("SELECT new  com.onedreamus.project.thisismoney.model.dto.DictionaryContentDto(ds.id, d.id, d.term, d.definition, dsc.content.id) "
             + "FROM DictionaryScrap ds "
             + "JOIN Dictionary d on d = ds.dictionary "
             + "JOIN DictionaryScrapContent dsc ON dsc.dictionaryScrap = ds "

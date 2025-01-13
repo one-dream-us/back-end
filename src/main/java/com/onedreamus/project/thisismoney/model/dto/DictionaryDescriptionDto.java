@@ -1,7 +1,6 @@
 package com.onedreamus.project.thisismoney.model.dto;
 
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
-import com.onedreamus.project.thisismoney.model.entity.Sentence;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +20,7 @@ public class DictionaryDescriptionDto {
     public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
         return DictionaryDescriptionDto.builder()
                 .sentence(sentence)
-                .description(dictionary.getDetails())
+                .description(dictionary.getDefinition())
                 .dictionaryId(dictionary.getId())
                 .term(dictionary.getTerm())
                 .build();

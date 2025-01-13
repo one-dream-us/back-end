@@ -22,6 +22,7 @@ public class Dictionary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String term;
-    private String details;
+    private String definition;
+    private String description;
 
 }

@@ -169,7 +169,7 @@ public class ContentService {
                     .map(mapping -> DictionaryDto.builder()
                         .id(mapping.getDictionary().getId())
                         .term(mapping.getDictionary().getTerm())
-                        .details(mapping.getDictionary().getDetails())
+                        .details(mapping.getDictionary().getDefinition())
                         .isScrapped(false)
                         .build())
                     .collect(Collectors.toList());
