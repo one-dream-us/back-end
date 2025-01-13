@@ -90,4 +90,22 @@ public class NewsService {
 
         return NewsDetailResponse.from(news, fullSentenceBuilder.toString(), descriptionDtos);
     }
+
+    /**
+     * <p>[최신 뉴스 콘텐츠 조회]</p>
+     * 가장 최근에 올라온 뉴스 콘텐츠를 조회합니다.
+     * @return
+     */
+    public NewsListResponse getLatestNews() {
+        News latestNews = newsRepository.findFirstByOrderByCreatedAtDesc()
+                .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
+
+        int totalViewCnt = newsViewRepository.findTotalViewCountByNews(latestNews)
+                .orElse(0);
+        List<String> tags = newsTagRepository.findByNews(latestNews).stream()
+                .map(tag -> tag.getTag().getValue())
+                .toList();
+
+        return NewsListResponse.from(latestNews, NumberFormatter.format(totalViewCnt), tags);
+    }
 }
