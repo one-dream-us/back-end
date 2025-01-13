@@ -136,6 +136,25 @@ public class ScrapService {
     }
 
     /**
+     * 뉴스 용어 스크랩
+     */
+    public void scrapDictionary(Long dictionaryId, Users user) {
+        // 스크랩하려는 용어가 존재하는 용어인지 확인
+        Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
+                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+
+        // 기존에 스크랩된 용어인지 확인
+        Optional<DictionaryScrap> DictionaryScrapOptional =
+                dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false);
+
+        if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
+             dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
+        } else { // 이미 스크랩된 경우
+            throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
+        }
+    }
+
+    /**
      * <p>스크랩 추가</p>
      * dictionaryId 로만 스크랩 추가
      */
@@ -152,6 +171,17 @@ public class ScrapService {
                 dictionaryScrapRepository.findDictionaryScrapWithContentByUser(user);
 
         return DictionaryScrapResponse.from(dictionaryScrapContents);
+    }
+
+    /**
+     * 스크랩된 용어 전체 조회
+     */
+    public NewsDictionaryScrapResponse getNewsDictionaryScrapped(Users user) {
+
+        List<DictionaryNewsDto> dictionaryScrapContents =
+                dictionaryScrapRepository.findDictionaryScrapByUser(user);
+
+        return NewsDictionaryScrapResponse.from(dictionaryScrapContents);
     }
 
     /**

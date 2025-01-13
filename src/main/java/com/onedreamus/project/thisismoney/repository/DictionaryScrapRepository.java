@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.repository;
 
 import com.onedreamus.project.thisismoney.model.dto.DictionaryContentDto;
+import com.onedreamus.project.thisismoney.model.dto.DictionaryNewsDto;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.model.entity.DictionaryScrap;
 import com.onedreamus.project.thisismoney.model.entity.Users;
@@ -31,6 +32,13 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
             + "WHERE ds.user = :user AND ds.isDeleted = false "
             + "ORDER BY ds.createdAt DESC")
     List<DictionaryContentDto> findDictionaryScrapWithContentByUser(@Param("user") Users user);
+
+    @Query("SELECT new  com.onedreamus.project.thisismoney.model.dto.DictionaryNewsDto(ds.id, d.id, d.term, d.definition, d.description) "
+            + "FROM DictionaryScrap ds "
+            + "JOIN Dictionary d on d = ds.dictionary "
+            + "WHERE ds.user = :user AND ds.isDeleted = false "
+            + "ORDER BY ds.createdAt DESC")
+    List<DictionaryNewsDto> findDictionaryScrapByUser(@Param("user") Users user);
 
     Optional<DictionaryScrap> findByIdAndUser(Long dictionaryScrapId, Users user);
 
