@@ -20,7 +20,7 @@ public class DictionarySentence {
     private Integer id;
 
     @JoinColumn
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Dictionary dictionary;
 
     @JoinColumn

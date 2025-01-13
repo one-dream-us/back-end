@@ -27,4 +27,5 @@ public class News {
     private String thumbnailUrl;
     private LocalDateTime createdAt;
     private Boolean isDeleted;
+    private String newsAgency;
 }

@@ -1,9 +1,6 @@
 package com.onedreamus.project.thisismoney.controller;
 
-import com.onedreamus.project.thisismoney.model.dto.ContentDetailResponse;
-import com.onedreamus.project.thisismoney.model.dto.ContentListResponse;
-import com.onedreamus.project.thisismoney.model.dto.CursorResult;
-import com.onedreamus.project.thisismoney.model.dto.NewsListResponse;
+import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.service.ContentService;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +71,11 @@ public class ContentController {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return ResponseEntity.ok(newsService.getNewList(cursor, size));
+	}
+
+	@GetMapping("/news/{newsId}")
+	@Operation(summary = "뉴스 상세페이지 조회", description = "뉴스 상세페이지로 이동하여 학습을 합니다.")
+	public ResponseEntity<NewsDetailResponse> getNewsDetail(@PathVariable Integer newsId) {
+		return ResponseEntity.ok(newsService.getNewsDetail(newsId));
 	}
 }

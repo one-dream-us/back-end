@@ -1,18 +1,17 @@
 package com.onedreamus.project.thisismoney.service;
 
+import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.NumberFormatter;
 import com.onedreamus.project.global.util.UrlUtils;
-import com.onedreamus.project.thisismoney.model.dto.ContentListResponse;
-import com.onedreamus.project.thisismoney.model.dto.CursorResult;
-import com.onedreamus.project.thisismoney.model.dto.NewsListResponse;
-import com.onedreamus.project.thisismoney.model.entity.Content;
-import com.onedreamus.project.thisismoney.model.entity.News;
-import com.onedreamus.project.thisismoney.model.entity.ScriptSummary;
-import com.onedreamus.project.thisismoney.repository.NewsRepository;
-import com.onedreamus.project.thisismoney.repository.NewsTagRepository;
-import com.onedreamus.project.thisismoney.repository.NewsViewRepository;
+import com.onedreamus.project.thisismoney.exception.NewsException;
+import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.entity.*;
+import com.onedreamus.project.thisismoney.repository.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +25,8 @@ public class NewsService {
     private final NewsRepository newsRepository;
     private final NewsViewRepository newsViewRepository;
     private final NewsTagRepository newsTagRepository;
+    private final SentenceRepository sentenceRepository;
+    private final DictionarySentenceRepository dictionarySentenceRepository;
 
     public CursorResult<NewsListResponse> getNewList(int cursor, int size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
@@ -66,4 +67,27 @@ public class NewsService {
         return NewsListResponse.from(news, formattedViewCount, tags);
     }
 
+    /**
+     * news 상세페이지 조회
+     */
+    public NewsDetailResponse getNewsDetail(int newsId) {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
+
+        List<Sentence> sentences = sentenceRepository.findByNews(news);
+
+        StringBuilder fullSentenceBuilder = new StringBuilder();
+        for (Sentence sentence : sentences) {
+            fullSentenceBuilder.append(sentence.getValue());
+        }
+
+        List<DictionaryDescriptionDto> descriptionDtos = new ArrayList<>();
+        for (Sentence sentence : sentences) {
+            DictionarySentence dictionarySentences = dictionarySentenceRepository.findBySentence(sentence)
+                    .orElse(new DictionarySentence());
+            descriptionDtos.add(DictionaryDescriptionDto.from(sentence.getValue(), dictionarySentences.getDictionary()));
+        }
+
+        return NewsDetailResponse.from(news, fullSentenceBuilder.toString(), descriptionDtos);
+    }
 }
