@@ -31,6 +31,7 @@ public class DictionaryGraduationNote{
         return DictionaryGraduationNote.builder()
                 .user(user)
                 .dictionary(dictionary)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 

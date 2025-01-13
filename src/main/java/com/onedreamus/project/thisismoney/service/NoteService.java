@@ -86,7 +86,7 @@ public class NoteService {
      */
     public WrongAnswerNoteResponse getWrongAnswerList(Users user) {
         List<DictionaryWrongAnswerNote> wrongAnswerNotes =
-                dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduated(user, false);
+                dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user, false);
         return WrongAnswerNoteResponse.from(wrongAnswerNotes);
     }
 
@@ -121,7 +121,8 @@ public class NoteService {
      * 졸업노트 조회
      */
     public GraduationNoteResponse getGraduationNoteList(Users user) {
-        List<DictionaryGraduationNote> graduationNotes = getAllGraduationNote(user);
+        List<DictionaryGraduationNote> graduationNotes =
+                dictionaryGraduationNoteRepository.findByUserOrderByCreatedAtDesc(user);
         return GraduationNoteResponse.from(graduationNotes);
     }
 
@@ -231,13 +232,15 @@ public class NoteService {
         if (quizResult.isCorrect()) {
             keyNote.setCorrectCnt(keyNote.getCorrectCnt() + 1);
 
-            // 총 정답 수 3번 이상인 경우
+            // 총 정답 수 3번 이상인 경우 -> 졸업노트 이동
             if (keyNote.getCorrectCnt() >= 3) {
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
                 keyNote.setGraduated(true);
+                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
             }
 
             dictionaryKeyNoteRepository.save(keyNote);
+
         } else {
             // 틀린 경우
             keyNote.setGraduated(true);
@@ -261,6 +264,7 @@ public class NoteService {
             if (wrongAnswerNote.getCorrectCnt() >= 3) {
                 wrongAnswerNote.setGraduated(true);
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
+                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
             }
 
         } else {
