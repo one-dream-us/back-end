@@ -48,7 +48,6 @@ public class QuizService {
         Collections.shuffle(dictionaries1);
         quizDictionaries.addAll(dictionaries1.subList(0, 3));
 
-
         // 2. 2문제 : 전체 단어 중 랜덤 선택
         long maxId = dictionaryService.getMaxId();
         Set<Long> dictionaryIds = dictionaries1.stream()

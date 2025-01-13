@@ -29,7 +29,7 @@ public class NewsService {
     private final SentenceRepository sentenceRepository;
     private final DictionarySentenceRepository dictionarySentenceRepository;
 
-    public CursorResult<NewsListResponse> getNewList(int cursor, int size) {
+    public CursorResult<NewsListResponse> getNewList(Integer cursor, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
         List<News> newsList = newsRepository.findByIdLessThanOrderByIdDesc(cursor, pageRequest);
         long totalElements = newsRepository.count();
