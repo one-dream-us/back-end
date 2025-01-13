@@ -1,6 +1,5 @@
 package com.onedreamus.project.thisismoney.controller;
 
-import com.onedreamus.project.global.util.CookieUtils;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.service.ContentHistoryService;
@@ -12,13 +11,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +44,16 @@ public class UserController {
         UserInfoDto userDto = userService.getUserInfo(user);
         return ResponseEntity.ok(userDto);
     }
+
+    @GetMapping("/quiz/first-attempt")
+    @Operation(summary = "첫 퀴즈 참여인지 확인", description = "유저가 퀴즈에 처음 참여하는지 확인할 수 있습니다.")
+    public ResponseEntity<FirstQuizAttemptResponse> checkFirstQuizAttempt(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        FirstQuizAttemptResponse response = userService.checkFirstAttempt(userDetails.getUser());
+        return ResponseEntity.ok(response);
+    }
+
 
     /**
      * 회원가입

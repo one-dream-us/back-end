@@ -19,4 +19,6 @@ public interface DictionaryWrongAnswerNoteRepository extends JpaRepository<Dicti
 
     Optional<DictionaryWrongAnswerNote> findByUserAndDictionaryAndIsGraduated(Users user, Dictionary dictionary, boolean isGraduated);
 
+    boolean existsByUser(Users user);
+
 }

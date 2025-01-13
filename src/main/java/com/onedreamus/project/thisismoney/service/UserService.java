@@ -5,13 +5,11 @@ import com.onedreamus.project.global.config.oauth2.UserChecker;
 import com.onedreamus.project.global.exception.LoginException;
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.*;
-import com.onedreamus.project.thisismoney.model.entity.ContentHistory;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.CookieUtils;
-import com.onedreamus.project.global.util.SecurityUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +21,6 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +36,7 @@ public class UserService {
     private final ContentHistoryService contentHistoryService;
     private final UserChecker userChecker;
     private final JWTUtil jwtUtil;
+    private final NoteService noteService;
 
     /**
      * 유저 상세 정보 조회
@@ -172,4 +170,21 @@ public class UserService {
         return null;
     }
 
+    public FirstQuizAttemptResponse checkFirstAttempt(Users user) {
+        // 오답노트 O -> 퀴즈 푼적 있음
+        // 오답노트 X -> 푼적 있을 수도 있음
+        //     - 핵심노트에 count 확인 -> 맞춘 문제가 존재 : 퀴즈 푼적 있음
+        //                              맞춘 문제 X : 퀴즈 푼적 없음
+        if (noteService.doesWrongAnswerNoteExist(user)) {
+            return new FirstQuizAttemptResponse(false);
+        }
+
+        // 오답노트 X
+        // 핵심노트에 맞춘 용어가 있는 경우 -> 첫 퀴즈 X
+        if (noteService.doesCorrectKeyNoteExist(user)) {
+            return new FirstQuizAttemptResponse(false);
+        }
+
+        return new FirstQuizAttemptResponse(true);
+    }
 }

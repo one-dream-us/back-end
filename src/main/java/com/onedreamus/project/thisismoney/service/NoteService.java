@@ -168,6 +168,16 @@ public class NoteService {
     }
 
     /**
+     * <p>[퀴즈에서 맞춘 용어 유무 확인]</p>
+     * 퀴즈에 출제되어 정답 처리 된 용어가 존재하는지 조회
+     * @param user
+     * @return
+     */
+    public boolean doesCorrectKeyNoteExist(Users user) {
+        return dictionaryKeyNoteRepository.existsByUserAndCorrectCntGreaterThanEqual(user, 1);
+    }
+
+    /**
      * 오답 노트 조회
      */
     public List<DictionaryWrongAnswerNote> getWrongAnswerNotes(Users user) {
@@ -261,5 +271,15 @@ public class NoteService {
         dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
 
         return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), wrongAnswerNote.getCorrectCnt(), wrongAnswerNote.getWrongCnt());
+    }
+
+    /**
+     * <p>[오답노트 유무 확인]</p>
+     * User 를 통해 오답노트(WrongAnswerNote)가 존재하는지 확인
+     * @param user
+     * @return
+     */
+    public boolean doesWrongAnswerNoteExist(Users user) {
+        return dictionaryWrongAnswerNoteRepository.existsByUser(user);
     }
 }
