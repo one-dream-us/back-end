@@ -17,10 +17,6 @@ public interface NewsViewRepository extends JpaRepository<NewsView, Integer> {
     @Query("SELECT SUM(nv.viewCount) FROM NewsView nv WHERE nv.news = :news")
     Optional<Integer> findTotalViewCountByNews(@Param("news") News news);
 
-    Optional<NewsView> findByNews(News news);
+    Optional<NewsView> findByNewsAndViewDateBetween(News news, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
-    @Query("SELECT nv FROM NewsView nv "
-        + "WHERE nv.news = :news"
-        + "AND DATE(nv.viewDate) = DATE(:today)")
-    Optional<NewsView> findByNewsAndViewDateToday(@Param("news") News news, @Param("today") LocalDateTime today);
 }
