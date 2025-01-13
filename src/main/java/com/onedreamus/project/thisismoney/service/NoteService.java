@@ -86,7 +86,7 @@ public class NoteService {
      */
     public WrongAnswerNoteResponse getWrongAnswerList(Users user) {
         List<DictionaryWrongAnswerNote> wrongAnswerNotes =
-                dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduated(user, false);
+                dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user, false);
         return WrongAnswerNoteResponse.from(wrongAnswerNotes);
     }
 
@@ -121,7 +121,8 @@ public class NoteService {
      * 졸업노트 조회
      */
     public GraduationNoteResponse getGraduationNoteList(Users user) {
-        List<DictionaryGraduationNote> graduationNotes = getAllGraduationNote(user);
+        List<DictionaryGraduationNote> graduationNotes =
+                dictionaryGraduationNoteRepository.findByUserOrderByCreatedAtDesc(user);
         return GraduationNoteResponse.from(graduationNotes);
     }
 
@@ -165,6 +166,16 @@ public class NoteService {
      */
     public List<DictionaryKeyNote> getKeynotes(Users user) {
         return dictionaryKeyNoteRepository.findByUserAndIsGraduated(user, false);
+    }
+
+    /**
+     * <p>[퀴즈에서 맞춘 용어 유무 확인]</p>
+     * 퀴즈에 출제되어 정답 처리 된 용어가 존재하는지 조회
+     * @param user
+     * @return
+     */
+    public boolean doesCorrectKeyNoteExist(Users user) {
+        return dictionaryKeyNoteRepository.existsByUserAndCorrectCntGreaterThanEqual(user, 1);
     }
 
     /**
@@ -221,13 +232,15 @@ public class NoteService {
         if (quizResult.isCorrect()) {
             keyNote.setCorrectCnt(keyNote.getCorrectCnt() + 1);
 
-            // 총 정답 수 3번 이상인 경우
+            // 총 정답 수 3번 이상인 경우 -> 졸업노트 이동
             if (keyNote.getCorrectCnt() >= 3) {
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
                 keyNote.setGraduated(true);
+                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
             }
 
             dictionaryKeyNoteRepository.save(keyNote);
+
         } else {
             // 틀린 경우
             keyNote.setGraduated(true);
@@ -251,6 +264,7 @@ public class NoteService {
             if (wrongAnswerNote.getCorrectCnt() >= 3) {
                 wrongAnswerNote.setGraduated(true);
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
+                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
             }
 
         } else {
@@ -261,5 +275,15 @@ public class NoteService {
         dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
 
         return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), wrongAnswerNote.getCorrectCnt(), wrongAnswerNote.getWrongCnt());
+    }
+
+    /**
+     * <p>[오답노트 유무 확인]</p>
+     * User 를 통해 오답노트(WrongAnswerNote)가 존재하는지 확인
+     * @param user
+     * @return
+     */
+    public boolean doesWrongAnswerNoteExist(Users user) {
+        return dictionaryWrongAnswerNoteRepository.existsByUser(user);
     }
 }

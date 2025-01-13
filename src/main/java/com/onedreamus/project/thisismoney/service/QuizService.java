@@ -10,6 +10,7 @@ import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -195,6 +196,7 @@ public class QuizService {
     /**
      * 퀴즈 결과 처리
      */
+    @Transactional
     public QuizResultResponse processQuizResult(Users user, List<QuizResult> quizResults) {
 
         int totalCorrect = 0;

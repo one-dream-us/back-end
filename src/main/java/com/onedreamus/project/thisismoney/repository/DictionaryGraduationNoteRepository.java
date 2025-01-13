@@ -12,4 +12,6 @@ public interface DictionaryGraduationNoteRepository extends JpaRepository<Dictio
     List<DictionaryGraduationNote> findByUser(Users user);
 
     int countByUser(Users user);
+
+    List<DictionaryGraduationNote> findByUserOrderByCreatedAtDesc(Users user);
 }

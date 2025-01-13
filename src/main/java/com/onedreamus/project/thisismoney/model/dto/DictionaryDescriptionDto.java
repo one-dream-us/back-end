@@ -1,6 +1,5 @@
 package com.onedreamus.project.thisismoney.model.dto;
 
-import com.onedreamus.project.thisismoney.model.constant.DictionaryStatus;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,19 +10,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Builder
-public class DictionaryQuiz {
+public class DictionaryDescriptionDto {
 
+    private String sentence;
+    private String description;
     private Long dictionaryId;
     private String term;
-    private String details;
-    private DictionaryStatus status;
 
-    public static DictionaryQuiz from(Dictionary dictionary, DictionaryStatus status) {
-        return DictionaryQuiz.builder()
+    public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
+        return DictionaryDescriptionDto.builder()
+                .sentence(sentence)
+                .description(dictionary.getDefinition())
                 .dictionaryId(dictionary.getId())
                 .term(dictionary.getTerm())
-                .details(dictionary.getDescription())
-                .status(status)
                 .build();
     }
 }
