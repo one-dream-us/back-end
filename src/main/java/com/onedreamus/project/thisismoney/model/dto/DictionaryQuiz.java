@@ -22,7 +22,7 @@ public class DictionaryQuiz {
         return DictionaryQuiz.builder()
                 .dictionaryId(dictionary.getId())
                 .term(dictionary.getTerm())
-                .details(dictionary.getDefinition())
+                .details(dictionary.getDescription())
                 .status(status)
                 .build();
     }
