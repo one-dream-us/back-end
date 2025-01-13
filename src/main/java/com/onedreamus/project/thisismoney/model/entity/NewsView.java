@@ -32,4 +32,11 @@ public class NewsView {
     private Integer viewCount;
     private LocalDateTime viewDate;
 
+    public static NewsView from(News news) {
+        return NewsView.builder()
+            .news(news)
+            .viewCount(0)
+            .viewDate(LocalDateTime.now())
+            .build();
+    }
 }

@@ -8,6 +8,7 @@ import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.*;
 import com.onedreamus.project.thisismoney.repository.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +88,12 @@ public class NewsService {
                     .orElse(new DictionarySentence());
             descriptionDtos.add(DictionaryDescriptionDto.from(sentence.getValue(), dictionarySentences.getDictionary()));
         }
+
+        // 조회수 증가
+        NewsView newsView = newsViewRepository.findByNewsAndViewDateToday(news, LocalDateTime.now())
+            .orElse(NewsView.from(news));
+        newsView.setViewCount(newsView.getViewCount() + 1);
+        newsViewRepository.save(newsView);
 
         return NewsDetailResponse.from(news, fullSentenceBuilder.toString(), descriptionDtos);
     }
