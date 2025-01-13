@@ -36,7 +36,7 @@ public class NoteController {
         return ResponseEntity.ok("핵심 노트에 추가되었습니다.");
     }
 
-    @Operation(summary = "용어 핵심노트에 추가", description = "스크랩된 용어를 핵십노트에 추가합니다. dictionaryId로")
+    @Operation(summary = "핵심노트 취소", description = "핵심노트 취소하면 용어가 스크랩으로 이동합니다.")
     @DeleteMapping("/key-note/{keyNoteId}")
     public ResponseEntity<String> deleteKeyNote(
             @PathVariable Long keyNoteId, @AuthenticationPrincipal CustomUserDetails userDetails

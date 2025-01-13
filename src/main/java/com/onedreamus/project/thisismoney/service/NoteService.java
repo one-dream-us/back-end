@@ -79,6 +79,7 @@ public class NoteService {
         }
 
         dictionaryKeyNoteRepository.delete(keyNote);
+        scrapService.add(keyNote.getDictionary(), user);
     }
 
     /**
