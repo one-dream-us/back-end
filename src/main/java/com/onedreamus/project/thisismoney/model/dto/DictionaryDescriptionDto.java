@@ -14,15 +14,18 @@ public class DictionaryDescriptionDto {
 
     private String sentence;
     private String description;
+    private String definition;
     private Long dictionaryId;
     private String term;
 
     public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
         return DictionaryDescriptionDto.builder()
                 .sentence(sentence)
-                .description(dictionary.getDefinition())
+                .definition(dictionary.getDefinition())
+                .description(dictionary.getDescription())
                 .dictionaryId(dictionary.getId())
                 .term(dictionary.getTerm())
                 .build();
     }
+
 }
