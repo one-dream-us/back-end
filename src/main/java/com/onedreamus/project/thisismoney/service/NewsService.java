@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -70,6 +71,7 @@ public class NewsService {
     /**
      * news 상세페이지 조회
      */
+    @Transactional
     public NewsDetailResponse getNewsDetail(int newsId) {
         News news = newsRepository.findById(newsId)
             .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
