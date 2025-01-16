@@ -2,18 +2,18 @@
 services:
   thisismoney-app:
     platform: linux/amd64
-    image: loid3/thisismoney-app:latest
+    image: jaeyoungjoo/thisismoney-app:latest
     container_name: thisismoney-app
     expose:
       - "8080"
     restart: unless-stopped
-    env_file: .env
+    env_file: .env # 서버에 따로 .env파일 없으면 제거.
     networks:
       - app-network
 
   nginx:
     platform: linux/amd64
-    image: loid3/thisismoney-nginx:latest
+    image: jaeyoungjoo/thisismoney-nginx:latest
     container_name: nginx
     ports:
       - "80:80"
@@ -22,7 +22,7 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/conf:/etc/nginx/conf.d
       - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./certbot/www:/var/www/certbot # 챌린지가 저장될 디렉토리
     depends_on:
       - thisismoney-app
     restart: unless-stopped
@@ -32,6 +32,7 @@ services:
   certbot:
     image: certbot/certbot:latest
     container_name: certbot
+#    command: certonly --webroot --webroot-path=/var/www/certbot --email jjy5230@gmail.com --agree-tos --no-eff-email -d api.thisismoney.site
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
