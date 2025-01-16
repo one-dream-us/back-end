@@ -175,6 +175,6 @@ public class UserService {
     }
 
     public FirstQuizAttemptResponse checkFirstAttempt(Users user) {
-        return new FirstQuizAttemptResponse(user.isQuizAttempt());
+        return new FirstQuizAttemptResponse(!user.isQuizAttempt());
     }
 }
