@@ -255,7 +255,7 @@ gradle-app.setting
 .env
 
 application-dev.yml
-application-server.yml
+application-deploy.yml
 
 Todo.md
 

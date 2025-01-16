@@ -28,4 +28,5 @@ public class News {
     private LocalDateTime createdAt;
     private Boolean isDeleted;
     private String newsAgency;
+    private String link;
 }

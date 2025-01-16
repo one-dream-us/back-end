@@ -56,13 +56,19 @@ public class NewsService {
     }
 
     private NewsListResponse convertToResponse(News news) {
-        List<String> tags = newsTagRepository.findByNews(news)
-            .stream()
-            .map(newsTag -> newsTag.getTag().getValue())
-            .collect(Collectors.toList());
+        List<String> tags = new ArrayList<>();
+
+        List<Sentence> sentences = sentenceRepository.findByNews(news);
+        List<Dictionary> dictionaries =
+            dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
+        for (Dictionary dictionary : dictionaries) {
+            tags.add(dictionary.getTerm()
+            );
+        }
 
         Integer viewCount = newsViewRepository.findTotalViewCountByNews(news)
             .orElse(0);
+
         String formattedViewCount = NumberFormatter.format(viewCount);
 
         return NewsListResponse.from(news, formattedViewCount, tags);
