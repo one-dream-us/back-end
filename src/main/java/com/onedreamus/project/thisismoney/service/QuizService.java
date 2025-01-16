@@ -23,7 +23,7 @@ public class QuizService {
     private final NoteService noteService;
     private final ScrapService scrapService;
     private final DictionaryService dictionaryService;
-
+    private final UserService userService;
     /**
      * 퀴즈 문제 획득
      */
@@ -218,6 +218,12 @@ public class QuizService {
         }
 
         int accuracyRate = (int) Math.round(((double) totalCorrect / quizResults.size()) * 100);
+
+        // 첫 번째 퀴즈 시도인 경우
+        if (!user.isQuizAttempt()) {
+            user.setQuizAttempt(true);
+            userService.saveUser(user);
+        }
 
         return QuizResultResponse.from(totalGraduation, totalWrong, accuracyRate, resultDetails);
     }

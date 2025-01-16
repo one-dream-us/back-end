@@ -38,6 +38,10 @@ public class UserService {
     private final JWTUtil jwtUtil;
     private final NoteService noteService;
 
+    public void saveUser(Users user) {
+        userRepository.save(user);
+    }
+
     /**
      * 유저 상세 정보 조회
      */
@@ -171,20 +175,6 @@ public class UserService {
     }
 
     public FirstQuizAttemptResponse checkFirstAttempt(Users user) {
-        // 오답노트 O -> 퀴즈 푼적 있음
-        // 오답노트 X -> 푼적 있을 수도 있음
-        //     - 핵심노트에 count 확인 -> 맞춘 문제가 존재 : 퀴즈 푼적 있음
-        //                              맞춘 문제 X : 퀴즈 푼적 없음
-        if (noteService.doesWrongAnswerNoteExist(user)) {
-            return new FirstQuizAttemptResponse(false);
-        }
-
-        // 오답노트 X
-        // 핵심노트에 맞춘 용어가 있는 경우 -> 첫 퀴즈 X
-        if (noteService.doesCorrectKeyNoteExist(user)) {
-            return new FirstQuizAttemptResponse(false);
-        }
-
-        return new FirstQuizAttemptResponse(true);
+        return new FirstQuizAttemptResponse(user.isQuizAttempt());
     }
 }

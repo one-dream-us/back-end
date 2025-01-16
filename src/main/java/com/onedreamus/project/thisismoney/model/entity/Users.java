@@ -18,7 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Users extends BaseEntity{
+public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,14 +33,16 @@ public class Users extends BaseEntity{
     private Long socialId;
     private boolean deleted;
     private String refreshToken;
+    private boolean quizAttempt;
 
 
     public static Users from(JoinDto dto) {
         return Users.builder()
-            .name(dto.getName())
-            .email(dto.getEmail())
-            .role("ROLE_USER")
-            .build();
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .role("ROLE_USER")
+                .quizAttempt(false)
+                .build();
     }
 
     public static Users from(UserCheckDto dto, String refreshToken) {
@@ -54,9 +56,10 @@ public class Users extends BaseEntity{
                 .deleted(false)
                 .socialId(dto.getSocialId())
                 .refreshToken(refreshToken)
+                .quizAttempt(false)
                 .build();
 
-        if (dto.getUserId() != null){
+        if (dto.getUserId() != null) {
             user.setId(dto.getUserId());
         }
 
