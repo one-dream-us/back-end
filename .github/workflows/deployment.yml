@@ -30,23 +30,24 @@ jobs:
 
       - name: Build with Gradle Wrapper
         run: ./gradlew build -x test
-      # - name: ls -al
-      #   run: ls -al
-      # - name: check build file
-      #   run: |
-      #     cd build/libs/
-      #     ls -al
+
       - name: Build docker image
         run: |
           docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
           docker buildx build --platform linux/amd64 -t ${{secrets.DOCKER_USER}}/thisismoney-app . 
           docker push ${{secrets.DOCKER_USER}}/thisismoney-app:latest
 
-      - name: Excute remote ssh commands & Run App
+  deploy-project:
+
+    runs-on: ubuntu-latest
+    needs: build-project
+
+    steps:
+      - name: Excute remote ssh cmmands & Run App
         uses: appleboy/ssh-action@v0.1.6 # ssh 접속하는 오픈소스
         with:
           host: ${{ secrets.EC2_HOST }} # 인스턴스 IP
-          username: ${{ secrets.EC2_USER_NAME}} # 우분투 아이디
+          username: ${{ secrets.EC2_USER_NAME }} # 우분투 아이디
           key: ${{ secrets.PRIVATE_KEY }} # ec2 instance pem key
           script: | # 실행할 스크립트
             docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
