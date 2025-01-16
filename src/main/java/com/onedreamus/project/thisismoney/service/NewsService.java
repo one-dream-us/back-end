@@ -56,15 +56,7 @@ public class NewsService {
     }
 
     private NewsListResponse convertToResponse(News news) {
-        List<String> tags = new ArrayList<>();
-
-        List<Sentence> sentences = sentenceRepository.findByNews(news);
-        List<Dictionary> dictionaries =
-            dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
-        for (Dictionary dictionary : dictionaries) {
-            tags.add(dictionary.getTerm()
-            );
-        }
+        List<String> tags = getTags(news);
 
         Integer viewCount = newsViewRepository.findTotalViewCountByNews(news)
             .orElse(0);
@@ -72,6 +64,20 @@ public class NewsService {
         String formattedViewCount = NumberFormatter.format(viewCount);
 
         return NewsListResponse.from(news, formattedViewCount, tags);
+    }
+
+    private List<String> getTags(News news) {
+        List<String> tags = new ArrayList<>();
+
+        List<Sentence> sentences = sentenceRepository.findByNews(news);
+        List<Dictionary> dictionaries =
+                dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
+        for (Dictionary dictionary : dictionaries) {
+            tags.add(dictionary.getTerm()
+            );
+        }
+
+        return tags;
     }
 
     /**
@@ -99,14 +105,7 @@ public class NewsService {
         }
 
         // 조회수 증가
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
-        NewsView newsView =
-            newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
-                .orElse(NewsView.from(news));
-        newsView.setViewCount(newsView.getViewCount() + 1);
-        newsViewRepository.save(newsView);
+        increaseView(news);
 
         return NewsDetailResponse.from(news, fullSentenceBuilder.toString(), descriptionDtos);
     }
@@ -123,10 +122,20 @@ public class NewsService {
 
         int totalViewCnt = newsViewRepository.findTotalViewCountByNews(latestNews)
             .orElse(0);
-        List<String> tags = newsTagRepository.findByNews(latestNews).stream()
-            .map(tag -> tag.getTag().getValue())
-            .toList();
+
+        List<String> tags = getTags(latestNews);
 
         return NewsListResponse.from(latestNews, NumberFormatter.format(totalViewCnt), tags);
+    }
+
+    private void increaseView(News news) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
+        NewsView newsView =
+                newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
+                        .orElse(NewsView.from(news));
+        newsView.setViewCount(newsView.getViewCount() + 1);
+        newsViewRepository.save(newsView);
     }
 }
