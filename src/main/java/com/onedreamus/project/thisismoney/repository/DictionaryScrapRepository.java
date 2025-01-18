@@ -49,4 +49,6 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
     );
 
     List<DictionaryScrap> findByUserAndIsDeletedFalse(Users user);
+
+    Boolean existsByUserAndDictionary(Users user, Dictionary dictionary);
 }
