@@ -144,10 +144,9 @@ public class ScrapService {
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
-        Optional<DictionaryScrap> DictionaryScrapOptional =
-                dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false);
+        boolean isScrapped = dictionaryScrapRepository.existsByUserAndDictionary(user, dictionary);
 
-        if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
+        if (!isScrapped) { // 스크랩된 적 없는 경우
              dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
         } else { // 이미 스크랩된 경우
             throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
