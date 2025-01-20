@@ -120,10 +120,10 @@ public class ScrapService {
                 .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
-        Optional<DictionaryScrap> DictionaryScrapOptional =
+        Optional<DictionaryScrap> dictionaryScrapOptional =
                 dictionaryScrapRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false);
 
-        if (DictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
+        if (dictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
 
             DictionaryScrap newDictionaryScrap =
                     dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
@@ -144,7 +144,7 @@ public class ScrapService {
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
         // 기존에 스크랩된 용어인지 확인
-        boolean isScrapped = dictionaryScrapRepository.existsByUserAndDictionary(user, dictionary);
+        boolean isScrapped = dictionaryScrapRepository.existsByUserAndDictionaryAndIsDeleted(user, dictionary, false);
 
         if (!isScrapped) { // 스크랩된 적 없는 경우
              dictionaryScrapRepository.save(DictionaryScrap.make(user, dictionary));
@@ -188,7 +188,7 @@ public class ScrapService {
      * - scrap ID로 삭제
      */
     public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
-        DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUser(dictionaryScrapId, user)
+        DictionaryScrap dictionaryScrap = dictionaryScrapRepository.findByIdAndUserAndIsDeleted(dictionaryScrapId, user, false)
                 .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
 
         dictionaryScrap.setIsDeleted(true);
