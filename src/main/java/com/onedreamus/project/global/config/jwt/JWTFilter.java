@@ -206,7 +206,8 @@ public class JWTFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/v1/contents/**",
             "/v1/contents",
-                "/v1/users/join/social", "/v1/users/unlink/social"
+                "/v1/users/join/social", "/v1/users/unlink/social",
+                "/actuator/**"
         );
 
         return publicPaths.stream().anyMatch(publicPath ->
