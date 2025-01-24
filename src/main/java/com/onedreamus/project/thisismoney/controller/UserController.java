@@ -118,7 +118,7 @@ public class UserController {
 
         List<String> cookies = userService.unlinkSocial(request);
 
-        for(String cookie : cookies){
+        for (String cookie : cookies) {
             response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         }
 
@@ -147,4 +147,11 @@ public class UserController {
         );
     }
 
+    @GetMapping("/study-days/count")
+    @Operation(summary = "누적 학습 일수 조회", description = "누적된 학습 일수를 조회합니다.")
+    public ResponseEntity<StudyDaysCountDto> getStudyDaysCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        StudyDaysCountDto studyDaysCountDto = userService.getStudyDaysCount(userDetails.getUser());
+        return ResponseEntity.ok(studyDaysCountDto);
+    }
 }

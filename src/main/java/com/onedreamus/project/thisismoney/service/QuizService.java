@@ -45,8 +45,10 @@ public class QuizService {
         }
 
         // 랜덤으로 3개의 단어 뽑음
-        Collections.shuffle(dictionaries1);
-        quizDictionaries.addAll(dictionaries1.subList(0, 3));
+        List<Integer> randomNumList = NumberUtils.pickRandomNumList(0, dictionaries1.size() - 1, 3);
+        for (int idx : randomNumList) {
+            quizDictionaries.add(dictionaries1.get(idx));
+        }
 
         // 2. 2문제 : 전체 단어 중 랜덤 선택
         long maxId = dictionaryService.getMaxId();
@@ -105,7 +107,7 @@ public class QuizService {
      * notBeDuplicatedNum에 중복되지 않는 dictionary를 n개 구하는 함수.
      */
     private List<Dictionary> getRandomDictionary(long maxId, int n, Set<Long> notBeDuplicatedNum) {
-        List<Long> randomNumList = NumberUtils.pickRandomNumber(maxId, n);
+        List<Long> randomNumList = NumberUtils.pickRandomNumList(maxId, n);
         Set<Long> randomNumSet = new HashSet<>();
         for (Long randNum : randomNumList) {
             if (!notBeDuplicatedNum.contains(randNum)) {
@@ -120,7 +122,7 @@ public class QuizService {
             // 1. 부족 수 만큼 랜덤 수 뽑기
             // - 근데 이전에 뽑은 랜덤 수와 중복되면 안댐.
             int insufficientNum = n - result.size();
-            List<Long> newRandomNum = NumberUtils.pickRandomNumber(maxId, insufficientNum);
+            List<Long> newRandomNum = NumberUtils.pickRandomNumList(maxId, insufficientNum);
             List<Long> notDuplicate = new ArrayList<>();
             for (Long randomNum : newRandomNum) {
                 if (randomNumSet.contains(randomNum)) {
