@@ -6,10 +6,12 @@ import com.onedreamus.project.global.exception.LoginException;
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.Users;
+import com.onedreamus.project.thisismoney.model.entity.UsersStudyDays;
 import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.CookieUtils;
+import com.onedreamus.project.thisismoney.repository.UsersStudyDaysRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,7 +38,7 @@ public class UserService {
     private final ContentHistoryService contentHistoryService;
     private final UserChecker userChecker;
     private final JWTUtil jwtUtil;
-    private final NoteService noteService;
+    private final UsersStudyDaysRepository usersStudyDaysRepository;
 
     public void saveUser(Users user) {
         userRepository.save(user);
@@ -177,4 +179,17 @@ public class UserService {
     public FirstQuizAttemptResponse checkFirstAttempt(Users user) {
         return new FirstQuizAttemptResponse(!user.isQuizAttempt());
     }
+
+    /**\
+     * <p>총 학습일수 계산</p>
+     * @param user
+     * @return
+     */
+    public StudyDaysCountDto getStudyDaysCount(Users user) {
+
+        int totalStudyDays = usersStudyDaysRepository.countByUser(user);
+
+        return StudyDaysCountDto.from(totalStudyDays);
+    }
+
 }

@@ -8,6 +8,7 @@ import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.*;
 import com.onedreamus.project.thisismoney.repository.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +27,9 @@ public class NewsService {
 
     private final NewsRepository newsRepository;
     private final NewsViewRepository newsViewRepository;
-    private final NewsTagRepository newsTagRepository;
     private final SentenceRepository sentenceRepository;
     private final DictionarySentenceRepository dictionarySentenceRepository;
+    private final UsersStudyDaysRepository usersStudyDaysRepository;
 
     public CursorResult<NewsListResponse> getNewList(Integer cursor, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
@@ -78,6 +79,37 @@ public class NewsService {
         }
 
         return tags;
+    }
+
+
+    /**
+     * <p>로그인 유저의 news 상세페이지 조회</p>
+     * 로그인 한 유저의 경우 학습 일수가 누적된다.
+     * @param newsId
+     * @param user
+     * @return
+     */
+    @Transactional
+    public NewsDetailResponse getNewsDetail(int newsId, Users user) {
+        NewsDetailResponse newsDetailResponse = getNewsDetail(newsId);
+
+        // 학습 일수 누적
+        increaseStudyDay(user);
+        return newsDetailResponse;
+    }
+
+    /**
+     * <p>학습 일수 누적</p>
+     * @param user
+     */
+    private void increaseStudyDay(Users user) {
+        boolean isStudyDone = usersStudyDaysRepository.existsByUserAndStudyDate(user, LocalDate.now());
+        if (!isStudyDone) {
+            usersStudyDaysRepository.save(UsersStudyDays.builder()
+                    .user(user)
+                    .studyDate(LocalDate.now())
+                    .build());
+        }
     }
 
     /**
