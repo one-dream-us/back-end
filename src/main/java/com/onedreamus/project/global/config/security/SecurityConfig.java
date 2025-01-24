@@ -35,7 +35,21 @@ public class SecurityConfig {
 	private final UserRepository userRepository;
 	private final CookieUtils cookieUtils;
 	private final CustomAuthorizationRequestResolver customAuthorizationRequestResolver;
+	private final String[] PUBLIC_PATHS = {
+			"login/**", "/users/join", "/oauth2/**", "/swagger-ui.html",
+			"/v3/api-docs/**", "/swagger-ui/**",
+			"/v1/contents/news", "/v1/contents/news/**",
+			"/v1/contents", "/v1/auth/check",
+			"/v1/users/join/social",
+			"/v1/users/unlink/social", "/v1/contents/news/**", "/actuator/**",
+	};
 
+	private final String[] USER_PATHS = {
+			"/v1/users/info", "/v1/scraps/**", "/v1/users/withdraw",
+			"/v1/user/logout", "/v1/note/**","/v1/quiz/**", "/v1/users/quiz/first-attempt",
+			"/v1/contents/news/{newsId}/users",
+			"/v1/users/study-days/count"
+	};
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -86,21 +100,11 @@ public class SecurityConfig {
 				.successHandler(customSuccessHandler) // login 성공 시
 			);
 
-//		http
-//			.requestCache(cache -> cache
-//				.requestCache(requestCache()));
-
 		http
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers(
-					"login/**", "/users/join", "/oauth2/**", "/swagger-ui.html",
-					"/v3/api-docs/**", "/swagger-ui/**", "/v1/contents/**", "/v1/contents", "/v1/auth/check",
-						"/v1/users/join/social",
-						"/v1/users/unlink/social", "/v1/contents/news/**", "/actuator/**"
-				).permitAll()
+				.requestMatchers(PUBLIC_PATHS).permitAll()
 				.requestMatchers("/admin").hasRole("ADMIN")
-				.requestMatchers("/v1/users/info", "/v1/scraps/**", "/v1/users/withdraw",
-					"/v1/user/logout", "/v1/note/**","/v1/quiz/**", "/v1/users/quiz/first-attempt").hasAnyRole("USER")
+				.requestMatchers(USER_PATHS).hasAnyRole("USER")
 				.anyRequest().authenticated());
 
 		// 필터 추가
@@ -110,6 +114,11 @@ public class SecurityConfig {
 //                UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new JWTFilter(jwtUtil, userRepository, cookieUtils),
 				UsernamePasswordAuthenticationFilter.class); // JWTFilter 등록
+
+		// 에러 관리
+		http
+				.exceptionHandling(exceptions -> exceptions
+						.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
 
 		// session -> stateless
 		http
