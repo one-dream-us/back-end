@@ -37,32 +37,14 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        if (isPublicPath(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String accessToken = null;
         String refreshToken = null;
 
         Cookie[] cookies = request.getCookies();
 
-        if (path.equals("/v1/auth/check")) {  // 추가된 부분
-            if (cookies != null) {
-                setAuthenticationIfValidToken(cookies, response);
-            }
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+        // 쿠키가 없으면 다음 필터로 넘어감.
         if (cookies == null) {
-            // 스크랩 요청인 경우만 로그인 필요
-            if (isScrapRequest(request.getServletPath())) {
-                FilterException.throwException(response, ErrorCode.NEED_LOGIN);
-                return;
-            }
-            // 스크랩 요청이 아닌 경우 필터 통과
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request,response);
             return;
         }
 
@@ -75,11 +57,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         if (accessToken == null) {
-            if (isScrapRequest(request.getServletPath())) {
-                FilterException.throwException(response, ErrorCode.NEED_LOGIN);
-                return;
-            }
-            FilterException.throwException(response, ErrorCode.TOKEN_NULL);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -136,84 +114,4 @@ public class JWTFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-    private boolean isScrapRequest(String path) {
-        return path.contains("/scraps");
-    }
-
-    private void setAuthenticationIfValidToken(Cookie[] cookies, HttpServletResponse response)
-        throws IOException {
-        String accessToken = null;
-        String refreshToken = null;
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(TokenType.ACCESS_TOKEN.getName())) {
-                accessToken = cookie.getValue();
-                continue;
-            }
-
-            if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getName())) {
-                refreshToken = cookie.getValue();
-            }
-        }
-
-        if (accessToken == null) {
-            return;
-        }
-
-        boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
-
-        String email = jwtUtil.getEmail(accessToken);
-        Optional<Users> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            return;
-        }
-
-        if (isAccessTokenExpired) { // access-token 만료
-            Users user = optionalUser.get();
-            if (user.isDeleted()) {
-                return;
-            }
-
-            // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
-            if (!user.getRefreshToken().equals(refreshToken)) {
-                return;
-            }
-
-            // refresh-token 만료 기간 검사
-            if (jwtUtil.isExpired(refreshToken) || user.getRefreshToken().isEmpty()) {
-                return;
-            }
-
-            String newAccessToken = jwtUtil.renewAccessToken(refreshToken);
-            cookieUtils.createAllCookies(TokenType.ACCESS_TOKEN.getName(), newAccessToken)
-                            .forEach(cookie -> response.addHeader(HttpHeaders.SET_COOKIE, cookie));
-        }
-
-        CustomUserDetails userDetails = new CustomUserDetails(optionalUser.get());
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-            userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private boolean isPublicPath(HttpServletRequest request) {
-        String path = request.getServletPath();
-        List<String> publicPaths = List.of(
-            "/login/**",
-            "/users/join",
-            "/oauth2/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/v1/contents/**",
-            "/v1/contents",
-                "/v1/users/join/social", "/v1/users/unlink/social",
-                "/actuator/**"
-        );
-
-        return publicPaths.stream().anyMatch(publicPath ->
-            path.startsWith(publicPath.replace("/**", "")) ||
-                path.matches(publicPath.replace("**", ".*"))
-        );
-    }
-
 }
