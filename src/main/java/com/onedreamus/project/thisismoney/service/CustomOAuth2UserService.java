@@ -45,7 +45,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String nickname = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
 
-        Optional<Users> userOptional = userRepository.findByEmail(oAuth2Response.getEmail());
+        Optional<Users> userOptional = userRepository.findByEmailAndProvider(oAuth2Response.getEmail(), oAuth2Response.getProvider());
 
         UserDto userDto;
         Users user;
