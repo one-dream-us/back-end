@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.model.dto.CustomOAuth2User;
+import com.onedreamus.project.thisismoney.model.dto.GoogleResponse;
 import com.onedreamus.project.thisismoney.model.dto.KakaoResponse;
 import com.onedreamus.project.thisismoney.model.dto.OAuth2Response;
 import com.onedreamus.project.thisismoney.model.dto.UserDto;
@@ -36,6 +37,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = null;
         if (registrationId.equals("kakao")) {
             oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+        } else if (registrationId.equals("google")) {
+            oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         } else {
             return null;
         }
@@ -50,13 +53,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (userOptional.isEmpty()) { // 새로운 유저인 경우
 
             user = Users.builder()
-                    .name(oAuth2Response.getName())
-                    .email(oAuth2Response.getEmail())
-                    .provider(oAuth2Response.getProvider())
-                    .nickname(nickname)
-                    .role("ROLE_USER")
-                    .socialId(oAuth2Response.getSocialId())
-                    .build();
+                .name(oAuth2Response.getName())
+                .email(oAuth2Response.getEmail())
+                .provider(oAuth2Response.getProvider())
+                .nickname(nickname)
+                .role("ROLE_USER")
+                .socialId(oAuth2Response.getSocialId())
+                .quizAttempt(false)
+                .build();
 
             isUser = false;
 

@@ -35,6 +35,7 @@ public class SecurityConfig {
 	private final UserRepository userRepository;
 	private final CookieUtils cookieUtils;
 	private final CustomAuthorizationRequestResolver customAuthorizationRequestResolver;
+
 	private final String[] PUBLIC_PATHS = {
 			"login/**", "/users/join", "/oauth2/**", "/swagger-ui.html",
 			"/v3/api-docs/**", "/swagger-ui/**",
@@ -73,7 +74,7 @@ public class SecurityConfig {
 
 					CorsConfiguration corsConfiguration = new CorsConfiguration();
 					corsConfiguration.setAllowedOrigins(
-						List.of("http://localhost:3000", "https://thisismoney.site"));
+						List.of("http://localhost:3000", "https://thisismoney.site", "http://localhost:3001"));
 					corsConfiguration.setAllowedMethods(
 						List.of("GET", "POST", "DELETE", "PUT", "FETCH", "OPTIONS"));
 					corsConfiguration.setAllowCredentials(true);

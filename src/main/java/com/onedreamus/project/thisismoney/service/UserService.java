@@ -92,9 +92,11 @@ public class UserService {
         Long socialId = user.getSocialId();
 
         // 소셜서비스와 연결 해제
-        boolean isUnlinked = kakaoOAuth2Service.unlinkKakaoAccount(socialId);
-        if (!isUnlinked) {
-            throw new UserException(ErrorCode.UNLINK_FAIL);
+        if (user.getProvider().equals("kakao")) {
+            boolean isUnlinked = kakaoOAuth2Service.unlinkKakaoAccount(socialId);
+            if (!isUnlinked) {
+                throw new UserException(ErrorCode.UNLINK_FAIL);
+            }
         }
 
         // DB 삭제 -> soft delete
@@ -155,9 +157,12 @@ public class UserService {
             throw new LoginException(ErrorCode.TOKEN_NULL);
         }
 
-        String email = jwtUtil.getEmail(verifyToken);
-        Long socialId = userChecker.getSocialId(email);
-        kakaoOAuth2Service.unlinkKakaoAccount(socialId);
+        // 카카오의 경우만 소셜 연동 필요
+        if (jwtUtil.getProvider(verifyToken).equals("kakao")) {
+            String email = jwtUtil.getEmail(verifyToken);
+            Long socialId = userChecker.getSocialId(email);
+            kakaoOAuth2Service.unlinkKakaoAccount(socialId);
+        }
 
         List<String> tokenCookies = new ArrayList<>();
         cookieUtils.createDeleteCookie(TokenType.VERIFY_TOKEN.getName(), "localhost");
