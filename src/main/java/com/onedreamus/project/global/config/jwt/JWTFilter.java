@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,7 +63,7 @@ public class JWTFilter extends OncePerRequestFilter {
         boolean isAccessTokenExpired = jwtUtil.isExpired(accessToken);
 
         String email = jwtUtil.getEmail(accessToken);
-        Optional<Users> optionalUser = userRepository.findByEmail(email);
+        Optional<Users> optionalUser = userRepository.findByEmailAndDeleted(email, false);
         if (optionalUser.isEmpty()) {
             FilterException.throwException(response, ErrorCode.NO_USER);
             return;

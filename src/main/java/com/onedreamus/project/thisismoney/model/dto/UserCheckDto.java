@@ -21,16 +21,18 @@ public class UserCheckDto {
     private Long socialId;
     private String nickName;
     private String role;
+    private Boolean isEmailDuplicated;
 
-    public static UserCheckDto from(Users user) {
+    public static UserCheckDto from(Users user, Boolean isEmailDuplicated) {
         return UserCheckDto.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .name(user.getName())
-                .provider(user.getProvider())
-                .socialId(user.getSocialId())
-                .nickName(user.getNickname())
-                .role(user.getRole())
-                .build();
+            .userId(user.getId())
+            .email(user.getEmail())
+            .name(user.getName())
+            .provider(user.getProvider())
+            .socialId(user.getSocialId())
+            .nickName(user.getNickname())
+            .role(user.getRole())
+            .isEmailDuplicated(isEmailDuplicated)
+            .build();
     }
 }

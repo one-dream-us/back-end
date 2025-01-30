@@ -64,7 +64,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationFailureHandler failureHandler) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		// cors 설정
 		http
@@ -99,7 +99,6 @@ public class SecurityConfig {
 				.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
 					.userService(customOAuth2UserService))
 				.successHandler(customSuccessHandler) // login 성공 시
-				.failureHandler(failureHandler)
 			);
 
 		http
