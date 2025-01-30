@@ -40,6 +40,11 @@ public class JWTUtil {
             .get("email", String.class);
     }
 
+    public String getProvider(String token) {
+        return getPayload(token)
+            .get("provider", String.class);
+    }
+
     public String getRole(String token) {
 
         return getPayload(token)
@@ -105,10 +110,11 @@ public class JWTUtil {
      * MVP 이후 회원가입/로그인 프로세스 변경 시 적용
      */
 //
-    public String createTempJwt(String email) {
+    public String createTempJwt(String email, String provider) {
 
         return Jwts.builder()
             .claim("email", email)
+            .claim("provider", provider)
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + TEMP_JWT_EXPIRE_TIME))
             .signWith(secretKey)

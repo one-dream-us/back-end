@@ -80,7 +80,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             userChecker.add(user.getEmail(), UserCheckDto.from(user));
 
-            String tempToken = jwtUtil.createTempJwt(email);
+            String tempToken = jwtUtil.createTempJwt(email, user.getProvider());
 
             List<String> cookies = cookieUtils.createAllCookies(TokenType.VERIFY_TOKEN.getName(), tempToken);
             for (String cookie : cookies) {
