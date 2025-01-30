@@ -1,7 +1,6 @@
 package com.onedreamus.project.global.exception;
 
 import com.onedreamus.project.global.exception.dto.ErrorResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

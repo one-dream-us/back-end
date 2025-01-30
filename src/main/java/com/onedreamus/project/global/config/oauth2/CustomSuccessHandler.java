@@ -76,7 +76,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 새로운 유저인 경우
         if (!customOAuth2User.isUser()) {
 
-            userChecker.add(user.getEmail(), UserCheckDto.from(user));
+            userChecker.add(user.getEmail(), UserCheckDto.from(user, customOAuth2User.getIsEmailDuplicated()));
 
             String tempToken = jwtUtil.createTempJwt(email, user.getProvider());
 

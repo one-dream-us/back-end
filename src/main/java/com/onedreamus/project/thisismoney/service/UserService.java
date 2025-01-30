@@ -6,7 +6,6 @@ import com.onedreamus.project.global.exception.LoginException;
 import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.Users;
-import com.onedreamus.project.thisismoney.model.entity.UsersStudyDays;
 import com.onedreamus.project.thisismoney.repository.UserRepository;
 import com.onedreamus.project.global.config.jwt.TokenType;
 import com.onedreamus.project.global.exception.ErrorCode;
@@ -130,6 +129,10 @@ public class UserService {
 
         String email = jwtUtil.getEmail(verifyToken);
         UserCheckDto userCheck = userChecker.get(email);
+
+        if (userCheck.getIsEmailDuplicated()) {
+            throw new UserException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
 
         List<String> tokenCookies = new ArrayList<>();
         String accessToken = jwtUtil.createJwt(userCheck.getName(), userCheck.getEmail(), userCheck.getRole(), true, TokenType.ACCESS_TOKEN);

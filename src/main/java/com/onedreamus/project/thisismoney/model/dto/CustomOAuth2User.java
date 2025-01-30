@@ -4,6 +4,7 @@ import com.onedreamus.project.thisismoney.model.entity.Users;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -11,9 +12,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @RequiredArgsConstructor
 public class CustomOAuth2User implements OAuth2User {
 
+    @Getter
     private final Users user;
 
     private final Boolean isUser;
+    @Getter
+    private final Boolean isEmailDuplicated;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -38,7 +42,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return user.getName();
+        return user == null ? "" : user.getName();
     }
 
     public String getProvider(){
@@ -53,7 +57,4 @@ public class CustomOAuth2User implements OAuth2User {
         return this.isUser;
     }
 
-    public Users getUser(){
-        return this.user;
-    }
 }

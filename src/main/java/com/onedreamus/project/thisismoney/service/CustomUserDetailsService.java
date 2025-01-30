@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         //DB에서 조회
-        Users users = userRepository.findByEmail(username)
+        Users users = userRepository.findByEmailAndDeleted(username, false)
                 .orElseThrow(() -> new UserException(ErrorCode.NO_USER));
 
 
