@@ -61,8 +61,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String joinUrl = (String) session.getAttribute(JOIN_URL);
 //        String domain = getDomain(redirectUrl);
 
-        log.info("redirectUrl : {}, joinUrl : {}", redirectUrl, joinUrl);
-
         //OAuth2User
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
