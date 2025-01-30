@@ -1,5 +1,7 @@
 package com.onedreamus.project.thisismoney.service;
 
+import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.thisismoney.exception.UserException;
 import com.onedreamus.project.thisismoney.model.dto.CustomOAuth2User;
 import com.onedreamus.project.thisismoney.model.dto.GoogleResponse;
 import com.onedreamus.project.thisismoney.model.dto.KakaoResponse;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
@@ -45,9 +48,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String nickname = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
 
-        Optional<Users> userOptional = userRepository.findByEmailAndProvider(oAuth2Response.getEmail(), oAuth2Response.getProvider());
+        Optional<Users> userOptional = userRepository.findByEmail(oAuth2Response.getEmail());
 
-        UserDto userDto;
         Users user;
         boolean isUser;
         if (userOptional.isEmpty()) { // 새로운 유저인 경우
@@ -66,17 +68,41 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         } else if (userOptional.get().isDeleted()) { // soft delete된 유저의 재가입인 경우
 
+            // 과거에 탈퇴한 유저
             user = userOptional.get();
-            user.setDeleted(false);
-            user.setName(oAuth2Response.getName());
-            user.setNickname(nickname);
-            user.setSocialId(oAuth2Response.getSocialId());
-            user.setProvider(oAuth2Response.getProvider());
+
+            // 소셜이 이전과 같은 경우
+            if (user.getProvider().equals(oAuth2Response.getProvider())) {
+                user = Users.builder()
+                    .name(oAuth2Response.getName())
+                    .email(oAuth2Response.getEmail())
+                    .provider(oAuth2Response.getProvider())
+                    .nickname(nickname)
+                    .role("ROLE_USER")
+                    .socialId(oAuth2Response.getSocialId())
+                    .quizAttempt(false)
+                    .build();
+            } else {
+                // 소셜이 이전과 다른 경우
+                user.setDeleted(false);
+                user.setName(oAuth2Response.getName());
+                user.setNickname(nickname);
+                user.setSocialId(oAuth2Response.getSocialId());
+                user.setProvider(oAuth2Response.getProvider());
+            }
 
             isUser = false;
 
-        } else { // 기존 유저인 경우(단순 로그인)
+        } else { // 기존 유저인 경우(단순 로그인)z
             user = userOptional.get();
+
+            // 새로운 소셜로 회원가입 && 동일한 이메일로 가입된 소셜로그인이 존재하는 경우
+            if (!user.getProvider().equals(oAuth2Response.getProvider())) {
+                throw new OAuth2AuthenticationException(
+                    new OAuth2Error(ErrorCode.EMAIL_ALREADY_EXISTS.name()),
+                    ErrorCode.EMAIL_ALREADY_EXISTS.getMessage());
+            }
+
             user.setName(oAuth2Response.getName());
             user.setSocialId(oAuth2Response.getSocialId());
 
