@@ -37,24 +37,24 @@ public class GoogleSheetsService {
 
     private Sheets sheetsService;
 
-//    @PostConstruct
-//    public void init() throws IOException, GeneralSecurityException {
-//        // 서비스 계정 키 JSON 파일 경로
-//        String credentialsPath = "src/main/resources/credentials.json";
-//
-//        // ServiceAccountCredentials 생성
-//        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(
-//                        new FileInputStream(credentialsPath))
-//                .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
-//
-//        // Sheets 서비스 인스턴스 생성
-//        sheetsService = new Sheets.Builder(
-//                GoogleNetHttpTransport.newTrustedTransport(),
-//                GsonFactory.getDefaultInstance(),
-//                new HttpCredentialsAdapter(credentials))
-//                .setApplicationName(APPLICATION_NAME)
-//                .build();
-//    }
+    @PostConstruct
+    public void init() throws IOException, GeneralSecurityException {
+        // 서비스 계정 키 JSON 파일 경로
+        String credentialsPath = "src/main/resources/credentials.json";
+
+        // ServiceAccountCredentials 생성
+        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(
+                        new FileInputStream(credentialsPath))
+                .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+
+        // Sheets 서비스 인스턴스 생성
+        sheetsService = new Sheets.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                GsonFactory.getDefaultInstance(),
+                new HttpCredentialsAdapter(credentials))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+    }
 
     /**
      * <p>구글 스프레드 시트 데이터 삽입</p>
