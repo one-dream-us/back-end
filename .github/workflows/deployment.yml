@@ -27,6 +27,7 @@ jobs:
       - name: Set config file
         run: |
           echo "${{secrets.APPLICATION_YML}}" | base64 --decode > src/main/resources/application.yml
+          echo "${{secrets.CREDENTIALS_JSON}}" | base64 --decode > src/main/resources/credentials.json
 
       - name: Build with Gradle Wrapper
         run: ./gradlew build -x test
