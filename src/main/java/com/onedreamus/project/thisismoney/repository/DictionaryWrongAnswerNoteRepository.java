@@ -23,4 +23,6 @@ public interface DictionaryWrongAnswerNoteRepository extends JpaRepository<Dicti
 
     boolean existsByUser(Users user);
 
+    int countByUserAndIsGraduated(Users user, boolean isGraduated);
+
 }

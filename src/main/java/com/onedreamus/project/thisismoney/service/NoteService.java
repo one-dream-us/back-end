@@ -157,9 +157,10 @@ public class NoteService {
         int keyNoteCnt = dictionaryKeyNoteRepository.countByUserAndIsGraduated(user, false);
         int totalScrapCnt = scrapService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
         int graduationCnt = dictionaryGraduationNoteRepository.countByUser(user);
+        int wrongAnswerCnt = dictionaryWrongAnswerNoteRepository.countByUserAndIsGraduated(user, false);
         int accuracyRate = 0;
 
-        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate);
+        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate, wrongAnswerCnt);
     }
 
     /**
