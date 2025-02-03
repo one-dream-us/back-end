@@ -110,6 +110,7 @@ public class ScrapController {
         return ResponseEntity.ok(totalScarpCntDto);
     }
 
+    @Deprecated
     @Operation(summary = "사용자가 스크랩한 콘텐츠 수 조회", description = "사용자가 스크랩한 콘텐츠의 총 개수를 조회할 수 있습니다.")
     @GetMapping("/contents/count")
     public ResponseEntity<ContentScrapCntDto> getContentScrapCnt(
