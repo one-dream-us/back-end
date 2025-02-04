@@ -132,6 +132,16 @@ public class NoteService {
         return dictionaryGraduationNoteRepository.findByUser(user);
     }
 
+    /**
+     * <p>졸업 노트 ID 리스트 획득</p>
+     * user 의 졸업 노트 ID 리스트 획득
+     * @param user
+     * @return
+     */
+    public List<Long> getAllGraduationNoteIds(Users user) {
+        return dictionaryGraduationNoteRepository.findIdByUser(user);
+    }
+
 
     /**
      * 졸업노트 추가

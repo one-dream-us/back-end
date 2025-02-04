@@ -53,4 +53,8 @@ public interface DictionaryScrapRepository extends JpaRepository<DictionaryScrap
     Boolean existsByUserAndDictionaryAndIsDeleted(Users user, Dictionary dictionary, boolean isDeleted);
 
     Optional<DictionaryScrap> findByIdAndUserAndIsDeleted(Long dictionaryScrapId, Users user, boolean b);
+
+    @Query("select ds.id from DictionaryScrap ds " +
+            "where ds.user = :user")
+    List<Long> findIdByUser(@Param("user") Users user);
 }
