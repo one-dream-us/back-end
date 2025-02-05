@@ -24,51 +24,51 @@ public class QuizService {
     private final ScrapService scrapService;
     private final DictionaryService dictionaryService;
     private final UserService userService;
+
+
+    // 방법 1 : 앱에서 중복 처리 -> 처리 복잡, 단일 쿼리가 많아짐
+    // 방법 2 : DB에 처리 전임 -> 단일 책임(앱에서는 비즈니스 로직에만 집중 가능), 처리가 간단해짐, DB 부하 많아질 수 있음
+    // 방법 3 : 앱, DB 함께 활용 -> 앱에 전체 용어 저장 후 DB 에서 스크랩, 핵심, 오답, 졸업 만 조회하여 앱에서 중복 처리
     /**
-     * 퀴즈 문제 획득
+     * <p>퀴즈 문제 획득</p>
+     *
      */
+    @Transactional
     public List<Quiz> getQuizList(Users user) {
         List<DictionaryQuiz> quizDictionaries = new ArrayList<>();
 
         // 1. 3문제 : 핵심 + 오답
-        List<DictionaryQuiz> dictionaries1 = new ArrayList<>();
+        List<DictionaryQuiz> mainDictionaries = new ArrayList<>();
         noteService.getKeynotes(user)
-                .forEach(keynote -> dictionaries1.add(
-                        DictionaryQuiz.from(keynote.getDictionary(), DictionaryStatus.KEY_NOTE)));
+                .forEach(keynote -> mainDictionaries.add(DictionaryQuiz.from(keynote.getDictionary(), DictionaryStatus.KEY_NOTE)));
         noteService.getWrongAnswerNotes(user)
-                .forEach(wrongAnswerNote -> dictionaries1.add(
-                        DictionaryQuiz.from(wrongAnswerNote.getDictionary(), DictionaryStatus.WRONG_ANSWER_NOTE)));
+                .forEach(wrongAnswerNote ->
+                        mainDictionaries.add(DictionaryQuiz.from(wrongAnswerNote.getDictionary(), DictionaryStatus.WRONG_ANSWER_NOTE)));
 
         // 핵심 + 오답 개수가 3개 이상이어야 퀴즈 가능
-        if (dictionaries1.size() < 3) {
+        if (mainDictionaries.size() < 3) {
             throw new QuizException(ErrorCode.NOT_ENOUGH_DICTIONARY);
         }
 
         // 랜덤으로 3개의 단어 뽑음
-        List<Integer> randomNumList = NumberUtils.pickRandomNumList(0, dictionaries1.size() - 1, 3);
+        List<Integer> randomNumList = NumberUtils.pickRandomNumList(0, mainDictionaries.size() - 1, 3);
         for (int idx : randomNumList) {
-            quizDictionaries.add(dictionaries1.get(idx));
+            quizDictionaries.add(mainDictionaries.get(idx));
         }
 
         // 2. 2문제 : 전체 단어 중 랜덤 선택
         long maxId = dictionaryService.getMaxId();
-        Set<Long> dictionaryIds = dictionaries1.stream()
+
+        Set<Long> dictionaryIds = mainDictionaries.stream()
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
-        dictionaryIds.addAll(noteService.getAllGraduationNote(user).stream()
-                .map(graduationNote -> graduationNote.getDictionary().getId())
-                .toList());
-        dictionaryIds.addAll(scrapService.getDictionaryScrapList(user).stream()
-                .map(scrap -> scrap.getDictionary().getId())
-                .toList());
+        dictionaryIds.addAll(noteService.getAllGraduationNoteIds(user));
+        dictionaryIds.addAll(scrapService.getDictionaryScrapIds(user));
 
-        // 랜덤으로 전체 단어에서 2개 뽑음
-        List<DictionaryQuiz> dictionaries2 =
-                getRandomDictionary(maxId, 2, dictionaryIds).stream()
-                        .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
-                        .toList();
-
-        quizDictionaries.addAll(dictionaries2);
+        List<Dictionary> subDictionaries = getRandomDictionaries((int) maxId, 2, dictionaryIds);
+        for (Dictionary dictionary : subDictionaries) {
+            quizDictionaries.add(DictionaryQuiz.from(dictionary, DictionaryStatus.NONE));
+        }
 
         // 3. Quiz 로 변환
         List<Quiz> result = new ArrayList<>();
@@ -78,11 +78,7 @@ public class QuizService {
             QuizChoice[] choices = new QuizChoice[4];
 
             List<DictionaryQuiz> choiceDictionary =
-                    getRandomDictionary(
-                            maxId,
-                            3,
-                            new HashSet<>(List.of(answerDictionary.getDictionaryId()))
-                    ).stream()
+                    getRandomDictionaries((int) maxId, 3, new HashSet<>(List.of(answerDictionary.getDictionaryId()))).stream()
                             .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
                             .toList();
             List<Integer> randomIdx = NumberUtils.shuffleNumber(0, 4);
@@ -102,51 +98,32 @@ public class QuizService {
         return result;
     }
 
+
     /**
      * <p>[랜덤 용어 구하기]</p>
      * notBeDuplicatedNum에 중복되지 않는 dictionary를 n개 구하는 함수.
      */
-    private List<Dictionary> getRandomDictionary(long maxId, int n, Set<Long> notBeDuplicatedNum) {
-        List<Long> randomNumList = NumberUtils.pickRandomNumList(maxId, n);
-        Set<Long> randomNumSet = new HashSet<>();
-        for (Long randNum : randomNumList) {
-            if (!notBeDuplicatedNum.contains(randNum)) {
-                randomNumSet.add(randNum);
-            }
-        }
+    private List<Dictionary> getRandomDictionaries(int maxId, int n, Set<Long> notBeDuplicatedNum) {
+        boolean[] visited = new boolean[maxId];
+        int cnt = 0;
 
-        List<Dictionary> result = dictionaryService.getDictionaryList(new ArrayList<>(randomNumSet));
-
-        // 원하는 수 만큼의 dictionary 가 뽑히지 않은 경우 (해당 id 값이 존재하지 않는 경우 부족할 수 있음)
-        while (result.size() != n) {
-            // 1. 부족 수 만큼 랜덤 수 뽑기
-            // - 근데 이전에 뽑은 랜덤 수와 중복되면 안댐.
-            int insufficientNum = n - result.size();
-            List<Long> newRandomNum = NumberUtils.pickRandomNumList(maxId, insufficientNum);
-            List<Long> notDuplicate = new ArrayList<>();
-            for (Long randomNum : newRandomNum) {
-                if (randomNumSet.contains(randomNum)) {
+        List<Long> randomIdList = new ArrayList<>();
+        while (randomIdList.size() < n && cnt < maxId) {
+            List<Integer> idList = NumberUtils.pickRandomNumList(1, maxId, n - randomIdList.size());
+            for (int id : idList) {
+                if (visited[id]) {
                     continue;
                 }
 
-                if (notBeDuplicatedNum.contains(randomNum)) {
-                    continue;
+                visited[id] = true;
+                cnt++;
+                if (!notBeDuplicatedNum.contains((long) id) && dictionaryService.contains(id)) {
+                    randomIdList.add((long) id);
                 }
-
-                notDuplicate.add(randomNum);
             }
-
-            randomNumSet.addAll(notDuplicate);
-
-            if (notDuplicate.isEmpty()) {
-                continue;
-            }
-
-            // 중복없이 새로 뽑힌 랜덤수로 다시 랜덤 문제 선정 -> result 에 추가
-            result.addAll(dictionaryService.getDictionaryList(notDuplicate));
         }
 
-        return result;
+        return dictionaryService.getDictionaryList(randomIdList);
     }
 
     /**
@@ -155,13 +132,14 @@ public class QuizService {
      * @param user
      * @return
      */
+    @Transactional
     public List<Quiz> getRandomQuizList(Users user) {
         long maxId = dictionaryService.getMaxId();
         Set<Long> scrapedDictionaryIds = scrapService.getDictionaryScrapList(user).stream()
                 .map(scrap -> scrap.getDictionary().getId())
                 .collect(Collectors.toSet());
 
-        List<DictionaryQuiz> quizAnswerList = getRandomDictionary(maxId, 5, scrapedDictionaryIds).stream()
+        List<DictionaryQuiz> quizAnswerList = getRandomDictionaries((int) maxId, 5, scrapedDictionaryIds).stream()
                 .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
                 .toList();
 
@@ -169,11 +147,10 @@ public class QuizService {
         for (DictionaryQuiz answerDictionary : quizAnswerList) {
             QuizChoice[] choices = new QuizChoice[4];
 
-            Set<Long> notBeDuplicatedNum = new HashSet<>();
-            notBeDuplicatedNum.add(answerDictionary.getDictionaryId());
+            Set<Long> notBeDuplicatedNum = new HashSet<>(List.of(answerDictionary.getDictionaryId()));
 
             List<DictionaryQuiz> choiceDictionary = new ArrayList<>();
-            for (Dictionary randDictionary : getRandomDictionary(maxId, 3, notBeDuplicatedNum)) {
+            for (Dictionary randDictionary : getRandomDictionaries((int) maxId, 3, notBeDuplicatedNum)) {
                 choiceDictionary.add(DictionaryQuiz.from(randDictionary, DictionaryStatus.NONE));
             }
 

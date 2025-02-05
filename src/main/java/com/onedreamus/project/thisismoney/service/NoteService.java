@@ -132,6 +132,16 @@ public class NoteService {
         return dictionaryGraduationNoteRepository.findByUser(user);
     }
 
+    /**
+     * <p>졸업 노트 ID 리스트 획득</p>
+     * user 의 졸업 노트 ID 리스트 획득
+     * @param user
+     * @return
+     */
+    public List<Long> getAllGraduationNoteIds(Users user) {
+        return dictionaryGraduationNoteRepository.findIdByUser(user);
+    }
+
 
     /**
      * 졸업노트 추가
@@ -157,9 +167,10 @@ public class NoteService {
         int keyNoteCnt = dictionaryKeyNoteRepository.countByUserAndIsGraduated(user, false);
         int totalScrapCnt = scrapService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
         int graduationCnt = dictionaryGraduationNoteRepository.countByUser(user);
+        int wrongAnswerCnt = dictionaryWrongAnswerNoteRepository.countByUserAndIsGraduated(user, false);
         int accuracyRate = 0;
 
-        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate);
+        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, keyNoteCnt, accuracyRate, wrongAnswerCnt);
     }
 
     /**

@@ -15,10 +15,10 @@ public class LearningStatus {
     private Integer totalKeyNote; // 핵심노트 수
     private Integer accuracyRate; // 정답률
 
-    public static LearningStatus from(String username, int totalScrap, int totalGraduation, int totalKeyNote, int accuracyRate) {
+    public static LearningStatus from(String username, int totalScrap, int totalGraduation, int totalKeyNote, int accuracyRate, int totalWrongAnswer) {
         return LearningStatus.builder()
                 .username(username)
-                .totalScrap(totalScrap)
+                .totalScrap(totalScrap + totalGraduation + totalKeyNote + totalWrongAnswer)
                 .totalGraduation(totalGraduation)
                 .accuracyRate(accuracyRate)
                 .totalKeyNote(totalKeyNote)

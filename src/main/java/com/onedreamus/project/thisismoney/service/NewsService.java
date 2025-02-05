@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -169,5 +170,9 @@ public class NewsService {
                         .orElse(NewsView.from(news));
         newsView.setViewCount(newsView.getViewCount() + 1);
         newsViewRepository.save(newsView);
+    }
+
+    public Optional<News> getNewsById(Integer newsId) {
+        return newsRepository.findById(newsId);
     }
 }
