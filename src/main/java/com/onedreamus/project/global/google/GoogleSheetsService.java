@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,17 +36,25 @@ public class GoogleSheetsService {
     private String SHEETS_NAME; // 사용할 스프레드 시트 이름
     @Value("${google.api.spreadsheets.range}")
     private String INSERT_RANGE; // 삽입 범위 지정
+    @Value("${google.config.path.credentials.local}")
+    private String LOCAL_CREDENTIALS_PATH;
+    @Value("${google.config.path.credentials.server}")
+    private String SERVER_CREDENTIALS_PATH;
 
     private Sheets sheetsService;
 
     @PostConstruct
     public void init() throws IOException, GeneralSecurityException {
         // 서비스 계정 키 JSON 파일 경로
-        String credentialsPath = "src/main/resources/credentials.json";
+        InputStream credentialsStream;
+        try{
+            credentialsStream = new FileInputStream(LOCAL_CREDENTIALS_PATH);
+        } catch (FileNotFoundException e) {
+            credentialsStream = new FileInputStream(SERVER_CREDENTIALS_PATH);
+        }
 
         // ServiceAccountCredentials 생성
-        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(
-                        new FileInputStream(credentialsPath))
+        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(credentialsStream)
                 .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
 
         // Sheets 서비스 인스턴스 생성
