@@ -8,6 +8,8 @@ services:
       - "8080"
     restart: unless-stopped
     env_file: .env # 서버에 따로 .env파일 없으면 제거.
+    volumes:
+      - ./app/config/google_credentials.json:/app/config/google_credentials.json
     networks:
       - app-network
 

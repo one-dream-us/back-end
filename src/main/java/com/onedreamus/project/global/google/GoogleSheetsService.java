@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,11 +42,15 @@ public class GoogleSheetsService {
     @PostConstruct
     public void init() throws IOException, GeneralSecurityException {
         // 서비스 계정 키 JSON 파일 경로
-        String credentialsPath = "src/main/resources/credentials.json";
+        InputStream credentialsStream;
+        try{
+            credentialsStream = new FileInputStream("src/main/resources/google_credentials.json");
+        } catch (FileNotFoundException e) {
+            credentialsStream = new FileInputStream("/app/config/google_credentials.json");
+        }
 
         // ServiceAccountCredentials 생성
-        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(
-                        new FileInputStream(credentialsPath))
+        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(credentialsStream)
                 .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
 
         // Sheets 서비스 인스턴스 생성
