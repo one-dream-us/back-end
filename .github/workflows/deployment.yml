@@ -51,7 +51,7 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }} # ec2 instance pem key
           script: | # 실행할 스크립트
             cd ~/thisismoney
-            echo "${{secrets.CREDENTIALS_JSON}}" | base64 --decode > /app/config/google_credentials.json
+            echo "${{secrets.CREDENTIALS_JSON}}" | base64 --decode > ./app/config/google_credentials.json
             docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
             docker-compose down
             docker rmi ${{secrets.DOCKER_USER}}/thisismoney-app
