@@ -36,6 +36,10 @@ public class GoogleSheetsService {
     private String SHEETS_NAME; // 사용할 스프레드 시트 이름
     @Value("${google.api.spreadsheets.range}")
     private String INSERT_RANGE; // 삽입 범위 지정
+    @Value("${google.config.path.credentials.local}")
+    private String LOCAL_CREDENTIALS_PATH;
+    @Value("${google.config.path.credentials.server}")
+    private String SERVER_CREDENTIALS_PATH;
 
     private Sheets sheetsService;
 
@@ -44,9 +48,9 @@ public class GoogleSheetsService {
         // 서비스 계정 키 JSON 파일 경로
         InputStream credentialsStream;
         try{
-            credentialsStream = new FileInputStream("src/main/resources/google_credentials.json");
+            credentialsStream = new FileInputStream(LOCAL_CREDENTIALS_PATH);
         } catch (FileNotFoundException e) {
-            credentialsStream = new FileInputStream("/app/config/google_credentials.json");
+            credentialsStream = new FileInputStream(SERVER_CREDENTIALS_PATH);
         }
 
         // ServiceAccountCredentials 생성
