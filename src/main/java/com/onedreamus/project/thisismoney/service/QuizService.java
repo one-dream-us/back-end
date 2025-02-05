@@ -104,7 +104,7 @@ public class QuizService {
      * notBeDuplicatedNum에 중복되지 않는 dictionary를 n개 구하는 함수.
      */
     private List<Dictionary> getRandomDictionaries(int maxId, int n, Set<Long> notBeDuplicatedNum) {
-        boolean[] visited = new boolean[maxId];
+        boolean[] visited = new boolean[maxId + 1];
         int cnt = 0;
 
         List<Long> randomIdList = new ArrayList<>();
