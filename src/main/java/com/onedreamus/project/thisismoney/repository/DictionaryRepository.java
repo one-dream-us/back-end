@@ -1,5 +1,6 @@
 package com.onedreamus.project.thisismoney.repository;
 
+import com.onedreamus.project.thisismoney.model.dto.DictionaryResponse;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,6 @@ public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
 
     @Query("select d.id from Dictionary d")
     List<Long> findAllId();
+
+    List<Dictionary> findByTermContaining(String keyword);
 }

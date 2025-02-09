@@ -31,4 +31,10 @@ public class Sentence {
     @ManyToOne(fetch = FetchType.LAZY)
     private News news;
 
+    public static Sentence from(String value, News news) {
+        return Sentence.builder()
+            .value(value)
+            .news(news)
+            .build();
+    }
 }

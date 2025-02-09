@@ -25,4 +25,11 @@ public class Dictionary {
     private String definition;
     private String description;
 
+    public static Dictionary from(String term, String definition, String description) {
+        return Dictionary.builder()
+            .term(term)
+            .definition(definition)
+            .description(description)
+            .build();
+    }
 }

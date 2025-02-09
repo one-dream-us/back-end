@@ -29,4 +29,17 @@ public class News {
     private Boolean isDeleted;
     private String newsAgency;
     private String link;
+
+    public static News from(String title, String thumbnailUrl, String newsAgency,
+        String originalLink) {
+        return News.builder()
+            .title(title)
+            .thumbnailUrl(thumbnailUrl)
+            .newsAgency(newsAgency)
+            .link(originalLink)
+            .isDeleted(false)
+            .createdAt(LocalDateTime.now())
+            .build();
+    }
+
 }
