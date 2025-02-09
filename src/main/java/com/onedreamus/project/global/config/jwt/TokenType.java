@@ -10,8 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 public enum TokenType {
 
-    //    REFRESH_TOKEN("REFRESH-TOKEN", 60 * 24 * 5 * 60 * 1000L), // 5일
-    REFRESH_TOKEN("REFRESH-TOKEN", 20 * 60 * 1000L),
+    REFRESH_TOKEN("REFRESH-TOKEN", 60 * 24 * 5 * 60 * 1000L), // 5일
+    //    REFRESH_TOKEN("REFRESH-TOKEN", 20 * 60 * 1000L),
     ACCESS_TOKEN("ACCESS-TOKEN", 10 * 60 * 1000L), // 10분
     VERIFY_TOKEN("VERIFY-TOKEN", 3 * 60 * 1000L);
 
