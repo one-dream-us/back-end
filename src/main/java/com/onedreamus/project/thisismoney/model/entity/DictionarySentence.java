@@ -27,4 +27,11 @@ public class DictionarySentence {
     @ManyToOne
     private Sentence sentence;
 
+    public static DictionarySentence from(Dictionary dictionary, Sentence sentence) {
+        return DictionarySentence.builder()
+            .dictionary(dictionary)
+            .sentence(sentence)
+            .build();
+
+    }
 }

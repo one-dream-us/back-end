@@ -2,7 +2,7 @@ package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.util.NumberFormatter;
-import com.onedreamus.project.global.util.UrlUtils;
+import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.NewsException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.*;
@@ -31,6 +31,7 @@ public class NewsService {
     private final SentenceRepository sentenceRepository;
     private final DictionarySentenceRepository dictionarySentenceRepository;
     private final UsersStudyDaysRepository usersStudyDaysRepository;
+    private final DictionaryService dictionaryService;
 
     public CursorResult<NewsListResponse> getNewList(Integer cursor, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
@@ -73,7 +74,7 @@ public class NewsService {
 
         List<Sentence> sentences = sentenceRepository.findByNews(news);
         List<Dictionary> dictionaries =
-                dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
+            dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
         for (Dictionary dictionary : dictionaries) {
             tags.add(dictionary.getTerm()
             );
@@ -86,6 +87,7 @@ public class NewsService {
     /**
      * <p>로그인 유저의 news 상세페이지 조회</p>
      * 로그인 한 유저의 경우 학습 일수가 누적된다.
+     *
      * @param newsId
      * @param user
      * @return
@@ -101,15 +103,17 @@ public class NewsService {
 
     /**
      * <p>학습 일수 누적</p>
+     *
      * @param user
      */
     private void increaseStudyDay(Users user) {
-        boolean isStudyDone = usersStudyDaysRepository.existsByUserAndStudyDate(user, LocalDate.now());
+        boolean isStudyDone = usersStudyDaysRepository.existsByUserAndStudyDate(user,
+            LocalDate.now());
         if (!isStudyDone) {
             usersStudyDaysRepository.save(UsersStudyDays.builder()
-                    .user(user)
-                    .studyDate(LocalDate.now())
-                    .build());
+                .user(user)
+                .studyDate(LocalDate.now())
+                .build());
         }
     }
 
@@ -166,13 +170,76 @@ public class NewsService {
         LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
         NewsView newsView =
-                newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
-                        .orElse(NewsView.from(news));
+            newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
+                .orElse(NewsView.from(news));
         newsView.setViewCount(newsView.getViewCount() + 1);
         newsViewRepository.save(newsView);
     }
 
     public Optional<News> getNewsById(Integer newsId) {
         return newsRepository.findById(newsId);
+    }
+
+
+    /**
+     * <p>뉴스 콘텐츠 즉시 등록</p>
+     *
+     * @param newsRequest
+     */
+    @Transactional
+    public void uploadNews(NewsRequest newsRequest) {
+
+        // 새로운 뉴스 콘텐츠 저장
+        News newNews = newsRepository.save(News.from(
+            newsRequest.getTitle(),
+            newsRequest.getThumbnailUrl(),
+            newsRequest.getNewsAgency(),
+            newsRequest.getOriginalLink()));
+
+        for (DictionarySentenceRequest request : newsRequest.getDictionarySentenceList()) {
+            Dictionary dictionary;
+            // 기존 단어 재사용 하는 경우
+            if (request.getDictionaryId() != null) {
+                dictionary = dictionaryService.getDictionaryById(
+                        request.getDictionaryId())
+                    .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+
+            } else { // 새로운 용어를 등록하여 매핑하는 경우
+                // 새로운 용어 생성
+                dictionary = dictionaryService.saveNewDictionary(
+                    Dictionary.from(request.getDictionaryTerm(), request.getDictionaryDefinition(),
+                        request.getDictionaryDescription()));
+            }
+
+            // 하이라이팅 필요한 부분에 <mark> 표시 추가
+            String markedSentence = addHighlightMark(
+                request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
+
+            // 문장 저장
+            Sentence newSentence = sentenceRepository.save(Sentence.from(markedSentence, newNews));
+
+            // 용어-문장 저장
+            dictionarySentenceRepository.save(DictionarySentence.from(dictionary, newSentence));
+        }
+
+
+    }
+
+    private String addHighlightMark(String sentence, int startIdx, int endIdx) {
+        StringBuilder sb = new StringBuilder();
+        char[] sentenceArr = sentence.toCharArray();
+        for (int i = 0; i < sentenceArr.length; i++) {
+            if (i == startIdx) {
+                sb.append("<mark>");
+            }
+
+            sb.append(sentenceArr[i]);
+
+            if (i == endIdx) {
+                sb.append("</mark>");
+            }
+        }
+
+        return sb.toString();
     }
 }

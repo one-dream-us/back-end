@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.model.dto.DictionaryQuiz;
+import com.onedreamus.project.thisismoney.model.dto.DictionaryResponse;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.DictionaryRepository;
@@ -42,5 +43,15 @@ public class DictionaryService {
 
     public boolean contains(long idx) {
         return dictionaryIdRepository.contains(idx);
+    }
+
+    public Dictionary saveNewDictionary(Dictionary newDictionary) {
+        return dictionaryRepository.save(newDictionary);
+    }
+
+    public List<DictionaryResponse> searchDictionary(String keyword) {
+        return dictionaryRepository.findByTermContaining(keyword).stream()
+            .map(DictionaryResponse::from)
+            .toList();
     }
 }

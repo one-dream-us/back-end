@@ -1,15 +1,18 @@
 package com.onedreamus.project.thisismoney.controller;
 
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.entity.ScheduledNews;
 import com.onedreamus.project.thisismoney.service.ContentService;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import com.onedreamus.project.thisismoney.service.ReviewService;
+import com.onedreamus.project.thisismoney.service.ScheduledNewsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class ContentController {
     private final ContentService contentService;
     private final NewsService newsService;
     private final ReviewService reviewService;
+    private final ScheduledNewsService scheduledNewsService;
 
     @Deprecated
     @GetMapping
@@ -101,8 +105,31 @@ public class ContentController {
 
     @PostMapping("/news/{newsId}/review")
     @Operation(summary = "뉴스 콘텐츠 리뷰", description = "뉴스 콘텐츠 별 리뷰를 남길 수 있습니다.")
-    public ResponseEntity<?> reviewContent(@PathVariable Integer newsId, @RequestBody ReviewRequest reviewRequest ) throws IOException {
+    public ResponseEntity<String> reviewContent(@PathVariable Integer newsId, @RequestBody ReviewRequest reviewRequest ) throws IOException {
         reviewService.reviewContent(reviewRequest, newsId);
         return ResponseEntity.ok("리뷰 등록 완료");
+    }
+
+    @PostMapping("/news")
+    @Operation(summary = "뉴스 콘텐츠 즉시 업로드", description = "API가 호출되면 즉시 뉴스 콘텐츠 업로드 동작을 수행합니다.")
+    public ResponseEntity<String> uploadNews(@RequestBody NewsRequest newsRequest) {
+        newsService.uploadNews(newsRequest);
+        return ResponseEntity.ok("콘텐츠 등록 완료");
+    }
+
+    @PostMapping("/news/scheduled/{scheduledAt}")
+    @Operation(summary = "뉴스 콘텐츠 업로드 예약",description = "뉴스 콘텐츠 업로드 날짜를 설정하고 예약 합니다.")
+    public ResponseEntity<String> scheduleContentUpload(
+        @RequestBody NewsRequest newsRequest,
+        @PathVariable("scheduledAt") LocalDate scheduledAt) {
+        scheduledNewsService.scheduleUploadNews(newsRequest, scheduledAt);
+        return ResponseEntity.ok("콘텐츠 등록 완료");
+    }
+
+    @GetMapping("/news/scheduled")
+    @Operation(summary = "예약 뉴스 업로드 리스트 조회", description = "예약한 뉴스 업로드 리스트를 조회합니다.")
+    public ResponseEntity<List<ScheduledNewsResponse>> getScheduledNewsList() {
+        List<ScheduledNewsResponse> secheuldedNewsList = scheduledNewsService.getScheduledNewsList();
+        return ResponseEntity.ok(secheuldedNewsList);
     }
 }
