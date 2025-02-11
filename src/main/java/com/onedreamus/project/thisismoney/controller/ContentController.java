@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -127,9 +130,10 @@ public class ContentController {
     }
 
     @GetMapping("/news/scheduled")
-    @Operation(summary = "예약 뉴스 업로드 리스트 조회", description = "예약한 뉴스 업로드 리스트를 조회합니다.")
-    public ResponseEntity<List<ScheduledNewsResponse>> getScheduledNewsList() {
-        List<ScheduledNewsResponse> secheuldedNewsList = scheduledNewsService.getScheduledNewsList();
-        return ResponseEntity.ok(secheuldedNewsList);
+    @Operation(summary = "예약 뉴스 업로드 리스트 조회", description = "페이지네이션 된 예약한 뉴스 업로드 리스트를 조회합니다.")
+    public ResponseEntity<Page<ScheduledNewsResponse>> getScheduledNewsList(
+            @PageableDefault Pageable pageable) {
+        Page<ScheduledNewsResponse> scheduledNewsPage = scheduledNewsService.getScheduledNewsList(pageable);
+        return ResponseEntity.ok(scheduledNewsPage);
     }
 }

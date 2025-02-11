@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +34,8 @@ public class ScheduledNewsService {
         return scheduledNewsRepository.findByScheduledAt(date);
     }
 
-    public List<ScheduledNewsResponse> getScheduledNewsList() {
-        return scheduledNewsRepository.findAll().stream()
-            .map(ScheduledNewsResponse::from)
-            .toList();
+    public Page<ScheduledNewsResponse> getScheduledNewsList(Pageable pageable) {
+        return scheduledNewsRepository.findAll(pageable)
+                .map(ScheduledNewsResponse::from);
     }
 }
