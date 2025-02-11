@@ -1,5 +1,6 @@
 package com.onedreamus.project.thisismoney.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +25,7 @@ public class News {
     private Integer id;
 
     private String title;
+    @Column(length = 400)
     private String thumbnailUrl;
     private LocalDateTime createdAt;
     private Boolean isDeleted;
