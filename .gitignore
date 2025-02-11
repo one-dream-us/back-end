@@ -257,7 +257,7 @@ gradle-app.setting
 application-dev.yml
 application-deploy.yml
 prometheus.yml
-src/main/resources/credentials.json
+src/main/resources/google_credentials.json
 
 Todo.md
 
