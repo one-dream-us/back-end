@@ -10,7 +10,6 @@ import com.onedreamus.project.thisismoney.repository.ContentRepository;
 import com.onedreamus.project.thisismoney.repository.ContentScrapRepository;
 import com.onedreamus.project.thisismoney.repository.ContentTagRepository;
 import com.onedreamus.project.thisismoney.repository.ContentViewRepository;
-import com.onedreamus.project.thisismoney.repository.DictionaryScrapRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphDictionaryRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptParagraphRepository;
 import com.onedreamus.project.thisismoney.repository.ScriptSummaryRepository;
@@ -34,15 +33,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContentService {
 
     private final ContentRepository contentRepository;
-    private  final ContentScrapRepository contentScrapRepository;
+    private final ContentScrapRepository contentScrapRepository;
     private final ContentTagRepository contentTagRepository;
     private final ContentViewRepository contentViewRepository;
     private final ScriptSummaryRepository scriptSummaryRepository;
     private final ScriptParagraphRepository scriptParagraphRepository;
     private final ScriptParagraphDictionaryRepository scriptParagraphDictionaryRepository;
-    private final DictionaryScrapRepository dictionaryScrapRepository;
 
-    public Optional<Content> getContentById(Long contentId){
+    public Optional<Content> getContentById(Long contentId) {
         return contentRepository.findById(contentId);
     }
 
@@ -60,7 +58,6 @@ public class ContentService {
         List<ContentListResponse> responses = contents.stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
-
 
         Long nextCursor = hasNext && !responses.isEmpty() ?
             responses.get(responses.size() - 1).getId() : null;
@@ -144,7 +141,8 @@ public class ContentService {
             .findByContentIdOrderByTimestamp(content.getId())
             .stream()
             .map(sp -> {
-                AtomicReference<String> paragraphTextRef = new AtomicReference<>(sp.getParagraphText());
+                AtomicReference<String> paragraphTextRef = new AtomicReference<>(
+                    sp.getParagraphText());
 
                 // <mark> 태그 내 용어 순서대로 추출
                 List<String> markedTerms = StringUtils.extractMarkedTerms(paragraphTextRef.get());

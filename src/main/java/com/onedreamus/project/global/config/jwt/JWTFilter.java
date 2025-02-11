@@ -81,6 +81,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // DB refresh-token 과 유저가 준 refresh-token 이 동일한지 확인
             if (!user.getRefreshToken().equals(refreshToken)) {
+                List<String> allTokenType = TokenType.getAllTokenName();
+                cookieUtils.deleteAllCookie(response, allTokenType);
                 FilterException.throwException(response, ErrorCode.REFRESH_TOKEN_DIFFERENT);
                 return;
             }
