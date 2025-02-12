@@ -43,7 +43,8 @@ public class SecurityConfig {
         "/v1/contents", "/v1/auth/check",
         "/v1/users/join/social",
         "/v1/users/unlink/social", "/v1/contents/news/**", "/actuator/**",
-        "/v1/dictionary/**"
+        "/v1/dictionary/**",
+        "/v1/back-office/**"
     };
 
     private final String[] USER_PATHS = {

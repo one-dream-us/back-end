@@ -4,6 +4,7 @@ import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import com.onedreamus.project.thisismoney.service.ScheduledNewsService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/back-office")
+@RequestMapping("/v1/back-office")
 @RequiredArgsConstructor
 public class BackOfficeController {
 
@@ -23,7 +24,7 @@ public class BackOfficeController {
 
     @PostMapping("/contents/news")
     @Operation(summary = "뉴스 콘텐츠 즉시 업로드", description = "API가 호출되면 즉시 뉴스 콘텐츠 업로드 동작을 수행합니다.")
-    public ResponseEntity<String> uploadNews(@RequestBody NewsRequest newsRequest) {
+    public ResponseEntity<String> uploadNews(@Valid @RequestBody NewsRequest newsRequest) {
         newsService.uploadNews(newsRequest);
         return ResponseEntity.ok("콘텐츠 등록 완료");
     }
@@ -31,7 +32,7 @@ public class BackOfficeController {
     @PostMapping("/contents/news/scheduled/{scheduledAt}")
     @Operation(summary = "뉴스 콘텐츠 업로드 예약", description = "뉴스 콘텐츠 업로드 날짜를 설정하고 예약 합니다.")
     public ResponseEntity<String> scheduleContentUpload(
-            @RequestBody NewsRequest newsRequest,
+            @Valid @RequestBody NewsRequest newsRequest,
             @PathVariable("scheduledAt") LocalDate scheduledAt) {
         scheduledNewsService.scheduleUploadNews(newsRequest, scheduledAt);
         return ResponseEntity.ok("콘텐츠 등록 완료");
@@ -59,6 +60,5 @@ public class BackOfficeController {
     public ResponseEntity<NewsDetailResponse> getNewsDetail(@PathVariable("newsId") Integer newsId) {
         NewsDetailResponse newsDetailResponse = newsService.getNewsDetail(newsId);
         return ResponseEntity.ok(newsDetailResponse);
-
     }
 }
