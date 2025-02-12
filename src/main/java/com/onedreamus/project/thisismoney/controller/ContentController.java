@@ -112,28 +112,4 @@ public class ContentController {
         reviewService.reviewContent(reviewRequest, newsId);
         return ResponseEntity.ok("리뷰 등록 완료");
     }
-
-    @PostMapping("/news")
-    @Operation(summary = "뉴스 콘텐츠 즉시 업로드", description = "API가 호출되면 즉시 뉴스 콘텐츠 업로드 동작을 수행합니다.")
-    public ResponseEntity<String> uploadNews(@RequestBody NewsRequest newsRequest) {
-        newsService.uploadNews(newsRequest);
-        return ResponseEntity.ok("콘텐츠 등록 완료");
-    }
-
-    @PostMapping("/news/scheduled/{scheduledAt}")
-    @Operation(summary = "뉴스 콘텐츠 업로드 예약",description = "뉴스 콘텐츠 업로드 날짜를 설정하고 예약 합니다.")
-    public ResponseEntity<String> scheduleContentUpload(
-        @RequestBody NewsRequest newsRequest,
-        @PathVariable("scheduledAt") LocalDate scheduledAt) {
-        scheduledNewsService.scheduleUploadNews(newsRequest, scheduledAt);
-        return ResponseEntity.ok("콘텐츠 등록 완료");
-    }
-
-    @GetMapping("/news/scheduled")
-    @Operation(summary = "예약 뉴스 업로드 리스트 조회", description = "페이지네이션 된 예약한 뉴스 업로드 리스트를 조회합니다.")
-    public ResponseEntity<Page<ScheduledNewsResponse>> getScheduledNewsList(
-            @PageableDefault Pageable pageable) {
-        Page<ScheduledNewsResponse> scheduledNewsPage = scheduledNewsService.getScheduledNewsList(pageable);
-        return ResponseEntity.ok(scheduledNewsPage);
-    }
 }
