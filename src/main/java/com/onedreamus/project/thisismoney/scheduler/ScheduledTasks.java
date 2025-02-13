@@ -28,7 +28,10 @@ public class ScheduledTasks {
             return;
         }
 
-        newsService.uploadNews(scheduledNewsOptional.get().getNewsRequest());
+        ScheduledNews scheduledNews = scheduledNewsOptional.get();
+
+        newsService.uploadNews(scheduledNews.getNewsRequest());
         log.info("[{} : 뉴스 콘테츠 업로드 완료]", now);
+        scheduledNewsService.deleteScheduledNews(scheduledNews);
     }
 }
