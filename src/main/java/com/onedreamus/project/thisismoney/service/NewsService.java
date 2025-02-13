@@ -202,14 +202,14 @@ public class NewsService {
             Dictionary dictionary;
             // 기존 단어 재사용 하는 경우
             if (request.getDictionaryId() != null) {
-                dictionary = dictionaryService.getDictionaryById(
-                        request.getDictionaryId())
+                dictionary = dictionaryService.getDictionaryById(request.getDictionaryId())
                     .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
             } else { // 새로운 용어를 등록하여 매핑하는 경우
                 // 새로운 용어 생성
+                String markedDefinition = addHighlightMarkDefinition(request.getDictionaryDefinition(), request.getDictionaryTerm());
                 dictionary = dictionaryService.saveNewDictionary(
-                    Dictionary.from(request.getDictionaryTerm(), request.getDictionaryDefinition(),
+                    Dictionary.from(request.getDictionaryTerm(), markedDefinition,
                         request.getDictionaryDescription()));
             }
 
@@ -225,6 +225,52 @@ public class NewsService {
         }
 
 
+    }
+
+    private String addHighlightMarkDefinition(String definition, String term){
+        char[] charArr = definition.toCharArray();
+        char[] termArr = term.toCharArray();
+
+        int startIdx = 0;
+        int endIdx = 0;
+        boolean find = true;
+
+        for (int i = 0; i < charArr.length; i++) {
+            if (charArr[i] != term.charAt(0)) {
+                continue;
+            }
+
+            boolean flag = true;
+            for (int j = 0; j < termArr.length; j++) {
+                if (charArr[i + j] != termArr[j]) {
+                    flag = false;
+                }
+            }
+            if (!flag) {
+                find = false;
+            }else {
+                startIdx = i;
+                endIdx = i + termArr.length - 1;
+                break;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (find) {
+            for (int i = 0; i < charArr.length; i++) {
+                if (i == startIdx) {
+                    sb.append("<mark>");
+                }
+
+                sb.append(charArr[i]);
+
+                if (i == endIdx) {
+                    sb.append("</mark>");
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
     private String addHighlightMark(String sentence, int startIdx, int endIdx) {
@@ -246,7 +292,7 @@ public class NewsService {
     }
 
     public Page<NewsResponse> getNewsList(Pageable pageable) {
-        return newsRepository.findAll(pageable)
+        return newsRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(NewsResponse::from);
     }
 }
