@@ -38,4 +38,8 @@ public class ScheduledNewsService {
         return scheduledNewsRepository.findAllByOrderByScheduledAtAsc(pageable)
                 .map(ScheduledNewsResponse::from);
     }
+
+    public void deleteScheduledNews(ScheduledNews scheduledNews) {
+        scheduledNewsRepository.delete(scheduledNews);
+    }
 }
