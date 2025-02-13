@@ -35,7 +35,7 @@ public class ScheduledNewsService {
     }
 
     public Page<ScheduledNewsResponse> getScheduledNewsList(Pageable pageable) {
-        return scheduledNewsRepository.findAll(pageable)
+        return scheduledNewsRepository.findAllByOrderByScheduledAtAsc(pageable)
                 .map(ScheduledNewsResponse::from);
     }
 }
