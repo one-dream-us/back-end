@@ -292,7 +292,7 @@ public class NewsService {
     }
 
     public Page<NewsResponse> getNewsList(Pageable pageable) {
-        return newsRepository.findAll(pageable)
+        return newsRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(NewsResponse::from);
     }
 }
