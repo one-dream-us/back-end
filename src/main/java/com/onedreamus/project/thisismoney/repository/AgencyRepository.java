@@ -11,4 +11,6 @@ import java.util.List;
 public interface AgencyRepository extends JpaRepository<Agency, Integer> {
 
     List<Agency> findByNameContaining(String keyword);
+
+    boolean existsByName(String agencyName);
 }

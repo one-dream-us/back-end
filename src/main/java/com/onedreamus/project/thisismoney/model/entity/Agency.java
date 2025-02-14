@@ -20,4 +20,10 @@ public class Agency {
 
     private String name;
 
+    public static Agency from(String name) {
+        return Agency.builder()
+                .name(name)
+                .build();
+    }
+
 }

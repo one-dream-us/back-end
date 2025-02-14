@@ -34,6 +34,7 @@ public class NewsService {
     private final DictionarySentenceRepository dictionarySentenceRepository;
     private final UsersStudyDaysRepository usersStudyDaysRepository;
     private final DictionaryService dictionaryService;
+    private final AgencyService agencyService;
 
     public CursorResult<NewsListResponse> getNewList(Integer cursor, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
@@ -197,6 +198,9 @@ public class NewsService {
             newsRequest.getThumbnailUrl(),
             newsRequest.getNewsAgency(),
             newsRequest.getOriginalLink()));
+
+        // 기존에 없던 뉴스사이면 저장
+        agencyService.saveIfNotExist(newsRequest.getNewsAgency());
 
         for (DictionarySentenceRequest request : newsRequest.getDictionarySentenceList()) {
             Dictionary dictionary;
