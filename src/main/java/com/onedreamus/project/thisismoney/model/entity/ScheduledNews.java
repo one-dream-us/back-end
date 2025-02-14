@@ -2,6 +2,7 @@ package com.onedreamus.project.thisismoney.model.entity;
 
 import com.onedreamus.project.thisismoney.model.converter.NewsRequestConverter;
 import com.onedreamus.project.thisismoney.model.dto.NewsRequest;
+import com.onedreamus.project.thisismoney.model.dto.ScheduledNewsRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -32,13 +33,13 @@ public class ScheduledNews {
     @Column(columnDefinition = "jsonb")
     @Convert(converter = NewsRequestConverter.class)
     @JdbcTypeCode(SqlTypes.JSON)  // Hibernate 6에 json 타입임을 알림
-    private NewsRequest newsRequest;
+    private ScheduledNewsRequest scheduledNewsRequest;
 
     private LocalDate scheduledAt; // 업로드 날짜.
 
-    public static ScheduledNews from(NewsRequest newsRequest, LocalDate scheduledAt) {
+    public static ScheduledNews from(ScheduledNewsRequest scheduledNewsRequest, LocalDate scheduledAt, String thumbnailUrl) {
         return ScheduledNews.builder()
-            .newsRequest(newsRequest)
+            .scheduledNewsRequest(scheduledNewsRequest)
             .scheduledAt(scheduledAt)
             .build();
     }

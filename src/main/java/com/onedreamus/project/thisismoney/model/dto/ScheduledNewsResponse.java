@@ -16,13 +16,13 @@ import lombok.Setter;
 public class ScheduledNewsResponse {
 
     private Integer id;
-    private NewsRequest newsRequest;
+    private ScheduledNewsRequest newsRequest;
     private LocalDate scheduledAt;
 
     public static ScheduledNewsResponse from(ScheduledNews scheduledNews) {
         return ScheduledNewsResponse.builder()
             .id(scheduledNews.getId())
-            .newsRequest(scheduledNews.getNewsRequest())
+            .newsRequest(scheduledNews.getScheduledNewsRequest())
             .scheduledAt(scheduledNews.getScheduledAt())
             .build();
     }

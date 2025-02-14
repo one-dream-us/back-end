@@ -1,6 +1,8 @@
 package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.global.exception.ErrorCode;
+import com.onedreamus.project.global.s3.ImageCategory;
+import com.onedreamus.project.global.s3.S3Uploader;
 import com.onedreamus.project.global.util.NumberFormatter;
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.NewsException;
@@ -34,6 +36,8 @@ public class NewsService {
     private final DictionarySentenceRepository dictionarySentenceRepository;
     private final UsersStudyDaysRepository usersStudyDaysRepository;
     private final DictionaryService dictionaryService;
+    private final AgencyService agencyService;
+    private final S3Uploader s3Uploader;
 
     public CursorResult<NewsListResponse> getNewList(Integer cursor, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size + 1);
@@ -183,6 +187,7 @@ public class NewsService {
     }
 
 
+
     /**
      * <p>뉴스 콘텐츠 즉시 등록</p>
      *
@@ -190,42 +195,54 @@ public class NewsService {
      */
     @Transactional
     public void uploadNews(NewsRequest newsRequest) {
-
-        // 새로운 뉴스 콘텐츠 저장
+        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(newsRequest.getThumbnailImage(), ImageCategory.THUMBNAIL);
         News newNews = newsRepository.save(News.from(
-            newsRequest.getTitle(),
-            newsRequest.getThumbnailUrl(),
-            newsRequest.getNewsAgency(),
-            newsRequest.getOriginalLink()));
+                newsRequest.getTitle(),
+                thumbnailUrl,
+                newsRequest.getNewsAgency(),
+                newsRequest.getOriginalLink()));
 
-        for (DictionarySentenceRequest request : newsRequest.getDictionarySentenceList()) {
+        uploadNews(newNews, newsRequest.getDictionarySentenceList());
+    }
+
+    /**
+     * <p>뉴스 콘텐츠 등록</p>
+     * @param news
+     * @param dictionarySentenceRequests
+     */
+    public void uploadNews(News news, List<DictionarySentenceRequest> dictionarySentenceRequests) {
+
+        // 기존에 없던 뉴스사이면 저장
+        agencyService.saveIfNotExist(news.getNewsAgency());
+
+        for (DictionarySentenceRequest request : dictionarySentenceRequests) {
             Dictionary dictionary;
             // 기존 단어 재사용 하는 경우
             if (request.getDictionaryId() != null) {
                 dictionary = dictionaryService.getDictionaryById(request.getDictionaryId())
-                    .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+                        .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
             } else { // 새로운 용어를 등록하여 매핑하는 경우
                 // 새로운 용어 생성
                 String markedDefinition = addHighlightMarkDefinition(request.getDictionaryDefinition(), request.getDictionaryTerm());
                 dictionary = dictionaryService.saveNewDictionary(
-                    Dictionary.from(request.getDictionaryTerm(), markedDefinition,
-                        request.getDictionaryDescription()));
+                        Dictionary.from(request.getDictionaryTerm(), markedDefinition,
+                                request.getDictionaryDescription()));
             }
 
             // 하이라이팅 필요한 부분에 <mark> 표시 추가
             String markedSentence = addHighlightMark(
-                request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
+                    request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
 
             // 문장 저장
-            Sentence newSentence = sentenceRepository.save(Sentence.from(markedSentence, newNews));
+            Sentence newSentence = sentenceRepository.save(Sentence.from(markedSentence, news));
 
             // 용어-문장 저장
             dictionarySentenceRepository.save(DictionarySentence.from(dictionary, newSentence));
+
         }
-
-
     }
+
 
     private String addHighlightMarkDefinition(String definition, String term){
         char[] charArr = definition.toCharArray();

@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.controller;
 
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.service.AgencyService;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import com.onedreamus.project.thisismoney.service.ScheduledNewsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,9 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/back-office")
@@ -21,10 +24,11 @@ public class BackOfficeController {
 
     private final ScheduledNewsService scheduledNewsService;
     private final NewsService newsService;
+    private final AgencyService agencyService;
 
     @PostMapping("/contents/news")
     @Operation(summary = "뉴스 콘텐츠 즉시 업로드", description = "API가 호출되면 즉시 뉴스 콘텐츠 업로드 동작을 수행합니다.")
-    public ResponseEntity<String> uploadNews(@Valid @RequestBody NewsRequest newsRequest) {
+    public ResponseEntity<String> uploadNews(@Valid @ModelAttribute NewsRequest newsRequest) {
         newsService.uploadNews(newsRequest);
         return ResponseEntity.ok("콘텐츠 등록 완료");
     }
@@ -32,7 +36,7 @@ public class BackOfficeController {
     @PostMapping("/contents/news/scheduled/{scheduledAt}")
     @Operation(summary = "뉴스 콘텐츠 업로드 예약", description = "뉴스 콘텐츠 업로드 날짜를 설정하고 예약 합니다.")
     public ResponseEntity<String> scheduleContentUpload(
-            @Valid @RequestBody NewsRequest newsRequest,
+            @Valid @ModelAttribute NewsRequest newsRequest,
             @PathVariable("scheduledAt") LocalDate scheduledAt) {
         scheduledNewsService.scheduleUploadNews(newsRequest, scheduledAt);
         return ResponseEntity.ok("콘텐츠 등록 완료");
@@ -60,5 +64,12 @@ public class BackOfficeController {
     public ResponseEntity<NewsDetailResponse> getNewsDetail(@PathVariable("newsId") Integer newsId) {
         NewsDetailResponse newsDetailResponse = newsService.getNewsDetail(newsId);
         return ResponseEntity.ok(newsDetailResponse);
+    }
+
+    @GetMapping("/agency/{keyword}")
+    @Operation(summary = "뉴스사 검색", description = "keyword를 포함하는 모든 뉴스사를 조회합니다.")
+    public ResponseEntity<List<AgencySearch>> searchAgency(@PathVariable("keeyword") String keyword) {
+        List<AgencySearch> agencySearches = agencyService.searchAgency(keyword);
+        return ResponseEntity.ok(agencySearches);
     }
 }
