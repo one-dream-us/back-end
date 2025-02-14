@@ -28,7 +28,7 @@ public class BackOfficeController {
 
     @PostMapping("/contents/news")
     @Operation(summary = "뉴스 콘텐츠 즉시 업로드", description = "API가 호출되면 즉시 뉴스 콘텐츠 업로드 동작을 수행합니다.")
-    public ResponseEntity<String> uploadNews(@Valid @RequestBody NewsRequest newsRequest) {
+    public ResponseEntity<String> uploadNews(@Valid @ModelAttribute NewsRequest newsRequest) {
         newsService.uploadNews(newsRequest);
         return ResponseEntity.ok("콘텐츠 등록 완료");
     }
@@ -36,7 +36,7 @@ public class BackOfficeController {
     @PostMapping("/contents/news/scheduled/{scheduledAt}")
     @Operation(summary = "뉴스 콘텐츠 업로드 예약", description = "뉴스 콘텐츠 업로드 날짜를 설정하고 예약 합니다.")
     public ResponseEntity<String> scheduleContentUpload(
-            @Valid @RequestBody NewsRequest newsRequest,
+            @Valid @ModelAttribute NewsRequest newsRequest,
             @PathVariable("scheduledAt") LocalDate scheduledAt) {
         scheduledNewsService.scheduleUploadNews(newsRequest, scheduledAt);
         return ResponseEntity.ok("콘텐츠 등록 완료");

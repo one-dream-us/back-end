@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,8 +20,8 @@ public class NewsRequest {
     @NotBlank(message = "뉴스 제목은 필수 값 입니다.")
     private String title; // 뉴스 제목
 
-    @NotBlank(message = "썸네일 URL은 필수 값 입니다.")
-    private String thumbnailUrl; // 썸네일 URL
+
+    private MultipartFile thumbnailImage; // 썸네일 URL
 
     @NotBlank(message = "원본 링크는 필수 값 입니다.")
     private String originalLink; // 기사 원본 링크
