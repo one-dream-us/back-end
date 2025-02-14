@@ -47,7 +47,11 @@ public enum ErrorCode {
     WRONG_ANSWER_NOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "오답노트에 존재하지 않는 용어입니다."),
 
     // Quiz
-    NOT_ENOUGH_DICTIONARY(HttpStatus.BAD_REQUEST, "핵심단어와 오답노트에 단어가 총 3개 이상 필요합니다.");
+    NOT_ENOUGH_DICTIONARY(HttpStatus.BAD_REQUEST, "핵심단어와 오답노트에 단어가 총 3개 이상 필요합니다."),
+
+    // S3
+    IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 이미지 업로드에 실패했습니다."),
+    AWS_SDK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AWS S3 SDK 에러가 발생하여 정보를 처리할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
