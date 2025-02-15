@@ -68,7 +68,7 @@ public class BackOfficeController {
 
     @GetMapping("/agency/{keyword}")
     @Operation(summary = "뉴스사 검색", description = "keyword를 포함하는 모든 뉴스사를 조회합니다.")
-    public ResponseEntity<List<AgencySearch>> searchAgency(@PathVariable("keeyword") String keyword) {
+    public ResponseEntity<List<AgencySearch>> searchAgency(@PathVariable("keyword") String keyword) {
         List<AgencySearch> agencySearches = agencyService.searchAgency(keyword);
         return ResponseEntity.ok(agencySearches);
     }
