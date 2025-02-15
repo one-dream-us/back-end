@@ -22,8 +22,8 @@ public class DictionarySentenceRequest {
 
     @NotBlank(message = "sentenceValue는 필수 값입니다.")
     private String sentenceValue;
-    @NotNull(message = "sentenceValue는 필수 값입니다.")
+    @NotNull(message = "startIdx 는 필수 값입니다.")
     private Integer startIdx;
-    @NotNull(message = "sentenceValue는 필수 값입니다.")
+    @NotNull(message = "endIdx 는 필수 값입니다.")
     private Integer endIdx;
 }
