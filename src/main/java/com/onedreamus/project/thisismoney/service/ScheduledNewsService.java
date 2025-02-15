@@ -2,6 +2,7 @@ package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.global.s3.ImageCategory;
 import com.onedreamus.project.global.s3.S3Uploader;
+import com.onedreamus.project.thisismoney.model.dto.DictionarySentenceRequest;
 import com.onedreamus.project.thisismoney.model.dto.NewsRequest;
 import com.onedreamus.project.thisismoney.model.dto.ScheduledNewsRequest;
 import com.onedreamus.project.thisismoney.model.dto.ScheduledNewsResponse;
@@ -14,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -29,10 +30,14 @@ public class ScheduledNewsService {
      * <p>예약 뉴스 콘텐츠 등록</p>
      * 매일 새벽 6시에 업로드 되도록 설정됨.
      */
-    public void scheduleUploadNews(NewsRequest newsRequest, LocalDate scheduledAt) {
-        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(newsRequest.getThumbnailImage(), ImageCategory.THUMBNAIL);
-        ScheduledNewsRequest scheduledNewsRequest = ScheduledNewsRequest.from(newsRequest, thumbnailUrl);
-        scheduledNewsRepository.save(ScheduledNews.from(scheduledNewsRequest, scheduledAt, thumbnailUrl));
+    public void scheduleUploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
+        List<DictionarySentenceRequest> dictionarySentenceRequests, LocalDate scheduledAt) {
+        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
+            thumbnailImage, ImageCategory.THUMBNAIL);
+        ScheduledNewsRequest scheduledNewsRequest = ScheduledNewsRequest.from(newsRequest,
+            thumbnailUrl, dictionarySentenceRequests);
+        scheduledNewsRepository.save(
+            ScheduledNews.from(scheduledNewsRequest, scheduledAt, thumbnailUrl));
     }
 
 
@@ -42,7 +47,7 @@ public class ScheduledNewsService {
 
     public Page<ScheduledNewsResponse> getScheduledNewsList(Pageable pageable) {
         return scheduledNewsRepository.findAllByOrderByScheduledAtAsc(pageable)
-                .map(ScheduledNewsResponse::from);
+            .map(ScheduledNewsResponse::from);
     }
 
     public void deleteScheduledNews(ScheduledNews scheduledNews) {

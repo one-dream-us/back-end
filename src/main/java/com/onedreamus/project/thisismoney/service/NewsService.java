@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -187,26 +188,28 @@ public class NewsService {
     }
 
 
-
     /**
      * <p>뉴스 콘텐츠 즉시 등록</p>
      *
      * @param newsRequest
      */
     @Transactional
-    public void uploadNews(NewsRequest newsRequest) {
-        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(newsRequest.getThumbnailImage(), ImageCategory.THUMBNAIL);
+    public void uploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
+        List<DictionarySentenceRequest> dictionarySentenceRequests) {
+        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
+            thumbnailImage, ImageCategory.THUMBNAIL);
         News newNews = newsRepository.save(News.from(
-                newsRequest.getTitle(),
-                thumbnailUrl,
-                newsRequest.getNewsAgency(),
-                newsRequest.getOriginalLink()));
+            newsRequest.getTitle(),
+            thumbnailUrl,
+            newsRequest.getNewsAgency(),
+            newsRequest.getOriginalLink()));
 
-        uploadNews(newNews, newsRequest.getDictionarySentenceList());
+        uploadNews(newNews, dictionarySentenceRequests);
     }
 
     /**
      * <p>뉴스 콘텐츠 등록</p>
+     *
      * @param news
      * @param dictionarySentenceRequests
      */
@@ -220,19 +223,20 @@ public class NewsService {
             // 기존 단어 재사용 하는 경우
             if (request.getDictionaryId() != null) {
                 dictionary = dictionaryService.getDictionaryById(request.getDictionaryId())
-                        .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+                    .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
             } else { // 새로운 용어를 등록하여 매핑하는 경우
                 // 새로운 용어 생성
-                String markedDefinition = addHighlightMarkDefinition(request.getDictionaryDefinition(), request.getDictionaryTerm());
+                String markedDefinition = addHighlightMarkDefinition(
+                    request.getDictionaryDefinition(), request.getDictionaryTerm());
                 dictionary = dictionaryService.saveNewDictionary(
-                        Dictionary.from(request.getDictionaryTerm(), markedDefinition,
-                                request.getDictionaryDescription()));
+                    Dictionary.from(request.getDictionaryTerm(), markedDefinition,
+                        request.getDictionaryDescription()));
             }
 
             // 하이라이팅 필요한 부분에 <mark> 표시 추가
             String markedSentence = addHighlightMark(
-                    request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
+                request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
 
             // 문장 저장
             Sentence newSentence = sentenceRepository.save(Sentence.from(markedSentence, news));
@@ -244,7 +248,7 @@ public class NewsService {
     }
 
 
-    private String addHighlightMarkDefinition(String definition, String term){
+    private String addHighlightMarkDefinition(String definition, String term) {
         char[] charArr = definition.toCharArray();
         char[] termArr = term.toCharArray();
 
@@ -265,7 +269,7 @@ public class NewsService {
             }
             if (!flag) {
                 find = false;
-            }else {
+            } else {
                 startIdx = i;
                 endIdx = i + termArr.length - 1;
                 break;
@@ -310,6 +314,6 @@ public class NewsService {
 
     public Page<NewsResponse> getNewsList(Pageable pageable) {
         return newsRepository.findAllByOrderByCreatedAtDesc(pageable)
-                .map(NewsResponse::from);
+            .map(NewsResponse::from);
     }
 }

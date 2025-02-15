@@ -21,13 +21,14 @@ public class ScheduledNewsRequest {
     private String newsAgency; // 뉴스 업로드한 에이전시
     private List<DictionarySentenceRequest> dictionarySentenceList;
 
-    public static ScheduledNewsRequest from(NewsRequest newsRequest, String thumbnailUrl) {
+    public static ScheduledNewsRequest from(NewsRequest newsRequest, String thumbnailUrl,
+        List<DictionarySentenceRequest> dictionarySentenceRequests) {
         return ScheduledNewsRequest.builder()
-                .title(newsRequest.getTitle())
-                .thumbnailUrl(thumbnailUrl)
-                .originalLink(newsRequest.getOriginalLink())
-                .newsAgency(newsRequest.getNewsAgency())
-                .dictionarySentenceList(newsRequest.getDictionarySentenceList())
-                .build();
+            .title(newsRequest.getTitle())
+            .thumbnailUrl(thumbnailUrl)
+            .originalLink(newsRequest.getOriginalLink())
+            .newsAgency(newsRequest.getNewsAgency())
+            .dictionarySentenceList(dictionarySentenceRequests)
+            .build();
     }
 }
