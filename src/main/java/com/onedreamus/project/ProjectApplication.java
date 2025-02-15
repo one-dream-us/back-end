@@ -15,11 +15,4 @@ public class ProjectApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ProjectApplication.class, args);
 	}
-
-
-	@PostConstruct
-	public void init() {
-		// JVM의 기본 타임존을 Asia/Seoul로 설정
-		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
-	}
 }
