@@ -22,7 +22,7 @@ public class ScheduledTasks {
     private final NewsService newsService;
     private final ScheduledNewsService scheduledNewsService;
 
-    @Scheduled(cron = "0 0 10 * * ?")
+    @Scheduled(cron = "0 0 6 * * ?")
     public void uploadScheduledNews() {
         LocalDate now = LocalDate.now();
         Optional<ScheduledNews> scheduledNewsOptional =
