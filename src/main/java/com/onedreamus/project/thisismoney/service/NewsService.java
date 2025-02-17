@@ -187,35 +187,35 @@ public class NewsService {
         return newsRepository.findById(newsId);
     }
 
+    @Transactional
+    public void uploadScheduledNews(ScheduledNewsRequest scheduledNewsRequest,
+                           List<DictionarySentenceRequest> dictionarySentenceRequests){
+        News newNews = newsRepository.save(News.from(scheduledNewsRequest.getTitle(),
+                scheduledNewsRequest.getThumbnailUrl(),
+                scheduledNewsRequest.getNewsAgency(),
+                scheduledNewsRequest.getOriginalLink()));
+        uploadNews(newNews, dictionarySentenceRequests);
+    }
+
+    @Transactional
+    public void uploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
+                            List<DictionarySentenceRequest> dictionarySentenceRequests){
+        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
+                thumbnailImage, ImageCategory.THUMBNAIL);
+        News newNews = newsRepository.save(News.from(
+                newsRequest.getTitle(),
+                thumbnailUrl,
+                newsRequest.getNewsAgency(),
+                newsRequest.getOriginalLink()));
+       uploadNews(newNews, dictionarySentenceRequests);
+    }
 
     /**
      * <p>뉴스 콘텐츠 즉시 등록</p>
      *
-     * @param newsRequest
      */
     @Transactional
-    public void uploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
-        List<DictionarySentenceRequest> dictionarySentenceRequests) {
-        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
-            thumbnailImage, ImageCategory.THUMBNAIL);
-        News newNews = newsRepository.save(News.from(
-            newsRequest.getTitle(),
-            thumbnailUrl,
-            newsRequest.getNewsAgency(),
-            newsRequest.getOriginalLink()));
-
-        uploadNews(newNews, dictionarySentenceRequests);
-    }
-
-    /**
-     * <p>뉴스 콘텐츠 등록</p>
-     *
-     * @param news
-     * @param dictionarySentenceRequests
-     */
-    public void uploadNews(News news, List<DictionarySentenceRequest> dictionarySentenceRequests) {
-
-        // 기존에 없던 뉴스사이면 저장
+    private void uploadNews(News news, List<DictionarySentenceRequest> dictionarySentenceRequests) {
         agencyService.saveIfNotExist(news.getNewsAgency());
 
         for (DictionarySentenceRequest request : dictionarySentenceRequests) {
@@ -223,20 +223,20 @@ public class NewsService {
             // 기존 단어 재사용 하는 경우
             if (request.getDictionaryId() != null) {
                 dictionary = dictionaryService.getDictionaryById(request.getDictionaryId())
-                    .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+                        .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
             } else { // 새로운 용어를 등록하여 매핑하는 경우
                 // 새로운 용어 생성
                 String markedDefinition = addHighlightMarkDefinition(
-                    request.getDictionaryDefinition(), request.getDictionaryTerm());
+                        request.getDictionaryDefinition(), request.getDictionaryTerm());
                 dictionary = dictionaryService.saveNewDictionary(
-                    Dictionary.from(request.getDictionaryTerm(), markedDefinition,
-                        request.getDictionaryDescription()));
+                        Dictionary.from(request.getDictionaryTerm(), markedDefinition,
+                                request.getDictionaryDescription()));
             }
 
             // 하이라이팅 필요한 부분에 <mark> 표시 추가
             String markedSentence = addHighlightMark(
-                request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
+                    request.getSentenceValue(), request.getStartIdx(), request.getEndIdx());
 
             // 문장 저장
             Sentence newSentence = sentenceRepository.save(Sentence.from(markedSentence, news));

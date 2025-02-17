@@ -22,7 +22,7 @@ public class ScheduledTasks {
     private final NewsService newsService;
     private final ScheduledNewsService scheduledNewsService;
 
-    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     public void uploadScheduledNews() {
         LocalDate now = LocalDate.now();
         Optional<ScheduledNews> scheduledNewsOptional =
@@ -35,12 +35,8 @@ public class ScheduledTasks {
         ScheduledNews scheduledNews = scheduledNewsOptional.get();
         ScheduledNewsRequest scheduledNewsRequest = scheduledNews.getScheduledNewsRequest();
 
-        newsService.uploadNews(
-                News.from(
-                        scheduledNewsRequest.getTitle(),
-                        scheduledNewsRequest.getThumbnailUrl(),
-                        scheduledNewsRequest.getNewsAgency(),
-                        scheduledNewsRequest.getOriginalLink()),
+        newsService.uploadScheduledNews(
+                scheduledNewsRequest,
                 scheduledNewsRequest.getDictionarySentenceList());
 
         log.info("[{} : 뉴스 콘테츠 업로드 완료]", now);
