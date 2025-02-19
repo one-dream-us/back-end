@@ -52,6 +52,7 @@ public class SecurityConfig {
         "/v1/user/logout", "/v1/note/**", "/v1/quiz/**", "/v1/users/quiz/first-attempt",
         "/v1/contents/news/{newsId}/users",
         "/v1/users/study-days/count",
+            "/v1/missions/**"
 
     };
 
