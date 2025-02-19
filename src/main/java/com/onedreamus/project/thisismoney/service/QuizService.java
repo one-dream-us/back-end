@@ -24,6 +24,7 @@ public class QuizService {
     private final ScrapService scrapService;
     private final DictionaryService dictionaryService;
     private final UserService userService;
+    private final MissionService missionService;
 
 
     // 방법 1 : 앱에서 중복 처리 -> 처리 복잡, 단일 쿼리가 많아짐
@@ -203,6 +204,9 @@ public class QuizService {
             user.setQuizAttempt(true);
             userService.saveUser(user);
         }
+
+        // 퀴즈 미션 상태 수정
+        missionService.updateQuizSolveStatus(user);
 
         return QuizResultResponse.from(totalGraduation, totalWrong, accuracyRate, resultDetails);
     }
