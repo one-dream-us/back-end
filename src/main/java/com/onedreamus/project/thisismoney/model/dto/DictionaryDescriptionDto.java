@@ -28,4 +28,14 @@ public class DictionaryDescriptionDto {
                 .build();
     }
 
+    public static DictionaryDescriptionDto from(DictionarySentenceRequest request) {
+        return DictionaryDescriptionDto.builder()
+                .sentence(request.getSentenceValue())
+                .definition(request.getDictionaryDefinition())
+                .description(request.getDictionaryDescription())
+                .dictionaryId(request.getDictionaryId())
+                .term(request.getDictionaryTerm())
+                .build();
+    }
+
 }

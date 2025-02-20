@@ -74,6 +74,14 @@ public class BackOfficeController {
         return ResponseEntity.ok(newsDetailResponse);
     }
 
+    @GetMapping("/contents/news/scheduled/{scheduledNewsId}")
+    @Operation(summary = "업로드 된 뉴스 콘텐츠 상세 데이터 조회", description = "ID 값으로 업로드 된 뉴스 콘텐츠 조회")
+    public ResponseEntity<ScheduledNewsDetailResponse> getScheduledNewsDetail(
+            @PathVariable("scheduledNewsId") Integer newsId) {
+        ScheduledNewsDetailResponse scheduledNewsDetail = scheduledNewsService.getScheduledNewsDetail(newsId);
+        return ResponseEntity.ok(scheduledNewsDetail);
+    }
+
     @GetMapping("/agency/{keyword}")
     @Operation(summary = "뉴스사 검색", description = "keyword를 포함하는 모든 뉴스사를 조회합니다.")
     public ResponseEntity<List<AgencySearch>> searchAgency(
