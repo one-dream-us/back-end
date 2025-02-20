@@ -18,24 +18,25 @@ public class DictionaryDescriptionDto {
     private Long dictionaryId;
     private String term;
 
-    public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
+    private static DictionaryDescriptionDto create(String sentence, String description, String definition, Long dictionaryId, String term) {
         return DictionaryDescriptionDto.builder()
                 .sentence(sentence)
-                .definition(dictionary.getDefinition())
-                .description(dictionary.getDescription())
-                .dictionaryId(dictionary.getId())
-                .term(dictionary.getTerm())
+                .description(description)
+                .definition(definition)
+                .term(term)
+                .dictionaryId(dictionaryId)
                 .build();
     }
 
+    public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
+        return create(sentence, dictionary.getDescription(),
+                dictionary.getDefinition(), dictionary.getId(), dictionary.getTerm());
+    }
+
     public static DictionaryDescriptionDto from(DictionarySentenceRequest request) {
-        return DictionaryDescriptionDto.builder()
-                .sentence(request.getSentenceValue())
-                .definition(request.getDictionaryDefinition())
-                .description(request.getDictionaryDescription())
-                .dictionaryId(request.getDictionaryId())
-                .term(request.getDictionaryTerm())
-                .build();
+        return create(request.getSentenceValue(), request.getDictionaryDescription(),
+                request.getDictionaryDefinition(), request.getDictionaryId(),
+                request.getDictionaryTerm());
     }
 
 }

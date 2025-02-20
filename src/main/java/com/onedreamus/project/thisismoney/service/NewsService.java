@@ -132,6 +132,23 @@ public class NewsService {
         News news = newsRepository.findById(newsId)
             .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
 
+        NewsDetailResponse response = buildNewsDetailResponse(news);
+
+        // 조회수 증가
+        increaseNewsViewCount(news);
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public NewsDetailResponse getNewsDetailWithoutViewIncrease(int newsId) {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
+
+        return buildNewsDetailResponse(news);
+    }
+
+    private NewsDetailResponse buildNewsDetailResponse(News news) {
         List<Sentence> sentences = sentenceRepository.findByNews(news);
 
         StringBuilder fullSentenceBuilder = new StringBuilder();
@@ -142,16 +159,29 @@ public class NewsService {
         List<DictionaryDescriptionDto> descriptionDtos = new ArrayList<>();
         for (Sentence sentence : sentences) {
             DictionarySentence dictionarySentences =
-                dictionarySentenceRepository.findBySentence(sentence)
-                    .orElse(new DictionarySentence());
+                    dictionarySentenceRepository.findBySentence(sentence)
+                            .orElse(new DictionarySentence());
             descriptionDtos.add(DictionaryDescriptionDto.from(sentence.getValue(),
-                dictionarySentences.getDictionary()));
+                    dictionarySentences.getDictionary()));
         }
 
-        // 조회수 증가
-        increaseView(news);
-
         return NewsDetailResponse.from(news, fullSentenceBuilder.toString(), descriptionDtos);
+    }
+
+    /**
+     * NewsView 의 viewCount + 1
+     * @param news
+     */
+    private void increaseNewsViewCount(News news) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
+
+        NewsView newsView = newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
+                .orElseGet(() -> newsViewRepository.save(NewsView.from(news)));
+
+        newsView.increaseViewCount();
+        newsViewRepository.save(newsView);
     }
 
     /**
@@ -172,16 +202,7 @@ public class NewsService {
         return NewsListResponse.from(latestNews, NumberFormatter.format(totalViewCnt), tags);
     }
 
-    private void increaseView(News news) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
-        NewsView newsView =
-            newsViewRepository.findByNewsAndViewDateBetween(news, startOfDay, endOfDay)
-                .orElse(NewsView.from(news));
-        newsView.setViewCount(newsView.getViewCount() + 1);
-        newsViewRepository.save(newsView);
-    }
+
 
     public Optional<News> getNewsById(Integer newsId) {
         return newsRepository.findById(newsId);
