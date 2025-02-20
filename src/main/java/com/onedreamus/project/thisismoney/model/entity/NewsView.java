@@ -35,4 +35,8 @@ public class NewsView {
             .viewDate(LocalDateTime.now())
             .build();
     }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
