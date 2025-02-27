@@ -15,4 +15,7 @@ public interface ScheduledNewsRepository extends JpaRepository<ScheduledNews, In
     Optional<ScheduledNews> findByScheduledAt(LocalDate now);
 
     Page<ScheduledNews> findAllByOrderByScheduledAtAsc(Pageable pageable);
+
+    boolean existsByScheduledAt(LocalDate scheduledAt);
+
 }

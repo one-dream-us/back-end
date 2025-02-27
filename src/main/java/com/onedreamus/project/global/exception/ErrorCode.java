@@ -30,9 +30,9 @@ public enum ErrorCode {
 
     // Dictionary
     DICTIONARY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 용어 입니다."),
-    NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST,"적절한 상태값이 없습니다."),
+    NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST, "적절한 상태값이 없습니다."),
 
-            // Scarp
+    // Scarp
     SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
     ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 용어이거나, 학습중인 용어입니다."),
 
@@ -51,11 +51,14 @@ public enum ErrorCode {
 
     // S3
     IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 이미지 업로드에 실패했습니다."),
-    AWS_SDK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AWS S3 SDK 에러가 발생하여 정보를 처리할 수 없습니다.")
+    AWS_SDK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AWS S3 SDK 에러가 발생하여 정보를 처리할 수 없습니다."),
 
     // Mission
-    , MISSING_DATE_OR_MONTH_PARAM(HttpStatus.BAD_REQUEST, "'date' 또는 'month' 값이 필요합니다.")
-    , INVALID_MONTH_FORMAT(HttpStatus.BAD_REQUEST, "'month' 형식이 잘못되었습니다.");
+    MISSING_DATE_OR_MONTH_PARAM(HttpStatus.BAD_REQUEST, "'date' 또는 'month' 값이 필요합니다."),
+    INVALID_MONTH_FORMAT(HttpStatus.BAD_REQUEST, "'month' 형식이 잘못되었습니다."),
+
+    // Back office
+    DATE_DUPLICATION(HttpStatus.BAD_REQUEST, "동일한 날짜에 이미 예약이 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

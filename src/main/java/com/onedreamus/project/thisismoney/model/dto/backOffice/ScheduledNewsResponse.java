@@ -1,13 +1,12 @@
-package com.onedreamus.project.thisismoney.model.dto;
+package com.onedreamus.project.thisismoney.model.dto.backOffice;
 
 import com.onedreamus.project.thisismoney.model.entity.ScheduledNews;
-import com.onedreamus.project.thisismoney.service.ScheduledNewsService;
+
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,13 +15,13 @@ import lombok.Setter;
 public class ScheduledNewsResponse {
 
     private Integer id;
-    private ScheduledNewsRequest newsRequest;
+    private NewsContent newsContent;
     private LocalDate scheduledAt;
 
     public static ScheduledNewsResponse from(ScheduledNews scheduledNews) {
         return ScheduledNewsResponse.builder()
             .id(scheduledNews.getId())
-            .newsRequest(scheduledNews.getScheduledNewsRequest())
+            .newsContent(scheduledNews.getNewsContent())
             .scheduledAt(scheduledNews.getScheduledAt())
             .build();
     }
