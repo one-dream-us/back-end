@@ -3,6 +3,7 @@ package com.onedreamus.project.thisismoney.service;
 import com.onedreamus.project.global.exception.ErrorCode;
 import com.onedreamus.project.global.s3.ImageCategory;
 import com.onedreamus.project.global.s3.S3Uploader;
+import com.onedreamus.project.thisismoney.exception.BackOfficeException;
 import com.onedreamus.project.thisismoney.exception.NewsException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.dto.backOffice.NewsContent;
@@ -40,6 +41,10 @@ public class ScheduledNewsService {
      */
     public void scheduleUploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
                                    List<DictionarySentenceRequest> dictionarySentenceRequests, LocalDate scheduledAt) {
+        boolean isDateDuplicated = scheduledNewsRepository.existsByScheduledAt(scheduledAt);
+        if (isDateDuplicated) {
+            throw new BackOfficeException(ErrorCode.DATE_DUPLICATION);
+        }
         String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
                 thumbnailImage, ImageCategory.THUMBNAIL);
         NewsContent newsContent = NewsContent.from(newsRequest,
