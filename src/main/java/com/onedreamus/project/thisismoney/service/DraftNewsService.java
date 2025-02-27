@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,8 +35,8 @@ public class DraftNewsService {
      * @param thumbnailImage
      */
     @Transactional
-    public void saveDrafts(DraftNewsRequest draftNewsRequest, List<DictionarySentenceRequest> dictionarySentenceList,
-                           MultipartFile thumbnailImage){
+    public void createDraft(DraftNewsRequest draftNewsRequest, List<DictionarySentenceRequest> dictionarySentenceList,
+                            MultipartFile thumbnailImage){
 
         // 기존 임시 저장 콘텐츠의 ID를 가지고 있을 경우 수정 로직 진행
         if (draftNewsRequest.getDraftNewsId() != null) {
@@ -45,10 +44,8 @@ public class DraftNewsService {
             return;
         }
 
-        String thumbnailUrl = null;
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
-            thumbnailUrl = s3Uploader.uploadMultipartFileByStream(thumbnailImage, ImageCategory.THUMBNAIL);
-        }
+        // 이미지 업로드 - 새로운 저장이기 때문에 기존 이미지는 null 값.
+        String thumbnailUrl = updateThumbnail(null, thumbnailImage);
 
         NewsContent newsContent = NewsContent.from(draftNewsRequest, thumbnailUrl, dictionarySentenceList);
 
@@ -65,31 +62,44 @@ public class DraftNewsService {
                 .orElseThrow(() -> new BackOfficeException(ErrorCode.CONTENT_NOT_EXIST));
 
         // 새 이미지가 있다면 기존 이미지 삭제 후 새 이미지 업로드
-        String thumbnailUrl = null;
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()){
-            if (draftNews.getNewsContent().getThumbnailUrl() != null) {
-                s3Uploader.deleteImageByUrl(draftNews.getNewsContent().getThumbnailUrl());
-            }
-            thumbnailUrl = s3Uploader.uploadMultipartFileByStream(thumbnailImage, ImageCategory.THUMBNAIL);
-        }
+        String thumbnailUrl = updateThumbnail(draftNews.getNewsContent().getThumbnailUrl(), thumbnailImage);
 
         NewsContent newsContent = NewsContent.from(draftNewsRequest, thumbnailUrl, dictionarySentenceList);
 
         // 기존 값 수정
         draftNews.setNewsContent(newsContent);
         draftNews.setScheduledAt(draftNewsRequest.getScheduledAt());
-        draftNews.setCreatedAt(LocalDateTime.now());
 
         // 수정된 값 저장
         draftNewsRepository.save(draftNews);
     }
 
     /**
+     * 이미지 업로드 관리
+     * @param existingThumbnail 기존 이미지
+     * @param newThumbnail 새로운 이미지 파일(MultiparFile)
+     * @return 이미지 URL
+     */
+    private String updateThumbnail(String existingThumbnail, MultipartFile newThumbnail) {
+        // 새 이미지가 없다면 기존 이미지 사용
+        if (newThumbnail == null || newThumbnail.isEmpty()) {
+            return existingThumbnail;
+        }
+
+        // 기존 이미지가 있다면 삭제
+        if (existingThumbnail != null) {
+            s3Uploader.deleteImageByUrl(existingThumbnail);
+        }
+
+        return s3Uploader.uploadMultipartFileByStream(newThumbnail, ImageCategory.THUMBNAIL);
+    }
+
+    /**
      * <p>임시 저장 콘텐츠 리스트 조회</p>
-     * @return
+     * @return <code>Page< DraftNewsResponse ></code>
      */
     public Page<DraftNewsResponse> getDraftList(Pageable pageable) {
-        return draftNewsRepository.findAllByOrderByCreatedAtDesc(pageable)
+        return draftNewsRepository.findAllByOrderByUpdatedAtDesc(pageable)
                 .map(DraftNewsResponse::from);
     }
 

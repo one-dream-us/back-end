@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DraftNewsRepository extends JpaRepository<DraftNews, Integer> {
-    Page<DraftNews> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<DraftNews> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 }

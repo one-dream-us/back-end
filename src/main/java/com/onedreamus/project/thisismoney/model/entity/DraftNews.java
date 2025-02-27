@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class DraftNews {
+public class DraftNews extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,13 +28,11 @@ public class DraftNews {
     private NewsContent newsContent;
 
     private LocalDate scheduledAt;
-    private LocalDateTime createdAt;
 
     public static DraftNews from(NewsContent newsContent, LocalDate scheduledAt) {
         return DraftNews.builder()
                 .newsContent(newsContent)
                 .scheduledAt(scheduledAt)
-                .createdAt(LocalDateTime.now())
                 .build();
     }
 }

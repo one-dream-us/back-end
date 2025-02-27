@@ -130,7 +130,7 @@ public class BackOfficeController {
             @RequestPart DraftNewsRequest draftNewsRequest,
             @RequestPart List<DictionarySentenceRequest> dictionarySentenceList,
             @RequestPart(required = false) MultipartFile thumbnailImage) {
-        draftNewsService.saveDrafts(draftNewsRequest, dictionarySentenceList, thumbnailImage);
+        draftNewsService.createDraft(draftNewsRequest, dictionarySentenceList, thumbnailImage);
         return ResponseEntity.ok("임시 저장 완료");
     }
 
