@@ -7,6 +7,7 @@ import com.onedreamus.project.global.util.NumberFormatter;
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.NewsException;
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.dto.backOffice.NewsContent;
 import com.onedreamus.project.thisismoney.model.entity.*;
 import com.onedreamus.project.thisismoney.repository.*;
 
@@ -51,25 +52,25 @@ public class NewsService {
         }
 
         List<NewsListResponse> responses = newsList.stream()
-            .map(this::convertToResponse)
-            .collect(Collectors.toList());
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
 
         Long nextCursor = hasNext && !responses.isEmpty() ?
-            responses.get(responses.size() - 1).getNewsId() : null;
+                responses.get(responses.size() - 1).getNewsId() : null;
 
         return CursorResult.<NewsListResponse>builder()
-            .contents(responses)
-            .hasNext(hasNext)
-            .nextCursor(nextCursor)
-            .totalElements(totalElements)
-            .build();
+                .contents(responses)
+                .hasNext(hasNext)
+                .nextCursor(nextCursor)
+                .totalElements(totalElements)
+                .build();
     }
 
     private NewsListResponse convertToResponse(News news) {
         List<String> tags = getTags(news);
 
         Integer viewCount = newsViewRepository.findTotalViewCountByNews(news)
-            .orElse(0);
+                .orElse(0);
 
         String formattedViewCount = NumberFormatter.format(viewCount);
 
@@ -81,7 +82,7 @@ public class NewsService {
 
         List<Sentence> sentences = sentenceRepository.findByNews(news);
         List<Dictionary> dictionaries =
-            dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
+                dictionarySentenceRepository.findDictionaryBySentenceIn(sentences);
         for (Dictionary dictionary : dictionaries) {
             tags.add(dictionary.getTerm()
             );
@@ -115,12 +116,12 @@ public class NewsService {
      */
     private void increaseStudyDay(Users user) {
         boolean isStudyDone = usersStudyDaysRepository.existsByUserAndStudyDate(user,
-            LocalDate.now());
+                LocalDate.now());
         if (!isStudyDone) {
             usersStudyDaysRepository.save(UsersStudyDays.builder()
-                .user(user)
-                .studyDate(LocalDate.now())
-                .build());
+                    .user(user)
+                    .studyDate(LocalDate.now())
+                    .build());
         }
     }
 
@@ -130,7 +131,7 @@ public class NewsService {
     @Transactional
     public NewsDetailResponse getNewsDetail(int newsId) {
         News news = newsRepository.findById(newsId)
-            .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
+                .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
 
         NewsDetailResponse response = buildNewsDetailResponse(news);
 
@@ -170,6 +171,7 @@ public class NewsService {
 
     /**
      * NewsView 의 viewCount + 1
+     *
      * @param news
      */
     private void increaseNewsViewCount(News news) {
@@ -192,10 +194,10 @@ public class NewsService {
      */
     public NewsListResponse getLatestNews() {
         News latestNews = newsRepository.findFirstByOrderByCreatedAtDesc()
-            .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
+                .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
 
         int totalViewCnt = newsViewRepository.findTotalViewCountByNews(latestNews)
-            .orElse(0);
+                .orElse(0);
 
         List<String> tags = getTags(latestNews);
 
@@ -203,24 +205,23 @@ public class NewsService {
     }
 
 
-
     public Optional<News> getNewsById(Integer newsId) {
         return newsRepository.findById(newsId);
     }
 
     @Transactional
-    public void uploadScheduledNews(ScheduledNewsRequest scheduledNewsRequest,
-                           List<DictionarySentenceRequest> dictionarySentenceRequests){
-        News newNews = newsRepository.save(News.from(scheduledNewsRequest.getTitle(),
-                scheduledNewsRequest.getThumbnailUrl(),
-                scheduledNewsRequest.getNewsAgency(),
-                scheduledNewsRequest.getOriginalLink()));
+    public void uploadScheduledNews(NewsContent newsContent,
+                                    List<DictionarySentenceRequest> dictionarySentenceRequests) {
+        News newNews = newsRepository.save(News.from(newsContent.getTitle(),
+                newsContent.getThumbnailUrl(),
+                newsContent.getNewsAgency(),
+                newsContent.getOriginalLink()));
         uploadNews(newNews, dictionarySentenceRequests);
     }
 
     @Transactional
     public void uploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
-                            List<DictionarySentenceRequest> dictionarySentenceRequests){
+                           List<DictionarySentenceRequest> dictionarySentenceRequests) {
         String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
                 thumbnailImage, ImageCategory.THUMBNAIL);
         News newNews = newsRepository.save(News.from(
@@ -228,12 +229,11 @@ public class NewsService {
                 thumbnailUrl,
                 newsRequest.getNewsAgency(),
                 newsRequest.getOriginalLink()));
-       uploadNews(newNews, dictionarySentenceRequests);
+        uploadNews(newNews, dictionarySentenceRequests);
     }
 
     /**
      * <p>뉴스 콘텐츠 즉시 등록</p>
-     *
      */
     @Transactional
     private void uploadNews(News news, List<DictionarySentenceRequest> dictionarySentenceRequests) {
@@ -269,72 +269,45 @@ public class NewsService {
     }
 
 
-    private String addHighlightMarkDefinition(String definition, String term) {
-        char[] charArr = definition.toCharArray();
-        char[] termArr = term.toCharArray();
-
-        int startIdx = 0;
-        int endIdx = 0;
-        boolean find = true;
-
-        for (int i = 0; i < charArr.length; i++) {
-            if (charArr[i] != term.charAt(0)) {
-                continue;
-            }
-
-            boolean flag = true;
-            for (int j = 0; j < termArr.length; j++) {
-                if (charArr[i + j] != termArr[j]) {
-                    flag = false;
-                }
-            }
-            if (!flag) {
-                find = false;
-            } else {
-                startIdx = i;
-                endIdx = i + termArr.length - 1;
-                break;
-            }
+    public String addHighlightMarkDefinition(String definition, String term) {
+        int startIdx = definition.indexOf(term);
+        // 예외 방지
+        if (startIdx == -1) {
+            return definition;
         }
 
-        StringBuilder sb = new StringBuilder();
-        if (find) {
-            for (int i = 0; i < charArr.length; i++) {
-                if (i == startIdx) {
-                    sb.append("<mark>");
-                }
+        int endIdx = startIdx + term.length() - 1;
 
-                sb.append(charArr[i]);
-
-                if (i == endIdx) {
-                    sb.append("</mark>");
-                }
-            }
-        }
-
-        return sb.toString();
+        return addHighlightMark(definition, startIdx, endIdx);
     }
 
-    private String addHighlightMark(String sentence, int startIdx, int endIdx) {
-        StringBuilder sb = new StringBuilder();
-        char[] sentenceArr = sentence.toCharArray();
-        for (int i = 0; i < sentenceArr.length; i++) {
-            if (i == startIdx) {
-                sb.append("<mark>");
-            }
-
-            sb.append(sentenceArr[i]);
-
-            if (i == endIdx) {
-                sb.append("</mark>");
-            }
+    public String addHighlightMark(String sentence, int startIdx, int endIdx) {
+        if (startIdx < 0 || endIdx >= sentence.length() || startIdx > endIdx) {
+            return sentence;
         }
 
-        return sb.toString();
+        return sentence.substring(0, startIdx) +
+                "<mark>" + sentence.substring(startIdx, endIdx + 1) + "</mark>" +
+                sentence.substring(endIdx + 1);
+    }
+
+    public DictionaryDescriptionDto highlightDefinitionAndSentence(DictionarySentenceRequest dictionarySentenceRequest) {
+        String highlightedDefinition = addHighlightMarkDefinition(
+                dictionarySentenceRequest.getDictionaryDefinition(),
+                dictionarySentenceRequest.getDictionaryTerm()
+        );
+
+        String highlightedSentence = addHighlightMark(
+                dictionarySentenceRequest.getSentenceValue(),
+                dictionarySentenceRequest.getStartIdx(),
+                dictionarySentenceRequest.getEndIdx()
+        );
+
+        return DictionaryDescriptionDto.fromWithHighlighting(dictionarySentenceRequest, highlightedDefinition, highlightedSentence);
     }
 
     public Page<NewsResponse> getNewsList(Pageable pageable) {
         return newsRepository.findAllByOrderByCreatedAtDesc(pageable)
-            .map(NewsResponse::from);
+                .map(NewsResponse::from);
     }
 }

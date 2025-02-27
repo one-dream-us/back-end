@@ -1,7 +1,6 @@
 package com.onedreamus.project.thisismoney.scheduler;
 
-import com.onedreamus.project.thisismoney.model.dto.ScheduledNewsRequest;
-import com.onedreamus.project.thisismoney.model.entity.News;
+import com.onedreamus.project.thisismoney.model.dto.backOffice.NewsContent;
 import com.onedreamus.project.thisismoney.model.entity.ScheduledNews;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import com.onedreamus.project.thisismoney.service.ScheduledNewsService;
@@ -33,11 +32,11 @@ public class ScheduledTasks {
         }
 
         ScheduledNews scheduledNews = scheduledNewsOptional.get();
-        ScheduledNewsRequest scheduledNewsRequest = scheduledNews.getScheduledNewsRequest();
+        NewsContent newsContent = scheduledNews.getNewsContent();
 
         newsService.uploadScheduledNews(
-                scheduledNewsRequest,
-                scheduledNewsRequest.getDictionarySentenceList());
+                newsContent,
+                newsContent.getDictionarySentenceList());
 
         log.info("[{} : 뉴스 콘테츠 업로드 완료]", now);
         scheduledNewsService.deleteScheduledNews(scheduledNews);

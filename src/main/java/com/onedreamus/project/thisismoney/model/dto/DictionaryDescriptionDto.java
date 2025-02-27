@@ -17,26 +17,41 @@ public class DictionaryDescriptionDto {
     private String definition;
     private Long dictionaryId;
     private String term;
+    /**
+     * Dictionary 정보를 이용
+     */
+    public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
+        return builderFrom(sentence, dictionary.getDescription(),
+                dictionary.getDefinition(), dictionary.getId(), dictionary.getTerm());
+    }
 
-    private static DictionaryDescriptionDto create(String sentence, String description, String definition, Long dictionaryId, String term) {
+    /**
+     * DictionarySentenceRequest 정보를 이용
+     */
+    public static DictionaryDescriptionDto from(DictionarySentenceRequest request) {
+        return builderFrom(request.getSentenceValue(), request.getDictionaryDescription(),
+                request.getDictionaryDefinition(), request.getDictionaryId(), request.getDictionaryTerm());
+    }
+
+    /**
+     * Highlighted 정보를 포함한 DictionaryDescriptionDto 생성
+     */
+    public static DictionaryDescriptionDto fromWithHighlighting(DictionarySentenceRequest request, String highlightedDefinition, String highlightedSentence) {
+        return builderFrom(highlightedSentence, request.getDictionaryDescription(),
+                highlightedDefinition, request.getDictionaryId(), request.getDictionaryTerm());
+    }
+
+    /**
+     * 중복을 제거 용
+     */
+    private static DictionaryDescriptionDto builderFrom(String sentence, String description, String definition, Long dictionaryId, String term) {
         return DictionaryDescriptionDto.builder()
                 .sentence(sentence)
                 .description(description)
                 .definition(definition)
-                .term(term)
                 .dictionaryId(dictionaryId)
+                .term(term)
                 .build();
-    }
-
-    public static DictionaryDescriptionDto from(String sentence, Dictionary dictionary) {
-        return create(sentence, dictionary.getDescription(),
-                dictionary.getDefinition(), dictionary.getId(), dictionary.getTerm());
-    }
-
-    public static DictionaryDescriptionDto from(DictionarySentenceRequest request) {
-        return create(request.getSentenceValue(), request.getDictionaryDescription(),
-                request.getDictionaryDefinition(), request.getDictionaryId(),
-                request.getDictionaryTerm());
     }
 
 }

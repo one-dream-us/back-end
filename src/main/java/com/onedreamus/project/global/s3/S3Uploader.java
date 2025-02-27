@@ -28,7 +28,7 @@ public class S3Uploader {
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucketname}")
-    private String bucket;
+    private String S3_BUCKET;
 
     /**
      * <p>S3 이미지 업로드</p>
@@ -48,12 +48,12 @@ public class S3Uploader {
 
         try {
             amazonS3Client.putObject(
-                    new PutObjectRequest(bucket, newFilename, multipartFile.getInputStream(), metadata));
+                    new PutObjectRequest(S3_BUCKET, newFilename, multipartFile.getInputStream(), metadata));
         } catch (IOException e) {
             throw new S3Exception(ErrorCode.IMAGE_UPLOAD_FAIL);
         }
 
-        return amazonS3Client.getUrl(bucket, newFilename).toString();
+        return amazonS3Client.getUrl(S3_BUCKET, newFilename).toString();
     }
 
     /**
@@ -62,11 +62,21 @@ public class S3Uploader {
      */
     public void deleteFile(String fileName) {
         try {
-            amazonS3Client.deleteObject(bucket, fileName);
+            amazonS3Client.deleteObject(S3_BUCKET, fileName);
             log.info(" S3 객체 삭제 : {}", fileName);
         } catch (SdkClientException e) {
             throw new S3Exception(ErrorCode.AWS_SDK_ERROR);
         }
+    }
+
+    /**
+     * <p>S3 이미지 삭제</p>
+     *
+     * @param imageUrl
+     */
+    public void deleteImageByUrl(String imageUrl) {
+        String fileName = getFileName(imageUrl);
+        deleteFile(fileName);
     }
 
     private String createFileName(String fileName, ImageCategory imageCategory) {
