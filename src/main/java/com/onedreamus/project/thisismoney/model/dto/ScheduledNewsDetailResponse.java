@@ -22,6 +22,7 @@ public class ScheduledNewsDetailResponse {
     private String newsAgency; // 언론사
     private String fullSentence; // 전체 내용 -> 각 문장들을 함친 내용
     private String link; // 원문 링크
+    private String thumbnailUrl;
     private List<DictionaryDescriptionDto> descriptions; // 각 문장에 대한 설명
     private LocalDate scheduledAt;
 
@@ -31,6 +32,7 @@ public class ScheduledNewsDetailResponse {
         return ScheduledNewsDetailResponse.builder()
                 .title(request.getTitle())
                 .newsAgency(request.getNewsAgency())
+                .thumbnailUrl(scheduledNews.getNewsContent().getThumbnailUrl())
                 .fullSentence(request.getDictionarySentenceList().stream()
                         .map(DictionarySentenceRequest::getSentenceValue)
                         .collect(Collectors.joining()))
