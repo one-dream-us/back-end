@@ -271,7 +271,7 @@ public class NewsService {
 
     public String addHighlightMarkDefinition(String definition, String term) {
         int startIdx = definition.indexOf(term);
-        // 예외 방지
+        // 예외 방지 - 기존 데이터 하이라이팅 없이 유지
         if (startIdx == -1) {
             return definition;
         }
@@ -282,6 +282,7 @@ public class NewsService {
     }
 
     public String addHighlightMark(String sentence, int startIdx, int endIdx) {
+        // 하이라이팅을 할 수 없는 경우 하이라이팅 없음
         if (startIdx < 0 || endIdx >= sentence.length() || startIdx > endIdx) {
             return sentence;
         }

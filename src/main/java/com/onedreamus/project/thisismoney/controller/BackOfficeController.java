@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.controller;
 
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.dto.backOffice.DraftNewsDetailResponse;
 import com.onedreamus.project.thisismoney.model.dto.backOffice.DraftNewsRequest;
 import com.onedreamus.project.thisismoney.model.dto.backOffice.DraftNewsResponse;
 import com.onedreamus.project.thisismoney.model.dto.backOffice.ScheduledNewsResponse;
@@ -143,9 +144,9 @@ public class BackOfficeController {
 
     @GetMapping("/contents/news/drafts/{draftId}")
     @Operation(summary = "임시 저장 콘텐츠 상세 데이터 조회", description = "ID 값을 통해 특정 임시 저장 콘텐츠를 조회합니다.")
-    public ResponseEntity<DraftNewsResponse> getDraftNews(@PathVariable("draftId") Integer draftId) {
-        DraftNewsResponse draftNewsResponse = draftNewsService.getDraftNews(draftId);
-        return ResponseEntity.ok(draftNewsResponse);
+    public ResponseEntity<DraftNewsDetailResponse> getDraftNews(@PathVariable("draftId") Integer draftId) {
+        DraftNewsDetailResponse draftNewsDetailResponse = draftNewsService.getDraftNews(draftId);
+        return ResponseEntity.ok(draftNewsDetailResponse);
     }
 
     @DeleteMapping("/contents/news/drafts{draftId}")

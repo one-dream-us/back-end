@@ -17,6 +17,11 @@ public class DictionaryDescriptionDto {
     private String definition;
     private Long dictionaryId;
     private String term;
+
+    public static DictionaryDescriptionDto defaultInstance(){
+        return new DictionaryDescriptionDto();
+    }
+
     /**
      * Dictionary 정보를 이용
      */
