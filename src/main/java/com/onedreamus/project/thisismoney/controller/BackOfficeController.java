@@ -149,7 +149,7 @@ public class BackOfficeController {
         return ResponseEntity.ok(draftNewsDetailResponse);
     }
 
-    @DeleteMapping("/contents/news/drafts{draftId}")
+    @DeleteMapping("/contents/news/drafts/{draftId}")
     @Operation(summary = "임시 저장 콘텐츠 삭제", description = "ID 값을 통해 특정 임시 저장 콘텐츠를 삭제합니다.")
     public ResponseEntity<String> deleteDraftNews(@PathVariable("draftId") Integer draftId) {
         draftNewsService.deleteDraftNews(draftId);
