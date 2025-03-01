@@ -21,14 +21,17 @@ public class DraftNewsDetailResponse {
     private List<DictionaryDescriptionDto> descriptions; // 각 문장에 대한 설명
     private LocalDate scheduledAt;
 
-    public static DraftNewsDetailResponse from(LocalDate scheduledAt, NewsContent newsContent, List<DictionaryDescriptionDto> dictionaryDescriptionDtos
-            ,String fullSentence) {
+    public static DraftNewsDetailResponse from(LocalDate scheduledAt, NewsContent newsContent,
+        List<DictionaryDescriptionDto> dictionaryDescriptionDtos
+        , String fullSentence) {
         return DraftNewsDetailResponse.builder()
-                .title(newsContent.getTitle())
-                .newsAgency(newsContent.getNewsAgency())
-                .fullSentence(fullSentence)
-                .descriptions(dictionaryDescriptionDtos)
-                .scheduledAt(scheduledAt)
-                .build();
+            .title(newsContent.getTitle())
+            .newsAgency(newsContent.getNewsAgency())
+            .fullSentence(fullSentence)
+            .descriptions(dictionaryDescriptionDtos)
+            .thumbnailUrl(newsContent.getThumbnailUrl())
+            .link(newsContent.getOriginalLink())
+            .scheduledAt(scheduledAt)
+            .build();
     }
 }
