@@ -63,8 +63,8 @@ public class ScheduledNewsService {
                 .map(ScheduledNewsResponse::from);
     }
 
-    public void deleteScheduledNews(ScheduledNews scheduledNews) {
-        scheduledNewsRepository.delete(scheduledNews);
+    public void deleteScheduledNewsById(int scheduledNewsId) {
+        scheduledNewsRepository.deleteById(scheduledNewsId);
     }
 
     /**

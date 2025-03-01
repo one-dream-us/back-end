@@ -39,6 +39,6 @@ public class ScheduledTasks {
                 newsContent.getDictionarySentenceList());
 
         log.info("[{} : 뉴스 콘테츠 업로드 완료]", now);
-        scheduledNewsService.deleteScheduledNews(scheduledNews);
+        scheduledNewsService.deleteScheduledNewsById(scheduledNews.getId());
     }
 }
