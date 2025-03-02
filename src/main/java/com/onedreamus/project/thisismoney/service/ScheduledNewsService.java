@@ -90,10 +90,8 @@ public class ScheduledNewsService {
         NewsContent newsContent = scheduledNews.getNewsContent();
 
         return ScheduledNewsDetailResponse.from(
-                newsContent.getTitle(),
-                newsContent.getNewsAgency(),
+                newsContent,
                 fullHighlightedSentence,
-                newsContent.getOriginalLink(),
                 dictionaryDescriptionDtos,
                 scheduledNews.getScheduledAt()
         );
