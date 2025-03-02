@@ -120,7 +120,7 @@ public class BackOfficeController {
     @DeleteMapping("/contents/news/scheduled/{scheduledNewsId}")
     public ResponseEntity<String> deleteScheduledNews(
         @PathVariable("scheduledNewsId") Integer scheduledNewsId) {
-        scheduledNewsService.deleteScheduledNews(scheduledNewsId);
+        scheduledNewsService.deleteScheduledNewsById(scheduledNewsId);
         return ResponseEntity.ok("업로드 예약 삭제 완료");
     }
 
