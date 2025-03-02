@@ -30,30 +30,32 @@ public class ScheduledNewsDetailResponse {
         NewsContent request = scheduledNews.getNewsContent();
 
         return ScheduledNewsDetailResponse.builder()
-                .title(request.getTitle())
-                .newsAgency(request.getNewsAgency())
-                .thumbnailUrl(scheduledNews.getNewsContent().getThumbnailUrl())
-                .fullSentence(request.getDictionarySentenceList().stream()
-                        .map(DictionarySentenceRequest::getSentenceValue)
-                        .collect(Collectors.joining()))
-                .descriptions(request.getDictionarySentenceList().stream()
-                        .map(DictionaryDescriptionDto::from)
-                        .toList())
-                .link(request.getOriginalLink())
-                .scheduledAt(scheduledNews.getScheduledAt())
-                .build();
+            .title(request.getTitle())
+            .newsAgency(request.getNewsAgency())
+            .thumbnailUrl(scheduledNews.getNewsContent().getThumbnailUrl())
+            .fullSentence(request.getDictionarySentenceList().stream()
+                .map(DictionarySentenceRequest::getSentenceValue)
+                .collect(Collectors.joining()))
+            .descriptions(request.getDictionarySentenceList().stream()
+                .map(DictionaryDescriptionDto::from)
+                .toList())
+            .link(request.getOriginalLink())
+            .thumbnailUrl(request.getThumbnailUrl())
+            .scheduledAt(scheduledNews.getScheduledAt())
+            .build();
     }
 
-    public static ScheduledNewsDetailResponse from(String title, String newsAgency, String fullSentence,
-                                                   String link, List<DictionaryDescriptionDto> dictionaryDescriptionDtos,
-                                                   LocalDate scheduledAt) {
+    public static ScheduledNewsDetailResponse from(String title, String newsAgency,
+        String fullSentence,
+        String link, List<DictionaryDescriptionDto> dictionaryDescriptionDtos,
+        LocalDate scheduledAt) {
         return ScheduledNewsDetailResponse.builder()
-                .title(title)
-                .newsAgency(newsAgency)
-                .fullSentence(fullSentence)
-                .descriptions(dictionaryDescriptionDtos)
-                .link(link)
-                .scheduledAt(scheduledAt)
-                .build();
+            .title(title)
+            .newsAgency(newsAgency)
+            .fullSentence(fullSentence)
+            .descriptions(dictionaryDescriptionDtos)
+            .link(link)
+            .scheduledAt(scheduledAt)
+            .build();
     }
 }
