@@ -45,16 +45,17 @@ public class ScheduledNewsDetailResponse {
             .build();
     }
 
-    public static ScheduledNewsDetailResponse from(String title, String newsAgency,
+    public static ScheduledNewsDetailResponse from(NewsContent newsContent,
         String fullSentence,
-        String link, List<DictionaryDescriptionDto> dictionaryDescriptionDtos,
+        List<DictionaryDescriptionDto> dictionaryDescriptionDtos,
         LocalDate scheduledAt) {
         return ScheduledNewsDetailResponse.builder()
-            .title(title)
-            .newsAgency(newsAgency)
+            .title(newsContent.getTitle())
+            .newsAgency(newsContent.getNewsAgency())
             .fullSentence(fullSentence)
             .descriptions(dictionaryDescriptionDtos)
-            .link(link)
+            .thumbnailUrl(newsContent.getThumbnailUrl())
+            .link(newsContent.getOriginalLink())
             .scheduledAt(scheduledAt)
             .build();
     }
