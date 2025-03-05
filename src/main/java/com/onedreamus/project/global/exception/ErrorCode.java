@@ -58,7 +58,9 @@ public enum ErrorCode {
     INVALID_MONTH_FORMAT(HttpStatus.BAD_REQUEST, "'month' 형식이 잘못되었습니다."),
 
     // Back office
-    DATE_DUPLICATION(HttpStatus.BAD_REQUEST, "동일한 날짜에 이미 예약이 있습니다.");
+    DATE_DUPLICATION(HttpStatus.BAD_REQUEST, "동일한 날짜에 이미 예약이 있습니다."),
+    ONLY_ONE_DATA_ACCEPTABLE(HttpStatus.BAD_REQUEST, "썸네일 URL, 썸네일 이미지 중 하나의 값만 필요합니다."),
+    FAIL_THUMBNAIL_URL(HttpStatus.BAD_REQUEST, "썸네일 URL 생성에 실패했습니다. 요청 데이터를 확인 해주세요.");
 
     private final HttpStatus httpStatus;
     private final String message;

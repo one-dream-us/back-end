@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -39,14 +40,29 @@ public class ScheduledNewsService {
      * <p>예약 뉴스 콘텐츠 등록</p>
      * 매일 새벽 6시에 업로드 되도록 설정됨.
      */
+    @Transactional
     public void scheduleUploadNews(NewsRequest newsRequest, MultipartFile thumbnailImage,
                                    List<DictionarySentenceRequest> dictionarySentenceRequests, LocalDate scheduledAt) {
+        if (newsRequest.getThumbnailUrl() != null && thumbnailImage != null) {
+            throw new BackOfficeException(ErrorCode.ONLY_ONE_DATA_ACCEPTABLE);
+        }
+
+        String thumbnailUrl = newsRequest.getThumbnailUrl();
+
+        // 썸네일 URL만 있는 경우 썸네일 URL을 바로 사용
+        if (newsRequest.getThumbnailUrl() == null && thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
+                    thumbnailImage, ImageCategory.THUMBNAIL);
+        }
+
+        if (thumbnailUrl == null) {
+            throw new BackOfficeException(ErrorCode.FAIL_THUMBNAIL_URL);
+        }
         boolean isDateDuplicated = scheduledNewsRepository.existsByScheduledAt(scheduledAt);
         if (isDateDuplicated) {
             throw new BackOfficeException(ErrorCode.DATE_DUPLICATION);
         }
-        String thumbnailUrl = s3Uploader.uploadMultipartFileByStream(
-                thumbnailImage, ImageCategory.THUMBNAIL);
+
         NewsContent newsContent = NewsContent.from(newsRequest,
                 thumbnailUrl, dictionarySentenceRequests);
         scheduledNewsRepository.save(
