@@ -52,7 +52,6 @@ public class BackOfficeController {
             draftNewsService.deleteDraftNews(draftNewsId);
         }
 
-        newsService.uploadNews(newsRequest, thumbnailImage, dictionarySentenceList);
         backofficeService.uploadNews(draftNewsId, newsRequest, thumbnailImage, dictionarySentenceList);
         return ResponseEntity.ok("콘텐츠 등록 완료");
     }
@@ -89,7 +88,7 @@ public class BackOfficeController {
     public ResponseEntity<String> scheduleContentUpload(
         @RequestPart @Valid NewsRequest newsRequest,
         @RequestPart @Valid List<DictionarySentenceRequest> dictionarySentenceList,
-        @RequestPart MultipartFile thumbnailImage,
+        @RequestPart(required = false) MultipartFile thumbnailImage,
         @PathVariable("scheduledAt") LocalDate scheduledAt,
         @RequestParam(value = "draftNewsId", required = false) Integer draftNewsId) {
         backofficeService.uploadScheduledNews(draftNewsId, newsRequest, thumbnailImage, dictionarySentenceList, scheduledAt);

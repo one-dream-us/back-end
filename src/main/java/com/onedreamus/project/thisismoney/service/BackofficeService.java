@@ -32,12 +32,12 @@ public class BackofficeService {
     public void uploadScheduledNews(Integer draftNewsId, NewsRequest newsRequest,
         MultipartFile thumbnailImage, List<DictionarySentenceRequest> dictionarySentenceList,
         LocalDate scheduledAt) {
-        // 임시 저장 데이터에서 작성된 경우 임시저장 데이터 삭제
-        deleteDraftIfExists(draftNewsId);
-
         // 뉴스 콘텐츠 업로드 예약
         scheduledNewsService.scheduleUploadNews(newsRequest, thumbnailImage, dictionarySentenceList,
-            scheduledAt);
+                scheduledAt);
+
+        // 임시 저장 데이터에서 작성된 경우 임시저장 데이터 삭제
+        deleteDraftIfExists(draftNewsId);
     }
 
     /**
