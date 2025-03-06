@@ -52,6 +52,8 @@ public enum ErrorCode {
     // S3
     IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 이미지 업로드에 실패했습니다."),
     AWS_SDK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AWS S3 SDK 에러가 발생하여 정보를 처리할 수 없습니다."),
+    INVALID_URL(HttpStatus.BAD_REQUEST, "잘못된 URL 정보 입니다."),
+    INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 확장자가 없습니다."),
 
     // Mission
     MISSING_DATE_OR_MONTH_PARAM(HttpStatus.BAD_REQUEST, "'date' 또는 'month' 값이 필요합니다."),
