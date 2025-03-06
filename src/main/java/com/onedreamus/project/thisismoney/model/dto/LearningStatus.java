@@ -14,10 +14,10 @@ public class LearningStatus {
     private Integer totalBookmark; // 핵심노트 수
     private Integer accuracyRate; // 정답률
 
-    public static LearningStatus from(String username, int totalScrap, int totalGraduation, int totalBookmark, int accuracyRate, int totalWrongAnswer) {
+    public static LearningStatus from(String username, int totalGraduation, int totalBookmark, int accuracyRate, int totalWrongAnswer) {
         return LearningStatus.builder()
                 .username(username)
-                .totalScrap(totalScrap + totalGraduation + totalBookmark + totalWrongAnswer)
+                .totalScrap(totalGraduation + totalBookmark + totalWrongAnswer)
                 .totalGraduation(totalGraduation)
                 .accuracyRate(accuracyRate)
                 .totalBookmark(totalBookmark)

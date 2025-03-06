@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DictionaryNewsDto {
 
-    private Long scrapId;
+    private Long historyId;
     private Long dictionaryId;
     private String term;
     private String definition;

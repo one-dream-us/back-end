@@ -19,6 +19,8 @@ public class NoteController {
 
     private final NoteService noteService;
 
+    // ==== [Bookmark] ====
+
     @Operation(summary = "북마크 조회", description = "북마크를 조회합니다.")
     @GetMapping("/bookmark")
     public ResponseEntity<BookmarkResponse> getBookmarkList(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -28,11 +30,10 @@ public class NoteController {
     }
 
     @Operation(summary = "용어 북마크에 추가", description = "dictionaryId로 용어를 북마크에 추가합니다. ")
-    @PostMapping("/bookmark/dictionary/{dictionaryId}")
+    @PostMapping("/bookmark/dictionaries/{dictionaryId}")
     public ResponseEntity<String> addBookmark(
             @PathVariable Long dictionaryId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Users user = userDetails.getUser();
-        noteService.addBookmark(dictionaryId, user);
+        noteService.addBookmark(dictionaryId, userDetails.getUser());
         return ResponseEntity.ok("북마크에 추가되었습니다.");
     }
 
@@ -41,10 +42,11 @@ public class NoteController {
     public ResponseEntity<String> deleteBookmark(
             @PathVariable Long bookmarkId, @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Users user = userDetails.getUser();
-        noteService.deleteBookmark(bookmarkId, user);
-        return ResponseEntity.ok("핵심 노트에서 삭제되었습니다.");
+        noteService.deleteBookmark(bookmarkId, userDetails.getUser());
+        return ResponseEntity.ok("북마크에서 삭제되었습니다.");
     }
+
+    // ==== [Wrong Answer Note] ====
 
     @Operation(summary = "오답노트 조회", description = "오답노트를 조회합니다.")
     @GetMapping("/wrong-answer-note")
@@ -53,6 +55,8 @@ public class NoteController {
         WrongAnswerNoteResponse wrongAnswerNoteResponse = noteService.getWrongAnswerList(user);
         return ResponseEntity.ok(wrongAnswerNoteResponse);
     }
+
+    // ==== [Graduation Note] ====
 
     @Operation(summary = "졸업노트 조회", description = "졸업노트를 조회합니다.")
     @GetMapping("/graduation-note")

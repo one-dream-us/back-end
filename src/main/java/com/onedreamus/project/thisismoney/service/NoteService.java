@@ -35,12 +35,12 @@ public class NoteService {
      */
     public BookmarkResponse getBookmarkList(Users user) {
         List<DictionaryBookmark> bookmarks =
-                dictionaryBookmarkRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user, false);
+            dictionaryBookmarkRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user, false);
         return BookmarkResponse.from(bookmarks);
     }
 
     /**
-     * <p>[핵심 노트 추가]</p>
+     * <p>[북마크 추가]</p>
      *
      * @param dictionaryId
      * @param user
@@ -48,38 +48,33 @@ public class NoteService {
     @Transactional
     public void addBookmark(Long dictionaryId, Users user) {
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+            .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
-        // 스크랩에서 삭제()
-        historyService.deleteDictionaryScrapped(dictionary, user);
-
-        Optional<DictionaryBookmark> bookmarkOptional =
-                dictionaryBookmarkRepository.findByUserAndDictionary(user, dictionary);
-        if (bookmarkOptional.isPresent()) {
-            DictionaryBookmark bookmark = bookmarkOptional.get();
-            if (bookmark.isGraduated()) {
-                throw new BookmarkException(ErrorCode.GRADUATED_ALREADY);
-            } else {
-                throw new BookmarkException(ErrorCode.BOOKMARK_ALREADY_EXIST);
-            }
-        }
+        dictionaryBookmarkRepository.findByUserAndDictionary(user, dictionary)
+            .ifPresent(bookmark -> {
+                if (bookmark.isGraduated()) {
+                    throw new BookmarkException(ErrorCode.GRADUATED_ALREADY);
+                } else {
+                    throw new BookmarkException(ErrorCode.BOOKMARK_ALREADY_EXIST);
+                }
+            });
 
         dictionaryBookmarkRepository.save(DictionaryBookmark.from(user, dictionary));
     }
 
     /**
-     * 핵심노트에서 삭제
+     * 북마크에서 삭제
      */
+    @Transactional
     public void deleteBookmark(Long bookmarkId, Users user) {
         DictionaryBookmark bookmark = dictionaryBookmarkRepository.findById(bookmarkId)
-                .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
+            .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
 
         if (!bookmark.getUser().getId().equals(user.getId())) {
             throw new UserException(ErrorCode.USER_NOT_MATCH);
         }
 
         dictionaryBookmarkRepository.delete(bookmark);
-        historyService.add(bookmark.getDictionary(), user);
     }
 
     /**
@@ -87,7 +82,8 @@ public class NoteService {
      */
     public WrongAnswerNoteResponse getWrongAnswerList(Users user) {
         List<DictionaryWrongAnswerNote> wrongAnswerNotes =
-                dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user, false);
+            dictionaryWrongAnswerNoteRepository.findByUserAndIsGraduatedOrderByCreatedAtDesc(user,
+                false);
         return WrongAnswerNoteResponse.from(wrongAnswerNotes);
     }
 
@@ -96,10 +92,10 @@ public class NoteService {
      */
     public void addWrongNote(Long dictionaryId, Users user) {
         Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+            .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
         Optional<DictionaryWrongAnswerNote> wrongAnswerNoteOptional =
-                dictionaryWrongAnswerNoteRepository.findByUserAndDictionary(user, dictionary);
+            dictionaryWrongAnswerNoteRepository.findByUserAndDictionary(user, dictionary);
 
         DictionaryWrongAnswerNote wrongAnswerNote;
         if (wrongAnswerNoteOptional.isEmpty()) { // 새롭게 틀린 단어인 경우
@@ -113,8 +109,9 @@ public class NoteService {
         dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
 
         // 핵심노트에서 삭제
-        DictionaryBookmark bookmark = dictionaryBookmarkRepository.findByUserAndDictionary(user, dictionary)
-                .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
+        DictionaryBookmark bookmark = dictionaryBookmarkRepository.findByUserAndDictionary(user,
+                dictionary)
+            .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
         deleteBookmark(bookmark.getId(), user);
     }
 
@@ -123,7 +120,7 @@ public class NoteService {
      */
     public GraduationNoteResponse getGraduationNoteList(Users user) {
         List<DictionaryGraduationNote> graduationNotes =
-                dictionaryGraduationNoteRepository.findByUserOrderByCreatedAtDesc(user);
+            dictionaryGraduationNoteRepository.findByUserOrderByCreatedAtDesc(user);
         return GraduationNoteResponse.from(graduationNotes);
     }
 
@@ -135,6 +132,7 @@ public class NoteService {
     /**
      * <p>졸업 노트 ID 리스트 획득</p>
      * user 의 졸업 노트 ID 리스트 획득
+     *
      * @param user
      * @return
      */
@@ -149,7 +147,8 @@ public class NoteService {
     public void addGraduateNote(Dictionary dictionary, Users user) {
 
         // 오답 노트에서 삭제
-        Optional<DictionaryWrongAnswerNote> wrongAnswerNoteOptional = dictionaryWrongAnswerNoteRepository.findByDictionary(dictionary);
+        Optional<DictionaryWrongAnswerNote> wrongAnswerNoteOptional = dictionaryWrongAnswerNoteRepository.findByDictionary(
+            dictionary);
         if (wrongAnswerNoteOptional.isPresent()) {
             DictionaryWrongAnswerNote wrongAnswerNote = wrongAnswerNoteOptional.get();
             wrongAnswerNote.setGraduated(true);
@@ -165,12 +164,13 @@ public class NoteService {
      */
     public LearningStatus getLearningStatus(Users user) {
         int bookmarkCnt = dictionaryBookmarkRepository.countByUserAndIsGraduated(user, false);
-        int totalScrapCnt = historyService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
         int graduationCnt = dictionaryGraduationNoteRepository.countByUser(user);
-        int wrongAnswerCnt = dictionaryWrongAnswerNoteRepository.countByUserAndIsGraduated(user, false);
+        int wrongAnswerCnt = dictionaryWrongAnswerNoteRepository.countByUserAndIsGraduated(user,
+            false);
         int accuracyRate = 0;
 
-        return LearningStatus.from(user.getName(), totalScrapCnt, graduationCnt, bookmarkCnt, accuracyRate, wrongAnswerCnt);
+        return LearningStatus.from(user.getName(), graduationCnt, bookmarkCnt, accuracyRate,
+            wrongAnswerCnt);
     }
 
     /**
@@ -183,6 +183,7 @@ public class NoteService {
     /**
      * <p>[퀴즈에서 맞춘 용어 유무 확인]</p>
      * 퀴즈에 출제되어 정답 처리 된 용어가 존재하는지 조회
+     *
      * @param user
      * @return
      */
@@ -211,7 +212,7 @@ public class NoteService {
      */
     public DictionaryStatusDto changeStatus(QuizResult quizResult, Users user) {
         Dictionary dictionary = dictionaryService.getDictionaryById(quizResult.getDictionaryId())
-                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
+            .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
         switch (quizResult.getStatus()) {
             case NONE -> {
                 return changeNone(quizResult, user, dictionary);
@@ -227,7 +228,8 @@ public class NoteService {
         throw new DictionaryException(ErrorCode.NO_APPROPRIATE_STATUS);
     }
 
-    private DictionaryStatusDto changeNone(QuizResult quizResult, Users user, Dictionary dictionary) {
+    private DictionaryStatusDto changeNone(QuizResult quizResult, Users user,
+        Dictionary dictionary) {
 
         historyService.add(dictionary, user);
         quizResult.setStatus(DictionaryStatus.SCRAP);
@@ -235,10 +237,12 @@ public class NoteService {
         return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), 0, 0);
     }
 
-    private DictionaryStatusDto changeBookmark(QuizResult quizResult, Users user, Dictionary dictionary) {
+    private DictionaryStatusDto changeBookmark(QuizResult quizResult, Users user,
+        Dictionary dictionary) {
         DictionaryBookmark bookmark =
-                dictionaryBookmarkRepository.findByUserAndDictionaryAndIsGraduated(user, dictionary, false)
-                        .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
+            dictionaryBookmarkRepository.findByUserAndDictionaryAndIsGraduated(user, dictionary,
+                    false)
+                .orElseThrow(() -> new BookmarkException(ErrorCode.BOOKMARK_NOT_EXIST));
 
         // 맞춘 경우
         if (quizResult.isCorrect()) {
@@ -248,27 +252,30 @@ public class NoteService {
             if (bookmark.getCorrectCnt() >= 3) {
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
                 bookmark.setGraduated(true);
-                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
+                dictionaryGraduationNoteRepository.save(
+                    DictionaryGraduationNote.from(user, dictionary));
             }
 
             dictionaryBookmarkRepository.save(bookmark);
-
-        } else {
-            // 틀린 경우
+        } else {// 틀린 경우
             bookmark.setGraduated(true);
-            DictionaryWrongAnswerNote wrongAnswerNote = DictionaryWrongAnswerNote.from(dictionary, user);
+            DictionaryWrongAnswerNote wrongAnswerNote = DictionaryWrongAnswerNote.from(dictionary,
+                user);
             wrongAnswerNote.setCorrectCnt(bookmark.getCorrectCnt());
             quizResult.setStatus(DictionaryStatus.WRONG_ANSWER_NOTE);
             dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
         }
 
-        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), bookmark.getCorrectCnt(), 1);
+        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), bookmark.getCorrectCnt(),
+            1);
     }
 
-    private DictionaryStatusDto changeWrongAnswerNote(QuizResult quizResult, Users user, Dictionary dictionary) {
+    private DictionaryStatusDto changeWrongAnswerNote(QuizResult quizResult, Users user,
+        Dictionary dictionary) {
         DictionaryWrongAnswerNote wrongAnswerNote =
-                dictionaryWrongAnswerNoteRepository.findByUserAndDictionaryAndIsGraduated(user, dictionary, false)
-                        .orElseThrow(() -> new WrongAnswerException(ErrorCode.WRONG_ANSWER_NOTE_NOT_EXIST));
+            dictionaryWrongAnswerNoteRepository.findByUserAndDictionaryAndIsGraduated(user,
+                    dictionary, false)
+                .orElseThrow(() -> new WrongAnswerException(ErrorCode.WRONG_ANSWER_NOTE_NOT_EXIST));
 
         // 맞춘 경우
         if (quizResult.isCorrect()) {
@@ -276,7 +283,8 @@ public class NoteService {
             if (wrongAnswerNote.getCorrectCnt() >= 3) {
                 wrongAnswerNote.setGraduated(true);
                 quizResult.setStatus(DictionaryStatus.GRADUATION_NOTE);
-                dictionaryGraduationNoteRepository.save(DictionaryGraduationNote.from(user, dictionary));
+                dictionaryGraduationNoteRepository.save(
+                    DictionaryGraduationNote.from(user, dictionary));
             }
 
         } else {
@@ -286,12 +294,14 @@ public class NoteService {
 
         dictionaryWrongAnswerNoteRepository.save(wrongAnswerNote);
 
-        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), wrongAnswerNote.getCorrectCnt(), wrongAnswerNote.getWrongCnt());
+        return DictionaryStatusDto.from(quizResult, dictionary.getTerm(),
+            wrongAnswerNote.getCorrectCnt(), wrongAnswerNote.getWrongCnt());
     }
 
     /**
      * <p>[오답노트 유무 확인]</p>
      * User 를 통해 오답노트(WrongAnswerNote)가 존재하는지 확인
+     *
      * @param user
      * @return
      */

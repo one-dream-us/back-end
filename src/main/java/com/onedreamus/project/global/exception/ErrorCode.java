@@ -33,7 +33,7 @@ public enum ErrorCode {
     NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST, "적절한 상태값이 없습니다."),
 
     // Scarp
-    SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
+    HISTORY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 히스토리 입니다."),
     ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 용어이거나, 학습중인 용어입니다."),
 
     // Bookmark

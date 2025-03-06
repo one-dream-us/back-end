@@ -64,7 +64,7 @@ public class QuizService {
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
         dictionaryIds.addAll(noteService.getAllGraduationNoteIds(user));
-        dictionaryIds.addAll(historyService.getDictionaryScrapIds(user));
+        dictionaryIds.addAll(historyService.getDictionaryHistoryIds(user));
 
         List<Dictionary> subDictionaries = getRandomDictionaries((int) maxId, 2, dictionaryIds);
         for (Dictionary dictionary : subDictionaries) {
@@ -136,7 +136,7 @@ public class QuizService {
     @Transactional
     public List<Quiz> getRandomQuizList(Users user) {
         long maxId = dictionaryService.getMaxId();
-        Set<Long> scrapedDictionaryIds = historyService.getDictionaryScrapList(user).stream()
+        Set<Long> scrapedDictionaryIds = historyService.getDictionaryHistoryList(user).stream()
                 .map(scrap -> scrap.getDictionary().getId())
                 .collect(Collectors.toSet());
 

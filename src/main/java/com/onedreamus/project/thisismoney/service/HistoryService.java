@@ -15,6 +15,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -127,19 +128,19 @@ public class HistoryService {
     /**
      * 뉴스 용어 스크랩
      */
-    public void scrapDictionary(Long dictionaryId, Users user) {
-        // 스크랩하려는 용어가 존재하는 용어인지 확인
-        Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
-
-        // 기존에 스크랩된 용어인지 확인
-        boolean isScrapped = dictionaryHistoryRepository.existsByUserAndDictionaryAndIsDeleted(user, dictionary, false);
-
-        if (!isScrapped) { // 스크랩된 적 없는 경우
-             dictionaryHistoryRepository.save(DictionaryHistory.make(user, dictionary));
-        } else { // 이미 스크랩된 경우
-            throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
-        }
+    @Transactional
+    public void addHistory(Long dictionaryId, Users user) {
+        // 히스토리에 추가하려는 용어가 존재하는 용어인지 확인
+        dictionaryService.getDictionaryById(dictionaryId)
+            .ifPresentOrElse(dictionary -> {
+                // 기존에 히스토리에 존재하는 용어인지 확인
+                boolean isHistoryExists = dictionaryHistoryRepository.existsByUserAndDictionaryAndIsDeleted(user, dictionary, false);
+                if (!isHistoryExists) { // 히스토리에 없는 경우
+                    dictionaryHistoryRepository.save(DictionaryHistory.make(user, dictionary));
+                }
+            }, () -> {// 존재하지 않는 용어일 경우 예외 발생
+                throw new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST);
+            });
     }
 
     /**
@@ -151,58 +152,47 @@ public class HistoryService {
     }
 
     /**
-     * 스크랩된 용어 전체 조회
+     * 히스토리에 있는 용어 전체 조회
      */
-    public DictionaryScrapResponse getDictionaryScrapped(Users user) {
+    public DictionaryHistoryResponse getHistoryList(Users user) {
 
-        List<DictionaryContentDto> dictionaryScrapContents =
-                dictionaryHistoryRepository.findDictionaryScrapWithContentByUser(user);
+        List<DictionaryNewsDto> dictionaryHistoryList =
+                dictionaryHistoryRepository.findDictionaryHistoryByUser(user);
 
-        return DictionaryScrapResponse.from(dictionaryScrapContents);
+        return DictionaryHistoryResponse.from(dictionaryHistoryList);
     }
 
     /**
-     * 스크랩된 용어 전체 조회
+     * 히스토리 관련 데이터 삭제
      */
-    public NewsDictionaryScrapResponse getNewsDictionaryScrapped(Users user) {
-
-        List<DictionaryNewsDto> dictionaryScrapContents =
-                dictionaryHistoryRepository.findDictionaryScrapByUser(user);
-
-        return NewsDictionaryScrapResponse.from(dictionaryScrapContents);
+    @Transactional
+    public void deleteAllHistory(Users user) {
+        // 기존에 스크랩된 모든 용어 삭제
+        List<DictionaryHistory> allDictionaryHistories = dictionaryHistoryRepository.findAllByUser(user);
+        for (DictionaryHistory dictionaryHistory : allDictionaryHistories) {
+            dictionaryHistory.setIsDeleted(true);
+        }
+        
+        dictionaryHistoryRepository.saveAll(allDictionaryHistories);
     }
 
     /**
-     * 스크랩된 용어 삭제
-     * - scrap ID로 삭제
+     * @param user user가 스크랩한 용어 리스트 조회
      */
-    public void deleteDictionaryScrapped(Long dictionaryScrapId, Users user) {
-        DictionaryHistory dictionaryHistory = dictionaryHistoryRepository.findByIdAndUserAndIsDeleted(dictionaryScrapId, user, false)
-                .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
-
-        dictionaryHistory.setIsDeleted(true);
-
-        dictionaryHistoryRepository.save(dictionaryHistory);
+    public List<DictionaryHistory> getDictionaryHistoryList(Users user) {
+        return dictionaryHistoryRepository.findByUserAndIsDeletedFalse(user);
     }
 
     /**
-     * <p>[스크랩 삭제]</p>
-     * {@code user}가 스크랩한 {@code dictionary}삭제
-     * (해당 스크랩이 존재하지 않을 경우 SCRAP_NOT_EXIST 에러 반환)
-     *
-     * @param dictionary
+     * 히스토리 아이디 리스트 획득
      * @param user
-     * @throws ScrapException
+     * @return history ID 리스트
      */
-    public void deleteDictionaryScrapped(Dictionary dictionary, Users user) {
-        DictionaryHistory dictionaryHistory =
-                dictionaryHistoryRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
-                        .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
-
-        dictionaryHistory.setIsDeleted(true);
-
-        dictionaryHistoryRepository.save(dictionaryHistory);
+    public List<Long> getDictionaryHistoryIds(Users user) {
+        return dictionaryHistoryRepository.findIdByUser(user);
     }
+
+
 //
 //    /**
 //     * 전체 스크랩 수 조회
@@ -227,38 +217,5 @@ public class HistoryService {
 //                .contentScrapCnt(contentScrapCnt)
 //                .build();
 //    }
-
-    /**
-     * 용어 스크랩 수 조회
-     */
-    public DictionaryScrapCntDto getDictionaryScrapCnt(Users user) {
-        Integer dictionaryScrapCnt = dictionaryHistoryRepository.countByUserAndIsDeleted(user, false);
-        return DictionaryScrapCntDto.builder()
-                .dictionaryScrapCnt(dictionaryScrapCnt)
-                .build();
-    }
-
-    /**
-     * 히스토리 관련 데이터 삭제
-     */
-    public void deleteAllHistory(Users user) {
-        // 기존에 스크랩된 모든 용어 삭제
-        List<DictionaryHistory> allDictionaryHistories = dictionaryHistoryRepository.findAllByUser(user);
-        for (DictionaryHistory dictionaryHistory : allDictionaryHistories) {
-            dictionaryHistory.setIsDeleted(true);
-        }
-        dictionaryHistoryRepository.saveAll(allDictionaryHistories);
-    }
-
-    /**
-     * @param user user가 스크랩한 용어 리스트 조회
-     */
-    public List<DictionaryHistory> getDictionaryScrapList(Users user) {
-        return dictionaryHistoryRepository.findByUserAndIsDeletedFalse(user);
-    }
-
-    public List<Long> getDictionaryScrapIds(Users user) {
-        return dictionaryHistoryRepository.findIdByUser(user);
-    }
 
 }
