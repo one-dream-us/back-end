@@ -40,8 +40,8 @@ public class QuizService {
 
         // 1. 3문제 : 핵심 + 오답
         List<DictionaryQuiz> mainDictionaries = new ArrayList<>();
-        noteService.getKeynotes(user)
-                .forEach(keynote -> mainDictionaries.add(DictionaryQuiz.from(keynote.getDictionary(), DictionaryStatus.KEY_NOTE)));
+        noteService.getBookmarks(user)
+                .forEach(bookmark -> mainDictionaries.add(DictionaryQuiz.from(bookmark.getDictionary(), DictionaryStatus.BOOKMARK)));
         noteService.getWrongAnswerNotes(user)
                 .forEach(wrongAnswerNote ->
                         mainDictionaries.add(DictionaryQuiz.from(wrongAnswerNote.getDictionary(), DictionaryStatus.WRONG_ANSWER_NOTE)));

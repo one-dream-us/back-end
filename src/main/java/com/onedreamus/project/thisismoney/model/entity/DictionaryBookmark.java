@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class DictionaryKeyNote extends BaseEntity{
+public class DictionaryBookmark extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +27,8 @@ public class DictionaryKeyNote extends BaseEntity{
 
     private int correctCnt;
 
-    public static DictionaryKeyNote from(Users user, Dictionary dictionary) {
-        return DictionaryKeyNote.builder()
+    public static DictionaryBookmark from(Users user, Dictionary dictionary) {
+        return DictionaryBookmark.builder()
                 .user(user)
                 .dictionary(dictionary)
                 .isGraduated(false)
