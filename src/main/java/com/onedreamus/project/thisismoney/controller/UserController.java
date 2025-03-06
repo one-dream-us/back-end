@@ -2,7 +2,6 @@ package com.onedreamus.project.thisismoney.controller;
 
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.entity.Users;
-import com.onedreamus.project.thisismoney.service.ContentHistoryService;
 import com.onedreamus.project.thisismoney.service.DictionaryScrapService;
 import com.onedreamus.project.thisismoney.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final ContentHistoryService contentHistoryService;
     private final DictionaryScrapService dictionaryScrapService;
 
     /**
@@ -124,28 +122,28 @@ public class UserController {
 
         return ResponseEntity.ok("unlink 완료");
     }
-
-    @GetMapping("/me/content-histories/count")
-    @Operation(summary = "사용자가 확인한 콘텐츠 수 조회",
-            description = "현재 로그인한 사용자가 확인한 콘텐츠 수를 조회합니다.")
-    public ResponseEntity<ContentHistoryCountResponse> getContentHistoryCount(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Users user = userDetails.getUser();
-        return ResponseEntity.ok(contentHistoryService.getContentHistoryCount(user));
-    }
-
-    @GetMapping("/me/dictionary-scraps/contents/{contentId}")
-    @Operation(summary = "해당 사용자의 용어 스크랩 상태 조회", description = "현재 로그인한 사용자의 콘텐츠 상세페이지의 용어별 스크랩 상태를 조회합니다.")
-    public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
-            @PathVariable Long contentId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 콘텐츠 조회 이력 저장
-        contentHistoryService.saveHistory(contentId, userDetails.getUser());
-        // 스크랩 상태 조회
-        return ResponseEntity.ok(
-                dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
-        );
-    }
+//
+//    @GetMapping("/me/content-histories/count")
+//    @Operation(summary = "사용자가 확인한 콘텐츠 수 조회",
+//            description = "현재 로그인한 사용자가 확인한 콘텐츠 수를 조회합니다.")
+//    public ResponseEntity<ContentHistoryCountResponse> getContentHistoryCount(
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        Users user = userDetails.getUser();
+//        return ResponseEntity.ok(contentHistoryService.getContentHistoryCount(user));
+//    }
+//
+//    @GetMapping("/me/dictionary-scraps/contents/{contentId}")
+//    @Operation(summary = "해당 사용자의 용어 스크랩 상태 조회", description = "현재 로그인한 사용자의 콘텐츠 상세페이지의 용어별 스크랩 상태를 조회합니다.")
+//    public ResponseEntity<List<DictionaryScrapInfo>> getUserDictionaryScrapStatus(
+//            @PathVariable Long contentId,
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        // 콘텐츠 조회 이력 저장
+//        contentHistoryService.saveHistory(contentId, userDetails.getUser());
+//        // 스크랩 상태 조회
+//        return ResponseEntity.ok(
+//                dictionaryScrapService.getUserDictionaryScrapStatus(contentId, userDetails.getUser())
+//        );
+//    }
 
     @GetMapping("/study-days/count")
     @Operation(summary = "누적 학습 일수 조회", description = "누적된 학습 일수를 조회합니다.")

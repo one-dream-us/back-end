@@ -19,9 +19,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@Table(name = "dictionary_scrap")
-@Entity(name = "DictionaryScrap")
-public class DictionaryScrap extends BaseEntity{
+@Table(name = "dictionary_history")
+@Entity(name = "DictionaryHistory")
+public class DictionaryHistory extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class DictionaryScrap extends BaseEntity{
 
     private Boolean isDeleted;
 
-    public static DictionaryScrap make(Users user, Dictionary dictionary) {
-        return DictionaryScrap.builder()
+    public static DictionaryHistory make(Users user, Dictionary dictionary) {
+        return DictionaryHistory.builder()
             .user(user)
             .dictionary(dictionary)
             .isDeleted(false)

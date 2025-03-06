@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "auth", description = "인증 관련 API")
-public class AuthContoller {
+public class AuthController {
 	@GetMapping("/check")
 	@Operation(summary = "사용자 로그인 조회", description = "사용자 로그인 상태를 조회합니다. 로그인 상태인 경우 true를 반환합니다.")
 	public ResponseEntity<AuthStatusResponse> checkAuthStatus(

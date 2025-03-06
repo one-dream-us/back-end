@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class QuizService {
 
     private final NoteService noteService;
-    private final ScrapService scrapService;
+    private final HistoryService historyService;
     private final DictionaryService dictionaryService;
     private final UserService userService;
     private final MissionService missionService;
@@ -64,7 +64,7 @@ public class QuizService {
                 .map(DictionaryQuiz::getDictionaryId)
                 .collect(Collectors.toSet());
         dictionaryIds.addAll(noteService.getAllGraduationNoteIds(user));
-        dictionaryIds.addAll(scrapService.getDictionaryScrapIds(user));
+        dictionaryIds.addAll(historyService.getDictionaryScrapIds(user));
 
         List<Dictionary> subDictionaries = getRandomDictionaries((int) maxId, 2, dictionaryIds);
         for (Dictionary dictionary : subDictionaries) {
@@ -136,7 +136,7 @@ public class QuizService {
     @Transactional
     public List<Quiz> getRandomQuizList(Users user) {
         long maxId = dictionaryService.getMaxId();
-        Set<Long> scrapedDictionaryIds = scrapService.getDictionaryScrapList(user).stream()
+        Set<Long> scrapedDictionaryIds = historyService.getDictionaryScrapList(user).stream()
                 .map(scrap -> scrap.getDictionary().getId())
                 .collect(Collectors.toSet());
 

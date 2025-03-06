@@ -28,7 +28,7 @@ public class NoteService {
     private final DictionaryWrongAnswerNoteRepository dictionaryWrongAnswerNoteRepository;
     private final DictionaryGraduationNoteRepository dictionaryGraduationNoteRepository;
     private final DictionaryService dictionaryService;
-    private final ScrapService scrapService;
+    private final HistoryService historyService;
 
     /**
      * 핵심노트 조회
@@ -51,7 +51,7 @@ public class NoteService {
                 .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
 
         // 스크랩에서 삭제()
-        scrapService.deleteDictionaryScrapped(dictionary, user);
+        historyService.deleteDictionaryScrapped(dictionary, user);
 
         Optional<DictionaryBookmark> bookmarkOptional =
                 dictionaryBookmarkRepository.findByUserAndDictionary(user, dictionary);
@@ -79,7 +79,7 @@ public class NoteService {
         }
 
         dictionaryBookmarkRepository.delete(bookmark);
-        scrapService.add(bookmark.getDictionary(), user);
+        historyService.add(bookmark.getDictionary(), user);
     }
 
     /**
@@ -165,7 +165,7 @@ public class NoteService {
      */
     public LearningStatus getLearningStatus(Users user) {
         int bookmarkCnt = dictionaryBookmarkRepository.countByUserAndIsGraduated(user, false);
-        int totalScrapCnt = scrapService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
+        int totalScrapCnt = historyService.getDictionaryScrapCnt(user).getDictionaryScrapCnt();
         int graduationCnt = dictionaryGraduationNoteRepository.countByUser(user);
         int wrongAnswerCnt = dictionaryWrongAnswerNoteRepository.countByUserAndIsGraduated(user, false);
         int accuracyRate = 0;
@@ -229,7 +229,7 @@ public class NoteService {
 
     private DictionaryStatusDto changeNone(QuizResult quizResult, Users user, Dictionary dictionary) {
 
-        scrapService.add(dictionary, user);
+        historyService.add(dictionary, user);
         quizResult.setStatus(DictionaryStatus.SCRAP);
 
         return DictionaryStatusDto.from(quizResult, dictionary.getTerm(), 0, 0);
