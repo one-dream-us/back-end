@@ -38,7 +38,7 @@ public class QuizService {
     public List<Quiz> getQuizList(Users user) {
         List<DictionaryQuiz> quizDictionaries = new ArrayList<>();
 
-        // 1. 3문제 : 핵심 + 오답
+        // 1. 3문제 : 북마크 + 오답
         List<DictionaryQuiz> mainDictionaries = new ArrayList<>();
         noteService.getBookmarks(user)
                 .forEach(bookmark -> mainDictionaries.add(DictionaryQuiz.from(bookmark.getDictionary(), DictionaryStatus.BOOKMARK)));
@@ -46,7 +46,7 @@ public class QuizService {
                 .forEach(wrongAnswerNote ->
                         mainDictionaries.add(DictionaryQuiz.from(wrongAnswerNote.getDictionary(), DictionaryStatus.WRONG_ANSWER_NOTE)));
 
-        // 핵심 + 오답 개수가 3개 이상이어야 퀴즈 가능
+        // 북마크 + 오답 개수가 3개 이상이어야 퀴즈 가능
         if (mainDictionaries.size() < 3) {
             throw new QuizException(ErrorCode.NOT_ENOUGH_DICTIONARY);
         }

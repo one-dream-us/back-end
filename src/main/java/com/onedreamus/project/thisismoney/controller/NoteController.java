@@ -19,33 +19,6 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    // ==== [Bookmark] ====
-
-    @Operation(summary = "북마크 조회", description = "북마크를 조회합니다.")
-    @GetMapping("/bookmark")
-    public ResponseEntity<BookmarkResponse> getBookmarkList(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Users user = userDetails.getUser();
-        BookmarkResponse bookmarkResponse = noteService.getBookmarkList(user);
-        return ResponseEntity.ok(bookmarkResponse);
-    }
-
-    @Operation(summary = "용어 북마크에 추가", description = "dictionaryId로 용어를 북마크에 추가합니다. ")
-    @PostMapping("/bookmark/dictionaries/{dictionaryId}")
-    public ResponseEntity<String> addBookmark(
-            @PathVariable Long dictionaryId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        noteService.addBookmark(dictionaryId, userDetails.getUser());
-        return ResponseEntity.ok("북마크에 추가되었습니다.");
-    }
-
-    @Operation(summary = "북마크 취소", description = "북마크를 취소합니다.")
-    @DeleteMapping("/bookmark/{bookmarkId}")
-    public ResponseEntity<String> deleteBookmark(
-            @PathVariable Long bookmarkId, @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        noteService.deleteBookmark(bookmarkId, userDetails.getUser());
-        return ResponseEntity.ok("북마크에서 삭제되었습니다.");
-    }
-
     // ==== [Wrong Answer Note] ====
 
     @Operation(summary = "오답노트 조회", description = "오답노트를 조회합니다.")
