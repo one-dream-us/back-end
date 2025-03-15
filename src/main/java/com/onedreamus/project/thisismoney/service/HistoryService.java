@@ -2,8 +2,6 @@ package com.onedreamus.project.thisismoney.service;
 
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.model.dto.*;
-import com.onedreamus.project.thisismoney.model.dto.history.DictionaryIdDto;
-import com.onedreamus.project.thisismoney.model.dto.history.HistoryRequest;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.model.entity.DictionaryHistory;
 import com.onedreamus.project.thisismoney.model.entity.Users;
@@ -25,8 +23,6 @@ public class HistoryService {
     private final DictionaryHistoryRepository dictionaryHistoryRepository;
     private final DictionaryService dictionaryService;
 
-
-
     /**
      * 뉴스 용어 히스토리 추가
      */
@@ -45,20 +41,15 @@ public class HistoryService {
             });
     }
 
-
     /**
      * <p>여러 용어 히스토리에 추가</p>
-     * - historyRequest 의 용어 ID 값들을 통해 히스토리에 추가
+     * - dictionaryIds 값들을 통해 히스토리에 추가
      *
-     * @param historyRequest
+     * @param dictionaryIds
      * @param user
      */
     @Transactional
-    public void addHistoryList(HistoryRequest historyRequest, Users user) {
-        List<Long> dictionaryIds = historyRequest.getDictionaryIds().stream()
-            .map(DictionaryIdDto::getId)
-            .toList();
-
+    public void addHistoryList(List<Long> dictionaryIds, Users user) {
         // 이미 존재하는 history 의 dictionaryId 조회
         List<Long> existingDictionaryIds = dictionaryHistoryRepository.findDictionaryIdsByUserAndDictionaryIds(user, dictionaryIds);
 
@@ -138,11 +129,16 @@ public class HistoryService {
      * @param user
      */
     @Transactional
-    public void toggleBookmarkStatus(Dictionary dictionary, Users user) {
+    public void changeBookmarkStatus(Dictionary dictionary, Users user, boolean newBookmarkStatus) {
         dictionaryHistoryRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
-            .ifPresent(history -> {
-                history.setIsBookmarked(!history.getIsBookmarked());
-            });
+            .ifPresentOrElse(
+                history -> history.setIsBookmarked(newBookmarkStatus),
+                () -> {
+                    DictionaryHistory history = DictionaryHistory.make(user, dictionary);
+                    history.setIsBookmarked(true);
+                    dictionaryHistoryRepository.save(history);
+                }
+            );
     }
 
 //

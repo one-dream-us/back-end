@@ -13,5 +13,5 @@ import java.util.List;
 @Setter
 public class HistoryRequest {
 
-    private List<DictionaryIdDto> dictionaryIds;
+    private List<Long> dictionaryIds;
 }

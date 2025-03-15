@@ -41,12 +41,12 @@ public class HistoryController {
         @RequestBody HistoryRequest historyRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();
-        historyService.addHistoryList(historyRequest, user);
+        historyService.addHistoryList(historyRequest.getDictionaryIds(), user);
         return ResponseEntity.ok("용어가 스크랩되었습니다.");
     }
 
     @Operation(summary = "히스토리 목록 조회", description = "히스토리 내 모든 용어 목록을 확인할 수 있습니다.")
-    @GetMapping("/dictionaries")
+    @GetMapping("")
     public ResponseEntity<DictionaryHistoryResponse> getHistoryList(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user = userDetails.getUser();

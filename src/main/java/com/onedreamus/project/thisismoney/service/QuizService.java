@@ -264,11 +264,20 @@ public class QuizService {
         // 첫 번째 퀴즈 시도인 경우
         if (!user.isQuizAttempt()) {
             user.setQuizAttempt(true);
-            userService.saveUser(user);
         }
 
         // 퀴즈 미션 상태 수정
         missionService.updateQuizSolveStatus(user);
+
+        // 랜덤 단어 히스토리 추가
+        List<Long> dictionaryIds = quizResults.stream()
+            .filter(quizResult -> quizResult.getStatus().equals(DictionaryStatus.NONE))
+            .map(QuizResult::getDictionaryId)
+            .toList();
+
+        if (!dictionaryIds.isEmpty()) {
+            historyService.addHistoryList(dictionaryIds, user);
+        }
 
         return QuizResultResponse.from(totalGraduation, totalWrong, accuracyRate, resultDetails);
     }
