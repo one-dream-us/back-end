@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum DictionaryStatus {
 
-    KEY_NOTE,
+    BOOKMARK,
     WRONG_ANSWER_NOTE,
     GRADUATION_NOTE,
     SCRAP,

@@ -1,9 +1,7 @@
 package com.onedreamus.project.thisismoney.service;
 
-import com.onedreamus.project.thisismoney.model.dto.DictionaryQuiz;
 import com.onedreamus.project.thisismoney.model.dto.DictionaryResponse;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
-import com.onedreamus.project.thisismoney.model.entity.Users;
 import com.onedreamus.project.thisismoney.repository.DictionaryRepository;
 
 import java.util.HashSet;
@@ -13,7 +11,6 @@ import java.util.Set;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,5 +50,9 @@ public class DictionaryService {
         return dictionaryRepository.findByTermContaining(keyword).stream()
             .map(DictionaryResponse::from)
             .toList();
+    }
+
+    public List<Dictionary> getAllDictionariesById(List<Long> newDictionaryIds) {
+        return dictionaryRepository.findAllById(newDictionaryIds);
     }
 }

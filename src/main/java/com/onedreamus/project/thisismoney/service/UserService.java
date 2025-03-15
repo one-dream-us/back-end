@@ -33,8 +33,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final CookieUtils cookieUtils;
-    private final ScrapService scrapService;
-    private final ContentHistoryService contentHistoryService;
+    private final HistoryService historyService;
     private final UserChecker userChecker;
     private final JWTUtil jwtUtil;
     private final UsersStudyDaysRepository usersStudyDaysRepository;
@@ -108,10 +107,7 @@ public class UserService {
         cookieUtils.deleteAllCookie(response, allTokenType);
 
         // 기존 데이터 삭제
-        scrapService.deleteAllScraps(user);
-
-        // 컨텐츠 조회 수 삭제
-        contentHistoryService.deleteAllHistory(user);
+        historyService.deleteAllHistory(user);
 
         log.info("[회원 탈퇴] 이메일 : {}, 시간 : {}, isDeleted : {}", user.getEmail(), LocalDateTime.now(), user.isDeleted());
     }

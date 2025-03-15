@@ -74,11 +74,9 @@ public class BackOfficeController {
         return ResponseEntity.ok(newsDetailResponse);
     }
 
-
     /*
     ======== [Scheduled News] ========
      */
-
 
     @PostMapping("/contents/news/scheduled/{scheduledAt}")
     @Operation(summary = "뉴스 콘텐츠 업로드 예약",

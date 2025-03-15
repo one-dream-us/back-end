@@ -31,7 +31,7 @@ public class ReviewService {
      * @param newsId
      */
     @Transactional
-    public void reviewContent(ReviewRequest reviewRequest, Integer newsId) throws IOException {
+    public void reviewNews(ReviewRequest reviewRequest, Integer newsId) throws IOException {
         News news = newsService.getNewsById(newsId)
                 .orElseThrow(() -> new NewsException(ErrorCode.CONTENT_NOT_EXIST));
 

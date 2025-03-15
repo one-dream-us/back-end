@@ -33,12 +33,12 @@ public enum ErrorCode {
     NO_APPROPRIATE_STATUS(HttpStatus.BAD_REQUEST, "적절한 상태값이 없습니다."),
 
     // Scarp
-    SCRAP_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 스크랩 입니다."),
+    HISTORY_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 히스토리 입니다."),
     ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩된 용어이거나, 학습중인 용어입니다."),
 
-    // KeyNote
-    KEYNOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 핵심 노트에 존재하는 용어 입니다."),
-    KEYNOTE_NOT_EXIST(HttpStatus.NOT_FOUND, "핵심노트에 존재하지 않는 용어 입니다."),
+    // Bookmark
+    BOOKMARK_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 핵심 노트에 존재하는 용어 입니다."),
+    BOOKMARK_NOT_EXIST(HttpStatus.NOT_FOUND, "핵심노트에 존재하지 않는 용어 입니다."),
     GRADUATED_ALREADY(HttpStatus.BAD_REQUEST, "이미 졸업한 단어이거나, 오답노트에 있는 단어입니다."),
 
     // GraduateNote
@@ -52,6 +52,8 @@ public enum ErrorCode {
     // S3
     IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 이미지 업로드에 실패했습니다."),
     AWS_SDK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AWS S3 SDK 에러가 발생하여 정보를 처리할 수 없습니다."),
+    INVALID_URL(HttpStatus.BAD_REQUEST, "잘못된 URL 정보 입니다."),
+    INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 확장자가 없습니다."),
 
     // Mission
     MISSING_DATE_OR_MONTH_PARAM(HttpStatus.BAD_REQUEST, "'date' 또는 'month' 값이 필요합니다."),

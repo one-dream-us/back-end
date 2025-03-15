@@ -1,7 +1,5 @@
 package com.onedreamus.project.thisismoney.repository;
 
-import aj.org.objectweb.asm.commons.Remapper;
-import com.onedreamus.project.thisismoney.model.entity.Content;
 import com.onedreamus.project.thisismoney.model.entity.News;
 import java.util.List;
 import java.util.Optional;
