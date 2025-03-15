@@ -100,7 +100,13 @@ public class HistoryService {
      * @param dictionary
      * @param user
      */
-
+    @Transactional
+    public void toggleBookmarkStatus(Dictionary dictionary, Users user) {
+        dictionaryHistoryRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
+            .ifPresent(history -> {
+                history.setIsBookmarked(!history.getIsBookmarked());
+            });
+    }
 //
 //    /**
 //     * 콘텐츠 스크랩

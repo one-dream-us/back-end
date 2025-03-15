@@ -36,12 +36,15 @@ public class DictionaryHistory extends BaseEntity{
     private Dictionary dictionary;
 
     private Boolean isDeleted;
+    private Boolean isBookmarked;
+
 
     public static DictionaryHistory make(Users user, Dictionary dictionary) {
         return DictionaryHistory.builder()
             .user(user)
             .dictionary(dictionary)
             .isDeleted(false)
+            .isBookmarked(false)
             .build();
     }
 }

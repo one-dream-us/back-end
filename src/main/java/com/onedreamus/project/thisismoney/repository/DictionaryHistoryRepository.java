@@ -20,7 +20,7 @@ public interface DictionaryHistoryRepository extends JpaRepository<DictionaryHis
 
     Optional<DictionaryHistory> findByUserAndDictionaryAndIsDeleted(Users user, Dictionary dictionary, boolean isDeleted);
 
-    @Query("SELECT new  com.onedreamus.project.thisismoney.model.dto.DictionaryNewsDto(dh.id, d.id, d.term, d.definition, d.description) "
+    @Query("SELECT new  com.onedreamus.project.thisismoney.model.dto.DictionaryNewsDto(dh.id, d.id, d.term, d.definition, d.description, dh.isBookmarked) "
             + "FROM DictionaryHistory dh "
             + "JOIN Dictionary d on d = dh.dictionary "
             + "WHERE dh.user = :user AND dh.isDeleted = false "
@@ -33,7 +33,7 @@ public interface DictionaryHistoryRepository extends JpaRepository<DictionaryHis
 
     Optional<DictionaryHistory> findByIdAndUserAndIsDeleted(Long dictionaryScrapId, Users user, boolean b);
 
-    @Query("select ds.id from DictionaryScrap ds " +
-            "where ds.user = :user")
+    @Query("select dh.id from DictionaryHistory dh " +
+            "where dh.user = :user")
     List<Long> findIdByUser(@Param("user") Users user);
 }

@@ -16,4 +16,5 @@ public class DictionaryNewsDto {
     private String term;
     private String definition;
     private String description;
+    private Boolean isBookmarked;
 }

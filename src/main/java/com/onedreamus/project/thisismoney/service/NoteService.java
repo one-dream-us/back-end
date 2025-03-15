@@ -60,6 +60,9 @@ public class NoteService {
             });
 
         dictionaryBookmarkRepository.save(DictionaryBookmark.from(user, dictionary));
+
+        // 히스토리에서 북마크 상태 값 수정 (false -> true)
+        historyService.toggleBookmarkStatus(dictionary, user);
     }
 
     /**
@@ -75,6 +78,9 @@ public class NoteService {
         }
 
         dictionaryBookmarkRepository.delete(bookmark);
+
+        // 히스토리에서 북마크 상태 값 수정 (true -> false)
+        historyService.toggleBookmarkStatus(bookmark.getDictionary(), user);
     }
 
     /**
