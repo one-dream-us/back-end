@@ -36,4 +36,7 @@ public interface DictionaryHistoryRepository extends JpaRepository<DictionaryHis
     @Query("select dh.id from DictionaryHistory dh " +
             "where dh.user = :user")
     List<Long> findIdByUser(@Param("user") Users user);
+
+    @Query("SELECT dh.dictionary.id FROM DictionaryHistory dh WHERE dh.user = :user AND dh.dictionary.id IN :dictionaryIds")
+    List<Long> findDictionaryIdsByUserAndDictionaryIds(@Param("user") Users user, @Param("dictionaryIds") List<Long> dictionaryIds);
 }

@@ -128,6 +128,33 @@ public class QuizService {
     }
 
     /**
+     * <p>[랜덤 용어 구하기]</p>
+     * - 중복 관리 X
+     */
+    private List<Dictionary> getRandomDictionaries(int maxId, int n) {
+        boolean[] visited = new boolean[maxId + 1];
+        int cnt = 0;
+
+        List<Long> randomIdList = new ArrayList<>();
+        while (randomIdList.size() < n && cnt < maxId) {
+            List<Integer> idList = NumberUtils.pickRandomNumList(1, maxId, n - randomIdList.size());
+            for (int id : idList) {
+                if (visited[id]) {
+                    continue;
+                }
+
+                visited[id] = true;
+                cnt++;
+                if (dictionaryService.contains(id)) {
+                    randomIdList.add((long) id);
+                }
+            }
+        }
+
+        return dictionaryService.getDictionaryList(randomIdList);
+    }
+
+    /**
      * <p>[더미 퀴즈 획득]</p>
      * - 더미 퀴즈에 사용 될 퀴즈 목록 획득
      * @param user
@@ -136,13 +163,10 @@ public class QuizService {
     @Transactional
     public List<Quiz> getRandomQuizList(Users user) {
         long maxId = dictionaryService.getMaxId();
-        Set<Long> scrapedDictionaryIds = historyService.getDictionaryHistoryList(user).stream()
-                .map(scrap -> scrap.getDictionary().getId())
-                .collect(Collectors.toSet());
 
-        List<DictionaryQuiz> quizAnswerList = getRandomDictionaries((int) maxId, 5, scrapedDictionaryIds).stream()
-                .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
-                .toList();
+        List<DictionaryQuiz> quizAnswerList = getRandomDictionaries((int) maxId, 5).stream()
+            .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
+            .toList();
 
         List<Quiz> quizList = new ArrayList<>();
         for (DictionaryQuiz answerDictionary : quizAnswerList) {
@@ -171,6 +195,44 @@ public class QuizService {
 
         return quizList;
     }
+//    @Transactional
+//    public List<Quiz> getRandomQuizList(Users user) {
+//        long maxId = dictionaryService.getMaxId();
+//        Set<Long> scrapedDictionaryIds = historyService.getDictionaryHistoryList(user).stream()
+//                .map(scrap -> scrap.getDictionary().getId())
+//                .collect(Collectors.toSet());
+//
+//        List<DictionaryQuiz> quizAnswerList = getRandomDictionaries((int) maxId, 5, scrapedDictionaryIds).stream()
+//                .map(dictionary -> DictionaryQuiz.from(dictionary, DictionaryStatus.NONE))
+//                .toList();
+//
+//        List<Quiz> quizList = new ArrayList<>();
+//        for (DictionaryQuiz answerDictionary : quizAnswerList) {
+//            QuizChoice[] choices = new QuizChoice[4];
+//
+//            Set<Long> notBeDuplicatedNum = new HashSet<>(List.of(answerDictionary.getDictionaryId()));
+//
+//            List<DictionaryQuiz> choiceDictionary = new ArrayList<>();
+//            for (Dictionary randDictionary : getRandomDictionaries((int) maxId, 3, notBeDuplicatedNum)) {
+//                choiceDictionary.add(DictionaryQuiz.from(randDictionary, DictionaryStatus.NONE));
+//            }
+//
+//            List<Integer> randomIdx = NumberUtils.shuffleNumber(0, 4);
+//
+//            for (int i = 0; i < randomIdx.size(); i++) {
+//                if (i == 0) {
+//                    choices[randomIdx.get(i)] = QuizChoice.from(answerDictionary, i + 1);
+//                    continue;
+//                }
+//
+//                choices[randomIdx.get(i)] = QuizChoice.from(choiceDictionary.get(i - 1), i + 1);
+//            }
+//
+//            quizList.add(Quiz.from(randomIdx.get(0), choices));
+//        }
+//
+//        return quizList;
+//    }
 
     /**
      * 퀴즈 결과 처리

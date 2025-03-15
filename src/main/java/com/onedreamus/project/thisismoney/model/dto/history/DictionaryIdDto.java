@@ -11,5 +11,5 @@ import lombok.Setter;
 @Setter
 public class DictionaryIdDto {
 
-    private Integer id; // 용어 ID
+    private Long id; // 용어 ID
 }

@@ -1,8 +1,9 @@
 package com.onedreamus.project.thisismoney.service;
 
-import com.onedreamus.project.thisismoney.exception.ScrapException;
 import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.dto.history.DictionaryIdDto;
+import com.onedreamus.project.thisismoney.model.dto.history.HistoryRequest;
 import com.onedreamus.project.thisismoney.model.entity.Dictionary;
 import com.onedreamus.project.thisismoney.model.entity.DictionaryHistory;
 import com.onedreamus.project.thisismoney.model.entity.Users;
@@ -42,6 +43,42 @@ public class HistoryService {
             }, () -> {// 존재하지 않는 용어일 경우 예외 발생
                 throw new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST);
             });
+    }
+
+
+    /**
+     * <p>여러 용어 히스토리에 추가</p>
+     * - historyRequest 의 용어 ID 값들을 통해 히스토리에 추가
+     *
+     * @param historyRequest
+     * @param user
+     */
+    @Transactional
+    public void addHistoryList(HistoryRequest historyRequest, Users user) {
+        List<Long> dictionaryIds = historyRequest.getDictionaryIds().stream()
+            .map(DictionaryIdDto::getId)
+            .toList();
+
+        // 이미 존재하는 history 의 dictionaryId 조회
+        List<Long> existingDictionaryIds = dictionaryHistoryRepository.findDictionaryIdsByUserAndDictionaryIds(user, dictionaryIds);
+
+        // 존재하지 않는 dictionaryId 만 필터링
+        List<Long> newDictionaryIds = dictionaryIds.stream()
+            .filter(id -> !existingDictionaryIds.contains(id))
+            .toList();
+
+        if (newDictionaryIds.isEmpty()) {
+            return; // 추가할 히스토리가 없으면 종료
+        }
+
+        // 새롭게 추가 할 히스토리의 용어 전체 조회
+        List<Dictionary> dictionaries = dictionaryService.getAllDictionariesById(newDictionaryIds);
+
+        List<DictionaryHistory> newHistoryList = dictionaries.stream()
+            .map(dictionary -> DictionaryHistory.make(user, dictionary))
+            .toList();
+
+        dictionaryHistoryRepository.saveAll(newHistoryList);
     }
 
     /**
@@ -107,6 +144,7 @@ public class HistoryService {
                 history.setIsBookmarked(!history.getIsBookmarked());
             });
     }
+
 //
 //    /**
 //     * 콘텐츠 스크랩
