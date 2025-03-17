@@ -264,6 +264,7 @@ public class QuizService {
         // 첫 번째 퀴즈 시도인 경우
         if (!user.isQuizAttempt()) {
             user.setQuizAttempt(true);
+            userService.saveUser(user);
         }
 
         // 퀴즈 미션 상태 수정
