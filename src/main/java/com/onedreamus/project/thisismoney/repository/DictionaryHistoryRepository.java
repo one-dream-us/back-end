@@ -31,8 +31,6 @@ public interface DictionaryHistoryRepository extends JpaRepository<DictionaryHis
 
     Boolean existsByUserAndDictionaryAndIsDeleted(Users user, Dictionary dictionary, boolean isDeleted);
 
-    Optional<DictionaryHistory> findByIdAndUserAndIsDeleted(Long dictionaryScrapId, Users user, boolean b);
-
     @Query("select dh.id from DictionaryHistory dh " +
             "where dh.user = :user")
     List<Long> findIdByUser(@Param("user") Users user);

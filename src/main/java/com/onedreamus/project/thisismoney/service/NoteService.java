@@ -62,7 +62,6 @@ public class NoteService {
         dictionaryBookmarkRepository.save(DictionaryBookmark.from(user, dictionary));
 
         // 히스토리에서 북마크 상태 값 수정 (false -> true)
-//        historyService.
         historyService.changeBookmarkStatus(dictionary, user, true);
     }
 
