@@ -8,7 +8,9 @@ import com.onedreamus.project.thisismoney.exception.DictionaryException;
 import com.onedreamus.project.thisismoney.exception.NewsException;
 import com.onedreamus.project.thisismoney.model.dto.*;
 import com.onedreamus.project.thisismoney.model.dto.backOffice.NewsContent;
+import com.onedreamus.project.thisismoney.model.dto.content.PopularNewsResponse;
 import com.onedreamus.project.thisismoney.model.entity.*;
+import com.onedreamus.project.thisismoney.model.projection.TotalViewCountProjection;
 import com.onedreamus.project.thisismoney.repository.*;
 
 import java.time.LocalDate;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,6 +80,12 @@ public class NewsService {
         return NewsListResponse.from(news, formattedViewCount, tags);
     }
 
+    /**
+     * <p>News 의 태그 획득</p>
+     *
+     * @param news
+     * @return
+     */
     private List<String> getTags(News news) {
         List<String> tags = new ArrayList<>();
 
@@ -310,5 +319,24 @@ public class NewsService {
     public Page<NewsResponse> getNewsList(Pageable pageable) {
         return newsRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(NewsResponse::from);
+    }
+
+    /**
+     * <p>주간 인기 뉴스 콘텐츠 조회</p>
+     * 지난주 인기 뉴스 콘텐츠를 조회,
+     * size 만큼의 인기 뉴스 콘텐츠 조회
+     *
+     * @param size
+     * @return
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "popularNewsCache", key = "#size", unless = "#result == null or #result.isEmpty()")
+    public List<PopularNewsResponse> getPopularNews(Integer size) {
+        LocalDateTime beforeOneWeek = LocalDateTime.now().minusDays(7); // 1주일 전
+        List<TotalViewCountProjection> newsViews = newsViewRepository.findWeeklyTopNewsViews(PageRequest.of(0,size), beforeOneWeek);
+
+        return newsViews.stream()
+                .map(newsView -> PopularNewsResponse.from(newsView.getNews(), newsView.getTotalViewCount(), getTags(newsView.getNews())))
+                .toList();
     }
 }

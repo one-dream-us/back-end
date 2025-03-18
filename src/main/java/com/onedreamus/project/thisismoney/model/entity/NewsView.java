@@ -22,7 +22,7 @@ public class NewsView {
     private Integer id;
 
     @JoinColumn
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private News news;
 
     private Integer viewCount;

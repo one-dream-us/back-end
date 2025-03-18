@@ -23,4 +23,6 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
     Optional<News> findFirstByOrderByCreatedAtDesc();
 
     Page<News> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    List<News> findByIdIn(List<Integer> newsIds);
 }
