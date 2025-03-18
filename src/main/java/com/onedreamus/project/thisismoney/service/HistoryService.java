@@ -132,136 +132,16 @@ public class HistoryService {
     public void changeBookmarkStatus(Dictionary dictionary, Users user, boolean newBookmarkStatus) {
         dictionaryHistoryRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false)
             .ifPresentOrElse(
+                // 히스토리가 존재하는 경우
                 history -> history.setIsBookmarked(newBookmarkStatus),
+
+                // 히스토리가 존재하지 않는 경우
                 () -> {
                     DictionaryHistory history = DictionaryHistory.make(user, dictionary);
-                    history.setIsBookmarked(true);
+                    history.setIsBookmarked(newBookmarkStatus);
                     dictionaryHistoryRepository.save(history);
                 }
             );
     }
-
-//
-//    /**
-//     * 콘텐츠 스크랩
-//     */
-//    public void scrapContent(Long contentId, Users user) {
-//        // 컨텐츠가 없는 경우
-//        Content content = contentService.getContentById(contentId)
-//                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
-//
-//        // 기존에 스크랩한 항목인지 점검
-//        Optional<ContentScrap> contentScrapOptional =
-//                contentScrapRepository.findByUserAndContentAndIsDeleted(user, content, false);
-//
-//        // 이전에 스크랩한적 없는 경우
-//        if (contentScrapOptional.isEmpty()) {
-//            ContentScrap newContentScrap = ContentScrap.from(user, content);
-//            contentScrapRepository.save(newContentScrap);
-//        } else {
-//            throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
-//        }
-//    }
-//
-//    /**
-//     * 스크랩된 콘텐츠 전체 획득
-//     */
-//    public ContentScrapResponse getContentScrapped(Users user) {
-//
-//        Map<Long, ContentScrapDto> map = new HashMap<>();
-//
-//        List<ContentScrapSummaryDto> contentScrapSummaryDtos =
-//                contentScrapRepository.findContentScrapSummaryByUser(user);
-//        for (ContentScrapSummaryDto dto : contentScrapSummaryDtos) {
-//
-//            map.put(dto.getScrapId(), ContentScrapDto.builder()
-//                    .scrapId(dto.getScrapId())
-//                    .contentId(dto.getContentId())
-//                    .thumbnailUrl(dto.getThumbnailUrl())
-//                    .contentTitle(dto.getContentTitle())
-//                    .summaryText(dto.getSummaryText())
-//                    .createdAt(dto.getCreatedAt())
-//                    .tags(new ArrayList<>())
-//                    .build());
-//        }
-//
-//        List<ContentScrapTagDto> contentScrapTagDtos =
-//                contentScrapRepository.findContentScrapTagByUser(user);
-//        for (ContentScrapTagDto dto : contentScrapTagDtos) {
-//            ContentScrapDto contentScrapDto = map.get(dto.getScrapId());
-//            contentScrapDto.getTags().add(TagDto.builder()
-//                    .tagValue(dto.getTagValue())
-//                    .build());
-//        }
-//
-//        List<ContentScrapDto> result = new ArrayList<>(map.values());
-//        result.sort(Comparator.comparing(ContentScrapDto::getCreatedAt).reversed());
-//
-//        return ContentScrapResponse.from(result);
-//    }
-//
-//    /**
-//     * 스크랩된 콘텐츠 삭제
-//     */
-//    public void deleteContentScrapped(Integer contentScrapId, Users user) {
-//        ContentScrap contentScrap = contentScrapRepository.findByIdAndUser(contentScrapId, user)
-//                .orElseThrow(() -> new ScrapException(ErrorCode.SCRAP_NOT_EXIST));
-//
-//        contentScrap.setIsDeleted(true);
-//        contentScrapRepository.save(contentScrap);
-//    }
-//
-//    /**
-//     * 용어 스크랩
-//     */
-//    public void scrapDictionary(Long dictionaryId, Long contentId, Users user) {
-//        // 스크랩하려는 용어가 존재하는 용어인지 확인
-//        Dictionary dictionary = dictionaryService.getDictionaryById(dictionaryId)
-//                .orElseThrow(() -> new DictionaryException(ErrorCode.DICTIONARY_NOT_EXIST));
-//
-//        // 콘텐츠 확인
-//        Content content = contentService.getContentById(contentId)
-//                .orElseThrow(() -> new ContentException(ErrorCode.CONTENT_NOT_EXIST));
-//
-//        // 기존에 스크랩된 용어인지 확인
-//        Optional<DictionaryHistory> dictionaryScrapOptional =
-//                dictionaryHistoryRepository.findByUserAndDictionaryAndIsDeleted(user, dictionary, false);
-//
-//        if (dictionaryScrapOptional.isEmpty()) { // 스크랩된 적 없는 경우
-//
-//            DictionaryHistory newDictionaryHistory =
-//                    dictionaryHistoryRepository.save(DictionaryHistory.make(user, dictionary));
-//
-//            dictionaryScrapContentRepository.save(
-//                    DictionaryScrapContent.from(newDictionaryHistory, content));
-//        } else { // 이미 스크랩된 경우
-//            throw new ScrapException(ErrorCode.ALREADY_SCRAPPED);
-//        }
-//    }
-
-//
-//    /**
-//     * 전체 스크랩 수 조회
-//     */
-//    public TotalScarpCntDto getTotalScarpCnt(Users user) {
-//
-//        int totalScrapCnt = 0;
-//        totalScrapCnt += getContentScrapCnt(user).getContentScrapCnt();
-//        totalScrapCnt += getDictionaryScrapCnt(user).getDictionaryScrapCnt();
-//
-//        return TotalScarpCntDto.builder()
-//                .totalScrapCnt(totalScrapCnt)
-//                .build();
-//    }
-
-//    /**
-//     * 콘텐츠 스크랩 수 조회
-//     */
-//    public ContentScrapCntDto getContentScrapCnt(Users user) {
-//        Integer contentScrapCnt = contentScrapRepository.countByUserAndIsDeleted(user, false);
-//        return ContentScrapCntDto.builder()
-//                .contentScrapCnt(contentScrapCnt)
-//                .build();
-//    }
 
 }

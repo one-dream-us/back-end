@@ -1,6 +1,7 @@
 package com.onedreamus.project.thisismoney.controller;
 
 import com.onedreamus.project.thisismoney.model.dto.*;
+import com.onedreamus.project.thisismoney.model.dto.content.PopularNewsResponse;
 import com.onedreamus.project.thisismoney.service.NewsService;
 import com.onedreamus.project.thisismoney.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.IOException;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -63,5 +65,12 @@ public class ContentController {
     public ResponseEntity<String> reviewNews(@PathVariable Integer newsId, @RequestBody ReviewRequest reviewRequest ) throws IOException {
         reviewService.reviewNews(reviewRequest, newsId);
         return ResponseEntity.ok("리뷰 등록 완료");
+    }
+
+    @GetMapping("/news/popular")
+    @Operation(summary = "인기 콘텐츠 조회", description = "인기 콘텐츠를 size 만큼 조회 합니다.")
+    public ResponseEntity<List<PopularNewsResponse>> getPopularNews(@RequestParam Integer size) {
+        List<PopularNewsResponse> response = newsService.getPopularNews(size);
+        return ResponseEntity.ok(response);
     }
 }
