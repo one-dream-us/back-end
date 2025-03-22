@@ -79,7 +79,7 @@ public class SecurityConfig {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOrigins(
                         List.of("http://localhost:3000", "https://thisismoney.site",
-                            "http://localhost:3001"));
+                            "http://localhost:3001", "null"));
                     corsConfiguration.setAllowedMethods(
                         List.of("GET", "POST", "DELETE", "PUT", "FETCH", "OPTIONS"));
                     corsConfiguration.setAllowCredentials(true);
